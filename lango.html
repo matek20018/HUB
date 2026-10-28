@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<title>JęzykLab — nauka rosyjskiego i hiszpańskiego dla umysłu ścisłego</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Paleta zgodna z HUB (semantyczne kolory --lang/--read/--audio, light+dark) */
+  :root{
+    color-scheme:light;
+    --bg:#f3f4f2;--surface:#ffffff;--surface-2:#e9ece8;--panel:#1d2422;
+    --ink:#1d2422;--ink-soft:#66706c;--ink-faint:#8a9490;--line:#dfe2de;--line-soft:#eceee9;
+    --ru:#3a64a8;--es:#b5741c;--audio:#8a4f9e;--slate:#2c3a4b;--accent:var(--ru);--accent-soft:rgba(58,100,168,.12);--on-accent:#fff;
+    --ok:#3f8a5a;--warn:#b8473b;--r:10px;--shadow:0 1px 2px rgba(20,30,50,.06),0 8px 28px rgba(20,30,50,.07);
+    --mono:'JetBrains Mono',ui-monospace,monospace;--disp:'Bricolage Grotesque',system-ui,sans-serif;--body:'Figtree',system-ui,sans-serif;
+  }
+  @media(prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --bg:#131816;--surface:#1b211f;--surface-2:#232a27;--panel:#0d1210;
+      --ink:#e7ebe8;--ink-soft:#94a09b;--ink-faint:#6f7a75;--line:#2c3431;--line-soft:#222826;
+      --ru:#7ea3e6;--es:#e0a04a;--audio:#c393d4;--slate:#94a09b;--accent-soft:rgba(126,163,230,.16);--on-accent:#131816;
+      --ok:#7fb592;--warn:#e48478;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--bg)}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
+  header{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--line)}
+  .row-top{max-width:1080px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .timer,.streak{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 11px}
+  .timer .ic{color:var(--accent)}.timer .lab{font-weight:400;font-size:10px;color:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase}
+  .logo{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.02em}.logo b{color:var(--accent)}
+  .langwrap{margin-left:auto;display:inline-flex;align-items:center;gap:8px}
+  .lang-label{font-size:12px;color:var(--ink-soft);font-weight:500}
+  .toggle{display:inline-flex;background:var(--surface-2);border:1.5px solid var(--ink);border-radius:999px;padding:3px}
+  .toggle button{border:0;background:transparent;font-family:var(--body);font-weight:600;font-size:13px;padding:8px 15px;border-radius:999px;cursor:pointer;color:var(--ink);transition:.15s;display:flex;align-items:center;gap:7px}
+  .toggle button .dot{width:9px;height:9px;border-radius:50%;border:1px solid rgba(0,0,0,.15)}
+  .toggle button[data-l="ru"] .dot{background:var(--ru)}.toggle button[data-l="es"] .dot{background:var(--es)}.toggle button[data-l="zh"] .dot{background:var(--audio)}
+  .toggle button.active{background:var(--accent);color:var(--on-accent,#fff)}.toggle button.active .dot{background:var(--on-accent,#fff);border-color:var(--on-accent,#fff)}
+  .prog{max-width:1080px;margin:0 auto;padding:2px 18px 10px;display:flex;align-items:center;gap:12px}
+  .labbr{display:none}
+  .bottomnav{display:none}
+  @media(max-width:640px){
+    .sections{display:none}
+    .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:120;background:var(--surface);border-top:1px solid var(--line);padding:4px 6px calc(5px + env(safe-area-inset-bottom));gap:4px}
+    .bottomnav button{flex:1;border:0;background:transparent;font-family:var(--disp);font-weight:600;font-size:10px;color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;border-radius:9px;cursor:pointer}
+    .bottomnav button .bic{font-size:19px;line-height:1}
+    .bottomnav button.active{color:var(--accent);background:var(--accent-soft)}
+    .flashcard{height:185px}
+    .fc-face .big{font-size:23px}.fc-back .big{font-size:21px}
+    .fc-stage{margin-top:8px}
+    .fc-ctrl{margin-top:10px}
+    .btn{padding:9px 13px;font-size:13px}
+  }
+  @media(max-width:640px){
+    .row-top{padding:5px 8px;gap:4px;flex-wrap:nowrap}
+    .logo{display:none}
+    .lang-label{display:none}
+    .lfull{display:none}
+    .labbr{display:inline}
+    .timer .lab{display:none}
+    .timer,.streak{padding:3px 6px;font-size:11px;gap:3px;border-radius:6px}
+    #lvl button{width:18px !important;height:18px !important;font-size:10px !important}
+    .toggle{padding:2px}
+    .toggle button{padding:4px 8px;font-size:11px;gap:4px}
+    .toggle button .dot{width:6px;height:6px}
+    .langwrap{margin-left:auto}
+    .prog{padding:0 8px 4px;gap:6px}
+    .plab{display:none}
+    .prog .ptrack{height:5px}
+    .pnum{font-size:10px}
+    nav{padding:0 8px}
+    .sections{padding:4px 0 2px;gap:3px}
+    .sections button{padding:5px 2px;font-size:11px;border-radius:7px}
+    .tabs{padding:4px 0 6px;gap:3px}
+    .tabs button{padding:5px 9px;font-size:11.5px;gap:4px;border-radius:7px}
+    .tabs button .ix{font-size:8px}
+    .view{padding-top:6px}
+    main{padding:6px 10px calc(78px + env(safe-area-inset-bottom))}
+    .head{margin:10px 0 4px}
+    .head h1{font-size:24px}
+  }
+  .prog .plab{font-size:11.5px;font-family:var(--mono);color:var(--ink-soft);white-space:nowrap}
+  .prog .ptrack{flex:1;height:8px;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:6px;overflow:hidden}
+  .prog .ptrack i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--slate));border-radius:6px;transition:width .4s}
+  .prog .pnum{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap;min-width:96px;text-align:right}
+  nav{max-width:1080px;margin:0 auto;padding:0 18px;border-top:1px solid var(--line-soft)}
+  .sections{display:flex;gap:6px;padding:9px 0 2px}
+  .sections button{flex:1;border:1px solid var(--line);background:var(--surface);padding:9px 8px;border-radius:8px;cursor:pointer;font-family:var(--disp);font-weight:600;font-size:13px;color:var(--ink-soft);transition:.15s}
+  .sections button.active{background:var(--slate);border-color:var(--slate);color:var(--on-accent,#fff)}
+  .dlgwrap{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+  .dbub{max-width:88%;padding:11px 14px;border-radius:14px;border:1px solid var(--line)}
+  .dbub.them{align-self:flex-start;background:var(--surface);border-bottom-left-radius:4px}
+  .dbub.you{align-self:flex-end;background:var(--accent-soft);border-color:var(--accent);border-bottom-right-radius:4px}
+  .dbub .dt{font-family:var(--disp);font-weight:600;font-size:17px}
+  .dbub .df{font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:2px}
+  .dbub .dp{font-size:13px;color:var(--ink-soft);margin-top:3px}
+  .dopt{width:100%;border:1px solid var(--line);background:var(--surface);padding:12px 14px;border-radius:10px;cursor:pointer;text-align:left;transition:.12s;margin-bottom:8px}
+  .dopt:hover{border-color:var(--accent)}
+  .dopt.wrong{background:rgba(199,82,43,.10);border-color:var(--warn)}
+  .dopt .ot{font-family:var(--disp);font-weight:600;font-size:17px;color:var(--ink)}
+  .dopt .of{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:1px}
+  .dopt .op{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+  .tabs{display:flex;gap:4px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:thin}
+  .tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);padding:9px 13px;border-radius:8px;cursor:pointer;font-family:var(--body);font-weight:500;font-size:13.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;transition:.15s}
+  .tabs button .ix{font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+  .tabs button:hover{border-color:var(--accent);color:var(--ink)}
+  .tabs button.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent,#fff)}.tabs button.active .ix{color:var(--on-accent,#fff);opacity:.7}
+  main{max-width:1080px;margin:0 auto;padding:8px 18px 80px;isolation:isolate;background:var(--bg)}
+  .view{animation:fade .35s ease}@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .head{margin:20px 0 6px}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:500}
+  h1{font-family:var(--disp);font-weight:600;font-size:clamp(25px,4vw,36px);letter-spacing:-.02em;margin:6px 0 4px;line-height:1.1}
+  h2{font-family:var(--disp);font-weight:600;font-size:20px;letter-spacing:-.01em;margin:30px 0 12px;display:flex;align-items:center;gap:10px}
+  h2 .num{font-family:var(--mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:2px 7px}
+  .lede{color:var(--ink-soft);max-width:62ch;font-size:15.5px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+  .note{background:var(--surface-2);border:1px solid var(--line-soft);border-left:3px solid var(--accent);border-radius:8px;padding:14px 16px;margin:14px 0;font-size:14.5px;color:var(--ink)}
+  .note b{color:var(--accent)}
+  .readbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 2px}
+  .btn{border:1px solid var(--line);background:var(--surface);padding:10px 15px;border-radius:9px;cursor:pointer;font-family:var(--body);font-weight:500;font-size:14px;color:var(--ink);transition:.15s;display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent,#fff)}.btn.primary:hover{color:var(--on-accent,#fff);filter:brightness(.95)}
+  .btn.ok{background:var(--ok);border-color:var(--ok);color:var(--on-accent,#fff)}.btn.ok:hover{color:var(--on-accent,#fff);filter:brightness(.95)}
+  .btn.ghost{background:transparent}.btn.small{padding:7px 11px;font-size:12.5px}
+  .grid{display:grid;gap:10px;margin-top:14px}
+  .g-letters{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.g-word{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;transition:.15s;position:relative}
+  .tile:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+  .tile .target{font-family:var(--disp);font-weight:600;font-size:21px;letter-spacing:-.01em}
+  .tile .ipa{font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:2px;font-weight:500}
+  .tile .pl{color:var(--ink-soft);font-size:14px;margin-top:6px}
+  .tile .badge{position:absolute;top:11px;right:11px;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
+  .tile .mnem{color:var(--ink);font-size:13.5px;margin-top:6px;font-style:italic}.tile .mnem b{font-style:normal;color:var(--accent)}
+  .say{border:1px solid var(--line);background:var(--surface-2);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:14px;display:inline-grid;place-items:center;transition:.15s;color:var(--ink-soft);vertical-align:middle}
+  .say:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .tile .say{position:absolute;bottom:11px;right:11px}.tile.word,.tile.mnemtile{padding-right:48px}
+  .verbpick{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
+  .verbpick button{font-family:var(--mono);font-size:12.5px;border:1px solid var(--line);background:var(--surface);padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--ink-soft);transition:.15s}
+  .verbpick button .gl{color:var(--ink-faint);margin-left:6px}
+  .verbpick button.active{background:var(--slate);border-color:var(--slate);color:var(--on-accent,#fff)}.verbpick button.active .gl{color:var(--on-accent,#fff);opacity:.65}
+  .machine{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:760px){.machine{grid-template-columns:1.35fr 1fr}}
+  .ftable{width:100%;border-collapse:collapse;font-size:14.5px;overflow:hidden;border-radius:var(--r);border:1px solid var(--line);background:var(--surface)}
+  .ftable th{background:var(--surface-2);text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);padding:9px 12px;font-weight:500}
+  .ftable td{padding:9px 12px;border-top:1px solid var(--line-soft);font-size:14px}
+  .ftable td.osoba{font-family:var(--mono);color:var(--ink-soft)}.ftable td.forma{font-family:var(--disp);font-weight:600;font-size:17px}
+  .ftable td.forma .stem{color:var(--ink)}.ftable td.forma .end{color:var(--accent);font-weight:700;background:var(--accent-soft);border-radius:4px;padding:0 3px}
+  .ftable td.phon{font-family:var(--mono);font-size:12.5px;color:var(--accent)}.ftable td.tr{color:var(--ink-soft)}
+  .refcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .refcard h4{font-family:var(--disp);font-size:14px;margin:0 0 10px}
+  .refrow{font-family:var(--mono);font-size:12.5px;margin:7px 0;color:var(--ink)}.refrow b{color:var(--accent)}
+  .vstatus{font-family:var(--mono);font-size:11.5px;padding:5px 9px;border-radius:6px;display:inline-block;margin-bottom:10px}
+  .vstatus.reg{background:rgba(46,139,87,.12);color:var(--ok)}.vstatus.irr{background:rgba(199,82,43,.12);color:var(--warn)}
+  .colorkey{font-size:12.5px;color:var(--ink-soft);margin-top:8px}.colorkey .end{color:var(--accent);font-weight:700;background:var(--accent-soft);border-radius:4px;padding:0 4px}
+  .guide p{font-size:15.5px;max-width:66ch;color:var(--ink)}
+  .principle{display:grid;grid-template-columns:auto 1fr;gap:16px;padding:18px 0;border-top:1px solid var(--line)}
+  .principle .p-no{font-family:var(--mono);font-weight:700;font-size:14px;color:var(--on-accent,#fff);background:var(--accent);width:34px;height:34px;border-radius:9px;display:grid;place-items:center}
+  .principle h3{font-family:var(--disp);font-size:17px;margin:2px 0 6px;letter-spacing:-.01em}.principle p{margin:0;color:var(--ink-soft);font-size:14.5px}
+  .principle .formula{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line-soft);border-radius:6px;padding:6px 9px;margin-top:9px;display:inline-block}
+  .panel{padding:20px}.curve-wrap{display:grid;grid-template-columns:1fr;gap:16px;margin-top:8px}@media(min-width:760px){.curve-wrap{grid-template-columns:1fr 1fr}}
+  .barrow{display:flex;align-items:center;gap:12px;margin:8px 0;font-size:13.5px}.barrow .lab{width:120px;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+  .bar{flex:1;height:22px;background:var(--surface-2);border-radius:6px;overflow:hidden;border:1px solid var(--line-soft)}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--slate));border-radius:6px}
+  .barrow .val{width:42px;text-align:right;font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--accent)}
+  .sgroup{margin-top:22px}.sgroup h3{font-family:var(--disp);font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:9px}.sgroup h3 .tick{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  .sent{display:flex;align-items:flex-start;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;margin-bottom:8px}
+  .sent .body{flex:1}.sent .t{font-family:var(--disp);font-weight:600;font-size:17px}.sent .f{font-family:var(--mono);font-size:12.5px;color:var(--accent);margin-top:2px}.sent .p{color:var(--ink-soft);font-size:14px;margin-top:4px}
+  .fc-stage{display:grid;place-items:center;margin-top:18px}.flashcard{width:min(460px,100%);height:250px;perspective:1400px;cursor:pointer}
+  .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s cubic-bezier(.3,.8,.3,1);transform-style:preserve-3d}.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+  .fc-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);display:grid;place-items:center;text-align:center;padding:24px}
+  .fc-back{transform:rotateY(180deg);background:var(--panel);color:#fff;border-color:var(--panel)}
+  .fc-face .lbl{position:absolute;top:14px;left:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}.fc-back .lbl{color:rgba(255,255,255,.5)}
+  .fc-face .known-tag{position:absolute;top:13px;right:16px;font-family:var(--mono);font-size:10.5px;color:var(--ok)}
+  .fc-face .big{font-family:var(--disp);font-weight:600;font-size:30px;letter-spacing:-.02em}.fc-back .big{font-size:28px}
+  .fc-back .fon{font-family:var(--mono);font-size:15px;color:#E0B774;margin-top:10px}
+  .fc-face .sub{font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin-top:10px}.fc-back .sub{color:rgba(255,255,255,.55);margin-top:8px}
+  .fc-ctrl{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:16px;flex-wrap:wrap}.counter{font-family:var(--mono);font-size:13px;color:var(--ink-soft);min-width:70px;text-align:center}
+  .spell{max-width:600px;margin:18px auto 0}.spell-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow)}
+  .spell .prompt{font-family:var(--disp);font-weight:600;font-size:26px;text-align:center}.spell .promptsub{text-align:center;font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-top:6px}
+  .spell .hintline{text-align:center;font-family:var(--mono);font-size:14px;color:var(--accent);min-height:20px;margin:10px 0}
+  .spell input{width:100%;font-family:var(--disp);font-size:24px;text-align:center;padding:14px;border:2px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink);outline:none;transition:.15s}
+  .spell input:focus{border-color:var(--accent);background:var(--surface)}
+  .keys{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:12px 0 4px}
+  .keys button{font-family:var(--mono);font-size:13px;min-width:30px;padding:6px 8px;border:1px solid var(--line);background:var(--surface);border-radius:6px;cursor:pointer;color:var(--ink);transition:.1s}
+  .keys button:hover{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent)}.keys button.util{color:var(--ink-soft);font-size:11px}
+  .spell-ctrl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+  .result{margin-top:16px;border-radius:10px;padding:16px;text-align:center;border:1px solid var(--line);background:var(--surface-2)}
+  .result .status{font-family:var(--disp);font-weight:600;font-size:18px;margin-bottom:8px}
+  .result.good .status{color:var(--ok)}.result.almost .status{color:var(--es)}.result.bad .status{color:var(--warn)}
+  .result .diff{font-family:var(--mono);font-size:22px;letter-spacing:1px;margin:6px 0}
+  .result .dc.ok{color:var(--ok)}.result .dc.bad{color:var(--warn);text-decoration:underline}.result .dc.miss{color:var(--ink-faint)}
+  .result .correct{font-family:var(--disp);font-weight:600;font-size:22px;color:var(--ink);margin-top:6px}
+  .result .clab{font-family:var(--mono);font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em}.result .cfon{font-family:var(--mono);font-size:13px;color:var(--accent);margin-top:2px}
+  .sessline{text-align:center;font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-top:12px}
+  .quiz{max-width:560px;margin:10px auto 0}.quiztop{display:flex;justify-content:flex-end;max-width:560px;margin:6px auto 0}
+  .q-prompt{font-family:var(--disp);font-weight:600;font-size:24px;text-align:center;margin:8px 0 4px}.q-sub{text-align:center;font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-bottom:18px}
+  .q-opts{display:grid;gap:10px}
+  .q-opt{border:1px solid var(--line);background:var(--surface);padding:14px 16px;border-radius:10px;cursor:pointer;font-family:var(--disp);font-size:18px;text-align:left;transition:.12s;display:flex;justify-content:space-between;align-items:center}
+  .q-opt:hover{border-color:var(--accent)}.q-opt.correct{background:rgba(46,139,87,.12);border-color:var(--ok);color:var(--ok)}.q-opt.wrong{background:rgba(199,82,43,.10);border-color:var(--warn);color:var(--warn)}
+  .q-opt .mk{font-family:var(--mono);font-size:14px}
+  .scorebar{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:13px;color:var(--ink-soft);margin-bottom:10px}
+  .qprog{height:5px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line-soft)}.qprog i{display:block;height:100%;background:var(--accent);transition:width .3s}
+  .gensel{display:grid;gap:12px;grid-template-columns:1fr;margin:14px 0}@media(min-width:680px){.gensel{grid-template-columns:repeat(3,1fr)}}
+  .gensel label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);display:block;margin-bottom:5px}
+  .gensel select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:var(--surface);font-family:var(--body);font-size:15px;color:var(--ink)}
+  .genout{background:var(--panel);color:#fff;border-radius:14px;padding:26px;text-align:center;margin-top:8px}
+  .genout .gt{font-family:var(--disp);font-weight:600;font-size:30px}.genout .gf{font-family:var(--mono);color:#E0B774;font-size:15px;margin-top:8px}.genout .gp{color:rgba(255,255,255,.72);margin-top:8px;font-size:15px}
+  .goalcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;text-align:center;margin:14px 0;box-shadow:var(--shadow)}
+  .goalcard .glab{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+  .goalcard .gpol{font-family:var(--disp);font-weight:600;font-size:24px;margin-top:6px;color:var(--ink)}
+  .slot{min-height:60px;border:2px dashed var(--line);border-radius:12px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;background:var(--surface-2)}
+  .slot .ph{color:var(--ink-faint);font-family:var(--mono);font-size:13px}
+  .chip{font-family:var(--disp);font-weight:600;font-size:19px;padding:9px 14px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--ink);cursor:pointer}
+  .bank{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .bank button{font-family:var(--disp);font-weight:600;font-size:19px;padding:11px 17px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:.12s}
+  .bank button:hover{border-color:var(--accent)}
+  .bank button.used{opacity:.3;pointer-events:none}
+  .mic{width:110px;height:110px;border-radius:50%;border:none;background:var(--accent);color:var(--on-accent,#fff);font-size:42px;cursor:pointer;box-shadow:var(--shadow);transition:.15s}
+  .mic:hover{filter:brightness(.95)}.mic.live{animation:pulse 1.1s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 var(--accent-soft)}70%{box-shadow:0 0 0 20px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  footer{max-width:1080px;margin:0 auto;padding:24px 18px 40px;color:var(--ink-faint);font-family:var(--mono);font-size:11.5px;border-top:1px solid var(--line)}
+  ::selection{background:var(--accent);color:var(--on-accent,#fff)}
+</style>
+</head>
+<body>
+<header>
+  <div class="row-top">
+    <div class="timer" title="Czas tej sesji. Minimalizacja zeruje licznik."><span class="ic">⏱</span><span class="lab">sesja</span><span id="timer">00:00</span></div>
+    <div class="streak" id="streak" title="Seria dni z nauką">🔥 1 dzień</div>
+    <div class="streak" id="lvl" title="Zakres materiału"></div>
+    <span class="logo">Język<b>Lab</b></span>
+    <div class="langwrap"><span class="lang-label">Język:</span>
+      <div class="toggle" id="langToggle"><button data-l="ru" class="active"><span class="dot"></span><span class="lfull">Rosyjski</span><span class="labbr">RU</span></button><button data-l="es"><span class="dot"></span><span class="lfull">Hiszpański</span><span class="labbr">ES</span></button><button data-l="zh"><span class="dot"></span><span class="lfull">Chiny</span><span class="labbr">CN</span></button></div>
+    </div>
+  </div>
+  <div class="prog" id="progRow"><span class="plab">Opanowane</span><span class="ptrack"><i id="progFill"></i></span><span class="pnum" id="progNum">0 / 0 · 0%</span></div>
+  <nav><div class="sections" id="sections"></div><div class="tabs" id="tabs"></div></nav>
+</header>
+<main id="main"></main>
+<div class="bottomnav" id="bottomnav"></div>
+<footer>JęzykLab v4 · metoda dla umysłu ścisłego · wymowa/słuchanie/mowa przez Web Speech API · postęp i seria dni zapisują się w przeglądarce (jeśli zezwoli)</footer>
+
+<script>
+/* ============== DANE ============== */
+const DATA={
+  ru:{name:"rosyjski",speech:"ru-RU",accent:"#3a64a8",accentSoft:"rgba(58,100,168,.12)",
+    alphabet:[["А а","a","jak „a”"],["Б б","b","jak „b”"],["В в","v","UWAGA: jak „w”"],["Г г","g","jak „g”"],["Д д","d","jak „d”"],["Е е","je","jak „je”"],["Ё ё","jo","jak „jo”"],["Ж ж","ż","jak „ż”"],["З з","z","jak „z”"],["И и","i","jak „i”"],["Й й","j","krótkie „j”"],["К к","k","jak „k”"],["Л л","ł","jak „ł/l”"],["М м","m","jak „m”"],["Н н","n","UWAGA: jak „n”"],["О о","o","nieakc. → „a”"],["П п","p","jak „p”"],["Р р","r","UWAGA: jak „r”"],["С с","s","UWAGA: jak „s”"],["Т т","t","jak „t”"],["У у","u","jak „u”"],["Ф ф","f","jak „f”"],["Х х","ch","jak „ch”"],["Ц ц","c","jak „c”"],["Ч ч","cz","jak „cz”"],["Ш ш","sz","jak „sz”"],["Щ щ","szcz","miękkie „szcz”"],["Ъ ъ","—","znak twardy"],["Ы ы","y","jak „y”"],["Ь ь","ʲ","znak miękki"],["Э э","e","twarde „e”"],["Ю ю","ju","jak „ju”"],["Я я","ja","jak „ja”"]],
+    alphaNote:"Cyrylica — 33 litery w <b>pełnej kolejności alfabetycznej</b>. Pułapki: <b>В</b>=„w”, <b>Н</b>=„n”, <b>Р</b>=„r”, <b>С</b>=„s”, nieakc. <b>О</b>→„a”. Dźwięk spółgłosek gram jako sylabę (np. „ва”).",
+    mnemonics:[["А а","a","jak <b>arka</b> / namiot"],["Б б","b","brzuszek jak <b>balon</b>"],["В в","w","jak B, czytaj <b>wagon</b>"],["Г г","g","narożnik — <b>gwóźdź</b>"],["Д д","d","jak <b>domek</b> z gankiem"],["Е е","je","jak E — <b>jezioro</b>"],["Ё ё","jo","E z kropkami — <b>jojo</b>"],["Ж ж","ż","owad — <b>żuk</b>"],["З з","z","jak 3 — <b>zamek</b>"],["И и","i","odwrócone N — <b>igła</b>"],["Й й","j","И w czapce — <b>jacht</b>"],["К к","k","jak K — <b>kot</b>"],["Л л","ł","szałas — <b>lampa</b>"],["М м","m","jak M — <b>most</b>"],["Н н","n","jak H, czytaj <b>nos</b>"],["О о","o","kółko — <b>okno</b>"],["П п","p","brama — <b>parawan</b>"],["Р р","r","jak P, czytaj <b>ryba</b>"],["С с","s","jak C, czytaj <b>słońce</b>"],["Т т","t","stolik — <b>telefon</b>"],["У у","u","proca — <b>ucho</b>"],["Ф ф","f","piłka na osi — <b>futbol</b>"],["Х х","ch","iks X — <b>chmura</b>"],["Ц ц","c","z ogonkiem — <b>cyrkiel</b>"],["Ч ч","cz","jak 4 — <b>czajnik</b>"],["Ш ш","sz","trzy drzewa — <b>szumiący las</b>"],["Щ щ","szcz","Ш z ogonkiem — <b>szczotka</b>"],["Ъ ъ","—","twardy znak — milczy"],["Ы ы","y","twarde <b>y</b> — syr"],["Ь ь","—","miękki znak — milczy"],["Э э","e","odwrócone С — <b>echo</b>"],["Ю ю","ju","О z kreską — <b>jutro</b>"],["Я я","ja","odwrócone R — <b>jabłko</b>"]],
+    numbers:[["ноль","nol","0"],["один","adín","1"],["два","dva","2"],["три","tri","3"],["четыре","czetýrie","4"],["пять","piat'","5"],["шесть","szest'","6"],["семь","siem'","7"],["восемь","wósiem'","8"],["девять","diéwiat'","9"],["десять","diésiat'","10"],["одиннадцать","adínnatsat'","11"],["двенадцать","dwinátsat'","12"],["тринадцать","trinátsat'","13"],["четырнадцать","czetýrnatsat'","14"],["пятнадцать","pitnátsat'","15"],["шестнадцать","szysnátsat'","16"],["семнадцать","siemnátsat'","17"],["восемнадцать","wasiemnátsat'","18"],["девятнадцать","diewitnátsat'","19"],["двадцать","dwátsat'","20"]],
+    pronouns:[["я","ja","ja"],["ты","ty","ty"],["он","on","on"],["она","aná","ona"],["оно","anó","ono"],["мы","my","my"],["вы","wy","wy / Pan(i)"],["они","aní","oni/one"]],
+    verbsNote:"8 najczęstszych czasowników codziennych. Kolorem zaznaczona część, która <b>zmienia się zależnie od osoby</b>.",
+    ref:[["I koniugacja (-ать, -еть)","-ю · -ешь · -ет · -ем · -ете · -ют"],["II koniugacja (-ить)","-ю · -ишь · -ит · -им · -ите · -ят"]],
+    grammar:{title:"Przypadki — w skrócie",body:"Rosyjski odmienia rzeczowniki przez <b>6 przypadków</b> (jak polski). Najpierw opanuj mianownik (kto? co?) i biernik (kogo? co? — dopełnienie). Pozostałe (dopełniacz, celownik, narzędnik, miejscownik) dochodź stopniowo. Reguła praktyczna: ucz się przypadka razem z przyimkiem, który go wymusza (в, на, с, у…)."},
+    verbs:[
+      {inf:"хотеть",gloss:"chcieć",type:"nieregularny",reg:false,rows:[["я","хочу","chaczú","chcę"],["ты","хочешь","chóczisz","chcesz"],["он/она","хочет","chóczit","chce"],["мы","хотим","chatím","chcemy"],["вы","хотите","chatítie","chcecie"],["они","хотят","chatiát","chcą"]]},
+      {inf:"мочь",gloss:"móc",type:"nieregularny",reg:false,rows:[["я","могу","magú","mogę"],["ты","можешь","móżysz","możesz"],["он/она","может","móżyt","może"],["мы","можем","móżym","możemy"],["вы","можете","móżytie","możecie"],["они","могут","mógut","mogą"]]},
+      {inf:"говорить",gloss:"mówić",type:"II koniugacja",reg:true,rows:[["я","говорю","gawarjú","mówię"],["ты","говоришь","gawarísz","mówisz"],["он/она","говорит","gawarít","mówi"],["мы","говорим","gawarím","mówimy"],["вы","говорите","gawarítie","mówicie"],["они","говорят","gawariát","mówią"]]},
+      {inf:"знать",gloss:"wiedzieć / znać",type:"I koniugacja",reg:true,rows:[["я","знаю","znáju","wiem"],["ты","знаешь","znájesz","wiesz"],["он/она","знает","znájet","wie"],["мы","знаем","znájem","wiemy"],["вы","знаете","znájetie","wiecie"],["они","знают","znájut","wiedzą"]]},
+      {inf:"делать",gloss:"robić",type:"I koniugacja",reg:true,rows:[["я","делаю","diéłaju","robię"],["ты","делаешь","diéłajesz","robisz"],["он/она","делает","diéłajet","robi"],["мы","делаем","diéłajem","robimy"],["вы","делаете","diéłajetie","robicie"],["они","делают","diéłajut","robią"]]},
+      {inf:"идти",gloss:"iść",type:"nieregularny",reg:false,rows:[["я","иду","idú","idę"],["ты","идёшь","idiósz","idziesz"],["он/она","идёт","idiót","idzie"],["мы","идём","idióm","idziemy"],["вы","идёте","idiótie","idziecie"],["они","идут","idút","idą"]]},
+      {inf:"жить",gloss:"mieszkać / żyć",type:"I koniugacja",reg:true,rows:[["я","живу","żywú","mieszkam"],["ты","живёшь","żywiósz","mieszkasz"],["он/она","живёт","żywiót","mieszka"],["мы","живём","żywióm","mieszkamy"],["вы","живёте","żywiótie","mieszkacie"],["они","живут","żywút","mieszkają"]]},
+      {inf:"есть",gloss:"jeść",type:"nieregularny",reg:false,rows:[["я","ем","jem","jem"],["ты","ешь","jesz","jesz"],["он/она","ест","jest","je"],["мы","едим","jidím","jemy"],["вы","едите","jidítie","jecie"],["они","едят","jidiát","jedzą"]]}
+    ],
+    phrases:[["Здравствуйте","zdrástwujtie","Dzień dobry (formalnie)"],["Привет","priwiét","Cześć"],["Доброе утро","dóbraje útra","Dzień dobry (rano)"],["Спасибо","spasíba","Dziękuję"],["Пожалуйста","pażáłusta","Proszę / Nie ma za co"],["Извините","izwinítie","Przepraszam"],["Да","da","Tak"],["Нет","niet","Nie"],["Как дела?","kak diłá","Jak się masz?"],["До свидания","da swidánija","Do widzenia"]],
+    sentences:[{group:"Przedstawianie się",items:[["Меня зовут Анна.","miniá zawút Anna","Nazywam się Anna."],["Как тебя зовут?","kak tibiá zawút","Jak masz na imię?"],["Я из Польши.","ja iz Pólszy","Jestem z Polski."],["Очень приятно.","óczin' prijátna","Miło mi."]]},{group:"Gdy czegoś nie rozumiesz",items:[["Я не понимаю.","ja nie panimáju","Nie rozumiem."],["Я не говорю по-русски.","ja nie gawarjú pa-rúski","Nie mówię po rosyjsku."],["Вы говорите по-английски?","wy gawarítie pa-anglíjski","Mówi Pan po angielsku?"],["Повторите, пожалуйста.","pawtarítie pażáłusta","Proszę powtórzyć."],["Говорите медленнее, пожалуйста.","gawarítie miédlieńieje pażáłusta","Proszę mówić wolniej."]]},{group:"Pytania i potrzeby",items:[["Сколько сейчас времени?","skólka sicziás vrémieni","Która godzina?"],["Где туалет?","gdie tualét","Gdzie jest toaleta?"],["Я хочу есть.","ja chaczú jest'","Jestem głodny."],["Я хочу пить.","ja chaczú pit'","Chce mi się pić."],["Помогите, пожалуйста.","pamagítie pażáłusta","Proszę o pomoc."],["Я не знаю.","ja nie znáju","Nie wiem."]]},{group:"W sklepie i restauracji",items:[["Сколько это стоит?","skólka éta stóit","Ile to kosztuje?"],["Можно счёт, пожалуйста?","móżna sczot pażáłusta","Poproszę rachunek."],["Это очень вкусно.","éta óczin' fkúsna","To bardzo smaczne."],["Я буду это.","ja búdu éta","Poproszę to."]]}],
+    vocab:{"Kolory":[["красный","krásnyj","czerwony"],["синий","sínij","niebieski"],["зелёный","zieliónyj","zielony"],["жёлтый","żółtyj","żółty"],["чёрный","czórnyj","czarny"],["белый","biéłyj","biały"]],"Rodzina":[["мама","máma","mama"],["папа","pápa","tata"],["брат","brat","brat"],["сестра","siestrá","siostra"],["сын","syn","syn"],["дочь","docz'","córka"],["семья","siem'já","rodzina"]],"Jedzenie":[["вода","wadá","woda"],["хлеб","chlep","chleb"],["молоко","małakó","mleko"],["чай","czaj","herbata"],["кофе","kófie","kawa"],["яблоко","jábłaka","jabłko"]],"Czas":[["сегодня","siwódnia","dziś"],["завтра","záftra","jutro"],["вчера","fczierá","wczoraj"],["день","dien'","dzień"],["ночь","nocz'","noc"],["неделя","niediélia","tydzień"]]},
+    keys:"абвгдеёжзийклмнопрстуфхцчшщъыьэюя".split(""),
+    persons:[["я","ja","ja"],["ты","ty","ty"],["он","on","on"],["мы","my","my"],["вы","wy","wy"],["они","aní","oni"]],
+    compl:[["—","",""],["сейчас","sicziás","teraz"],["дома","dóma","w domu"],["здесь","zdies'","tutaj"],["хорошо","charaszó","dobrze"],["по-русски","pa-rúski","po rosyjsku"],["медленно","miédlienna","wolno"]]
+  },
+  es:{name:"hiszpański",speech:"es-ES",accent:"#b5741c",accentSoft:"rgba(181,116,28,.12)",
+    alphabet:[["a e i o u","czyste","5 samogłosek — ZAWSZE tak samo","a e i o u"],["ñ","ń","jak „ń” — año","año"],["ll","j","jak „j” — llamar","llamar"],["j","ch","jak „ch” — jamón","jamón"],["g + e/i","ch","jak „ch” — gente","gente"],["h","—","ZAWSZE nieme — hola","hola"],["c + e/i","s","jak „s” — cinco","cinco"],["z","s","jak „s” — zapato","zapato"],["v","b","jak „b” — vino","vino"],["rr","rrr","drżące „r” — perro","perro"],["qu","k","jak „k” — queso","queso"],["ch","cz","jak „cz” — mucho","mucho"]],
+    alphaNote:"To <b>nie</b> pełny alfabet A–Z — większość liter brzmi jak po polsku. Pokazuję tylko <b>dźwięki różniące się</b>. Plus: 5 samogłosek brzmi ZAWSZE tak samo.",
+    mnemonics:[["ñ","ń","jak <b>ń</b> w „koń” — año","año"],["ll","j","jak <b>j</b> — llave","llave"],["j","ch","charkot <b>ch</b> — jamón","jamón"],["g+e/i","ch","miękkie g jak <b>ch</b> — gente","gente"],["h","—","milczy ZAWSZE — hola","hola"],["v","b","v jak <b>b</b> — vino","vino"],["z / c+e/i","s","jak <b>s</b> — cinco","cinco"],["rr","rrr","drżące <b>r</b> — perro","perro"],["qu","k","twarde <b>k</b> — queso","queso"]],
+    numbers:[["cero","sero","0"],["uno","úno","1"],["dos","dos","2"],["tres","tres","3"],["cuatro","kuátro","4"],["cinco","sínko","5"],["seis","sejs","6"],["siete","siéte","7"],["ocho","ócio","8"],["nueve","nuébe","9"],["diez","dies","10"],["once","ónse","11"],["doce","dóse","12"],["trece","trése","13"],["catorce","katórse","14"],["quince","kínse","15"],["dieciséis","djesiséjs","16"],["diecisiete","djesisiéte","17"],["dieciocho","djesiócio","18"],["diecinueve","djesinuébe","19"],["veinte","béjnte","20"]],
+    pronouns:[["yo","jo","ja"],["tú","tu","ty"],["él","el","on"],["ella","éja","ona"],["usted","ustéd","Pan(i)"],["nosotros","nosótros","my"],["vosotros","wosótros","wy (Hiszp.)"],["ellos","éjos","oni/one"]],
+    verbsNote:"8 najczęstszych czasowników. Większość TOP jest nieregularna. Kolorem część, która <b>zmienia się zależnie od osoby</b>.",
+    ref:[["grupa -AR","-o · -as · -a · -amos · -áis · -an"],["grupa -ER","-o · -es · -e · -emos · -éis · -en"],["grupa -IR","-o · -es · -e · -imos · -ís · -en"]],
+    grammar:{title:"SER czy ESTAR? — reguła",body:"Oba znaczą „być”, ale: <b>SER</b> = cechy trwałe (kim/jaki jesteś: zawód, narodowość, charakter). <b>ESTAR</b> = stan chwilowy i położenie (gdzie jesteś, jak się czujesz). Skrót pamięciowy: <b>SER = DOCTOR</b> (opis, zawód…), <b>ESTAR = PLACE</b> (miejsce, nastrój). „Soy médico” (jestem lekarzem) vs „Estoy en casa” (jestem w domu)."},
+    verbs:[
+      {inf:"ser",gloss:"być (cecha)",type:"nieregularny",reg:false,rows:[["yo","soy","soj","jestem"],["tú","eres","éres","jesteś"],["él/ella","es","es","jest"],["nosotros","somos","sómos","jesteśmy"],["vosotros","sois","sojs","jesteście"],["ellos","son","son","są"]]},
+      {inf:"estar",gloss:"być (stan/miejsce)",type:"nieregularny",reg:false,rows:[["yo","estoy","estój","jestem"],["tú","estás","estás","jesteś"],["él/ella","está","está","jest"],["nosotros","estamos","estámos","jesteśmy"],["vosotros","estáis","estájs","jesteście"],["ellos","están","están","są"]]},
+      {inf:"tener",gloss:"mieć",type:"nieregularny",reg:false,rows:[["yo","tengo","téngo","mam"],["tú","tienes","tiénes","masz"],["él/ella","tiene","tiéne","ma"],["nosotros","tenemos","tenémos","mamy"],["vosotros","tenéis","tenéjs","macie"],["ellos","tienen","tiénen","mają"]]},
+      {inf:"querer",gloss:"chcieć",type:"nieregularny",reg:false,rows:[["yo","quiero","kiéro","chcę"],["tú","quieres","kiéres","chcesz"],["él/ella","quiere","kiére","chce"],["nosotros","queremos","kerémos","chcemy"],["vosotros","queréis","keréjs","chcecie"],["ellos","quieren","kiéren","chcą"]]},
+      {inf:"poder",gloss:"móc",type:"nieregularny",reg:false,rows:[["yo","puedo","puédo","mogę"],["tú","puedes","puédes","możesz"],["él/ella","puede","puéde","może"],["nosotros","podemos","podémos","możemy"],["vosotros","podéis","podéjs","możecie"],["ellos","pueden","puéden","mogą"]]},
+      {inf:"ir",gloss:"iść / jechać",type:"nieregularny",reg:false,rows:[["yo","voy","boj","idę"],["tú","vas","bas","idziesz"],["él/ella","va","ba","idzie"],["nosotros","vamos","bámos","idziemy"],["vosotros","vais","bajs","idziecie"],["ellos","van","ban","idą"]]},
+      {inf:"hacer",gloss:"robić",type:"nieregularny",reg:false,rows:[["yo","hago","ágo","robię"],["tú","haces","áses","robisz"],["él/ella","hace","áse","robi"],["nosotros","hacemos","asémos","robimy"],["vosotros","hacéis","aséjs","robicie"],["ellos","hacen","ásen","robią"]]},
+      {inf:"hablar",gloss:"mówić",type:"regularny (-AR)",reg:true,rows:[["yo","hablo","áblo","mówię"],["tú","hablas","áblas","mówisz"],["él/ella","habla","ábla","mówi"],["nosotros","hablamos","ablámos","mówimy"],["vosotros","habláis","ablájs","mówicie"],["ellos","hablan","áblan","mówią"]]}
+    ],
+    phrases:[["Hola","óla","Cześć"],["Buenos días","buénos días","Dzień dobry (rano)"],["Buenas tardes","buénas tárdes","Dzień dobry (popoł.)"],["Buenas noches","buénas nócze","Dobry wieczór"],["Gracias","grásias","Dziękuję"],["Por favor","por fabór","Proszę"],["De nada","de náda","Nie ma za co"],["Perdón","perdón","Przepraszam"],["Sí","si","Tak"],["No","no","Nie"],["Adiós","adiós","Do widzenia"]],
+    sentences:[{group:"Przedstawianie się",items:[["Me llamo Ana.","me jámo Ana","Nazywam się Ana."],["¿Cómo te llamas?","kómo te jámas","Jak masz na imię?"],["Soy de Polonia.","soj de Polónia","Jestem z Polski."],["Mucho gusto.","múczo gústo","Miło mi."]]},{group:"Gdy czegoś nie rozumiesz",items:[["No entiendo.","no entiéndo","Nie rozumiem."],["No hablo español.","no áblo espaniól","Nie mówię po hiszpańsku."],["¿Hablas inglés?","áblas inglés","Mówisz po angielsku?"],["¿Puede repetir, por favor?","puéde repetír por fabór","Może Pan powtórzyć?"],["Más despacio, por favor.","mas despásio por fabór","Proszę wolniej."]]},{group:"Pytania i potrzeby",items:[["¿Qué hora es?","ke óra es","Która godzina?"],["¿Dónde está el baño?","dónde está el bánio","Gdzie jest toaleta?"],["Tengo hambre.","téngo ámbre","Jestem głodny."],["Tengo sed.","téngo sed","Chce mi się pić."],["¿Me puede ayudar?","me puéde ajudár","Czy może mi Pan pomóc?"],["No sé.","no se","Nie wiem."]]},{group:"W sklepie i restauracji",items:[["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?"],["La cuenta, por favor.","la kuénta por fabór","Poproszę rachunek."],["Está muy rico.","está muj ríko","Jest bardzo smaczne."],["Quiero esto, por favor.","kiéro ésto por fabór","Poproszę to."]]}],
+    vocab:{"Kolory":[["rojo","róho","czerwony"],["azul","asúl","niebieski"],["verde","bérde","zielony"],["amarillo","amaríjo","żółty"],["negro","négro","czarny"],["blanco","blánko","biały"]],"Rodzina":[["madre","mádre","matka"],["padre","pádre","ojciec"],["hermano","ermáno","brat"],["hermana","ermána","siostra"],["hijo","ího","syn"],["hija","íha","córka"],["familia","famíja","rodzina"]],"Jedzenie":[["agua","água","woda"],["pan","pan","chleb"],["leche","lécze","mleko"],["café","kafé","kawa"],["té","te","herbata"],["manzana","mansána","jabłko"]],"Czas":[["hoy","oj","dziś"],["mañana","maniána","jutro"],["ayer","ajér","wczoraj"],["día","día","dzień"],["noche","nócze","noc"],["semana","semána","tydzień"]]},
+    keys:"á é í ó ú ñ ü ¿ ¡".split(" "),
+    persons:[["yo","jo","ja"],["tú","tu","ty"],["él","el","on"],["nosotros","nosótros","my"],["vosotros","wosótros","wy"],["ellos","éjos","oni"]],
+    compl:[["—","",""],["ahora","aóra","teraz"],["en casa","en kása","w domu"],["aquí","akí","tutaj"],["bien","bien","dobrze"],["español","espaniól","po hiszpańsku"],["despacio","despásio","wolno"]]
+  }
+};
+const TABS=[{id:"guide",ix:"00",label:"Jak się uczyć"},{id:"daily",ix:"★",label:"Sesja dnia"},{id:"alpha",ix:"01",label:"Alfabet"},{id:"numbers",ix:"02",label:"Liczby"},{id:"pron",ix:"03",label:"Zaimki"},{id:"verbs",ix:"04",label:"Czasowniki"},{id:"phrases",ix:"05",label:"Zwroty"},{id:"sentences",ix:"06",label:"Zdania"},{id:"gen",ix:"07",label:"Generator zdań"},{id:"vocab",ix:"08",label:"Słownictwo"},{id:"cards",ix:"09",label:"Fiszki"},{id:"listen",ix:"10",label:"Słuchanie"},{id:"dialogs",ix:"💬",label:"Dialogi"},{id:"speak",ix:"11",label:"Mówienie"},{id:"spell",ix:"12",label:"Pisownia"},{id:"review",ix:"🔁",label:"Powtórki"},{id:"missing",ix:"🧩",label:"Brakujące słowo"},{id:"stats",ix:"📊",label:"Statystyki"},{id:"race",ix:"14",label:"Wyścig 🏁"}];
+const VCOMPL={ru:{0:[1],1:[1],2:[5,6,4,3],3:[4],4:[1,3,4,6],5:[1,6],6:[3,4,2],7:[1,2,3,4,6]},es:{1:[3,2,4,1],3:[1],4:[1],5:[1,6,3],6:[1,3,4,6],7:[5,6,4,3,1]}};
+const DAILY_TASKS=[{icon:"🃏",label:"Rozgrzewka: kilka fiszek",tab:"cards"},{icon:"🔁",label:"Powtórki na dziś (SRS)",tab:"review"},{icon:"🔊",label:"Słuchanie: kilka słów",tab:"listen"},{icon:"🧩",label:"Brakujące słowo: kilka zdań",tab:"missing"},{icon:"🏁",label:"Wyścig na czas: 1 gra",tab:"race"}];
+const CHINA=[
+  ["你好", "nǐ hǎo", "ni hao", "cześć / dzień dobry"],
+  ["谢谢", "xièxie", "szie-szie", "dziękuję"],
+  ["对不起", "duìbuqǐ", "dłej-bu-ći", "przepraszam"],
+  ["请给我", "qǐng gěi wǒ", "ćing gej ło", "poproszę / daj mi"],
+  ["是 / 不是", "shì / bú shì", "szy / bu szy", "tak / nie"],
+  ["一", "yī", "i", "1"],
+  ["二", "èr", "er", "2"],
+  ["这个", "zhège", "dże-ge", "to / ten (możesz wskazać palcem)"],
+  ["厕所", "cèsuǒ", "tsy-słoo", "🚽toaleta"],
+  ["水", "shuǐ", "Bīng szłej", "💧zimna woda"],
+  ["鸡肉", "jīròu", "dżi-rou", "🐔kurczak"],
+  ["牛肉", "niúròu", "niou-rou", "🐄wołowina"],
+  ["微辣", "wēi là", "łej la", "🌶️mało ostre"],
+  ["不辣", "bù là", "bu la", "❌nieostre"],
+  ["小", "xiǎo", "sjao", "mała (porcja)"],
+  ["大", "dà", "da", "duża (porcja)"],
+  ["米饭", "mǐfàn", "mi-fan", "🍚Ryż (ugotowany)"],
+  ["面", "miàn", "mjan", "🍝Makaron"],
+  ["包子", "bāozi", "bao-dzy", "🥖Bułeczki / pierożki na parze"],
+  ["饺子", "jiǎozi", "dziao-dzy", "🥟Pierożki tradycyjne"],
+  ["汤", "tāng", "tang", "🥣Zupa (symbol 氵 po lewej to woda)"],
+];
+const SECTIONS=[
+  {id:"learn",label:"📚 Nauka",tabs:["guide","alpha","numbers","pron","verbs","phrases","sentences","vocab"]},
+  {id:"practice",label:"🎯 Ćwiczenia",tabs:["cards","listen","dialogs","missing","speak","spell","gen"]},
+  {id:"progress",label:"📈 Postępy",tabs:["daily","review","stats"]},
+  {id:"play",label:"🏁 Gra",tabs:["race"]}
+];
+const DIALOGS={
+  ru:[
+    {title:"W kawiarni",icon:"☕",steps:[
+      ["them","Здравствуйте! Что будете?","zdrástwujtie, szto búditie","Dzień dobry! Co podać?"],
+      ["you",[["Один кофе, пожалуйста.","adín kófie pażáłusta","Poproszę jedną kawę.",1],["До свидания.","da swidánija","Do widzenia.",0],["Меня зовут Анна.","miniá zawút Anna","Nazywam się Anna.",0]]],
+      ["them","Что-нибудь ещё?","szto-nibút' jiszczó","Coś jeszcze?"],
+      ["you",[["Нет, спасибо.","niet spasíba","Nie, dziękuję.",1],["Я не знаю.","ja nie znáju","Nie wiem.",0],["Извините.","izwinítie","Przepraszam.",0]]],
+      ["them","С вас три евро.","s was tri jéwra","Należy się trzy euro."],
+      ["you",[["Вот, пожалуйста. Спасибо!","wot pażáłusta, spasíba","Proszę. Dziękuję!",1],["Где туалет?","gdie tualét","Gdzie jest toaleta?",0]]]
+    ]},
+    {title:"Pytanie o drogę",icon:"🗺️",steps:[
+      ["them","Вы заблудились?","wy zabludílis'","Zgubił się Pan?"],
+      ["you",[["Да, где вокзал?","da, gdie wakzáł","Tak, gdzie jest dworzec?",1],["Очень вкусно.","óczin' fkúsna","Bardzo smaczne.",0],["Я хочу пить.","ja chaczú pit'","Chce mi się pić.",0]]],
+      ["them","Идите прямо.","idítie priáma","Proszę iść prosto."],
+      ["you",[["Это далеко?","éta dalikó","Czy to daleko?",1],["Сколько это стоит?","skólka éta stóit","Ile to kosztuje?",0]]],
+      ["them","Нет, пять минут.","niet, piat' minút","Nie, pięć minut."],
+      ["you",[["Спасибо большое!","spasíba bal'szóje","Dziękuję bardzo!",1],["Я не понимаю.","ja nie panimáju","Nie rozumiem.",0]]]
+    ]},
+    {title:"Poznajemy się",icon:"🤝",steps:[
+      ["them","Привет! Как тебя зовут?","priwiét, kak tibiá zawút","Cześć! Jak masz na imię?"],
+      ["you",[["Меня зовут Анна. А тебя?","miniá zawút Anna, a tibiá","Nazywam się Anna. A ciebie?",1],["Сколько это стоит?","skólka éta stóit","Ile to kosztuje?",0],["Где туалет?","gdie tualét","Gdzie jest toaleta?",0]]],
+      ["them","Я Иван. Откуда ты?","ja Iwán, atkúda ty","Jestem Iwan. Skąd jesteś?"],
+      ["you",[["Я из Польши.","ja iz Pólszy","Jestem z Polski.",1],["Я хочу есть.","ja chaczú jest'","Jestem głodny.",0]]],
+      ["them","Очень приятно!","óczin' prijátna","Bardzo mi miło!"],
+      ["you",[["Мне тоже очень приятно.","mnie tóże óczin' prijátna","Mnie również bardzo miło.",1],["Нет, спасибо.","niet spasíba","Nie, dziękuję.",0]]]
+    ]},
+    {title:"W sklepie",icon:"🛒",steps:[
+      ["them","Здравствуйте! Чем могу помочь?","zdrástwujtie, czem magú pamócz'","Dzień dobry! W czym mogę pomóc?"],
+      ["you",[["У вас есть хлеб?","u was jest' chlep","Czy macie chleb?",1],["Меня зовут Анна.","miniá zawút Anna","Nazywam się Anna.",0],["Идите прямо.","idítie priáma","Proszę iść prosto.",0]]],
+      ["them","Да, конечно. Что ещё?","da, kaniészna, szto jiszczó","Tak, oczywiście. Co jeszcze?"],
+      ["you",[["Молоко и воду.","małakó i wódu","Mleko i wodę.",1],["Очень приятно.","óczin' prijátna","Bardzo mi miło.",0]]],
+      ["them","Хорошо. Сто рублей.","charaszó, sto rubléj","Dobrze. Sto rubli."],
+      ["you",[["Вот, пожалуйста.","wot pażáłusta","Proszę, oto.",1],["Я не знаю.","ja nie znáju","Nie wiem.",0]]]
+    ]}
+  ],
+  es:[
+    {title:"W kawiarni",icon:"☕",steps:[
+      ["them","¡Hola! ¿Qué desea?","óla, ke deséa","Cześć! Co podać?"],
+      ["you",[["Un café, por favor.","un kafé por fabór","Poproszę kawę.",1],["Adiós.","adiós","Do widzenia.",0],["Me llamo Ana.","me jámo Ana","Nazywam się Ana.",0]]],
+      ["them","¿Algo más?","álgo mas","Coś jeszcze?"],
+      ["you",[["No, gracias.","no grásias","Nie, dziękuję.",1],["No sé.","no se","Nie wiem.",0],["Perdón.","perdón","Przepraszam.",0]]],
+      ["them","Son tres euros.","son tres éuros","To trzy euro."],
+      ["you",[["Aquí tiene. ¡Gracias!","akí tiéne, grásias","Proszę. Dziękuję!",1],["¿Dónde está el baño?","dónde está el bánio","Gdzie jest toaleta?",0]]]
+    ]},
+    {title:"Pytanie o drogę",icon:"🗺️",steps:[
+      ["them","¿Está perdido?","está perdído","Zgubił się Pan?"],
+      ["you",[["Sí, ¿dónde está la estación?","si, dónde está la estasión","Tak, gdzie jest dworzec?",1],["Está muy rico.","está muj ríko","Bardzo smaczne.",0],["Tengo sed.","téngo sed","Chce mi się pić.",0]]],
+      ["them","Siga recto.","síga rékto","Proszę iść prosto."],
+      ["you",[["¿Está lejos?","está léhos","Czy to daleko?",1],["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?",0]]],
+      ["them","No, cinco minutos.","no, sínko minútos","Nie, pięć minut."],
+      ["you",[["¡Muchas gracias!","múczas grásias","Dziękuję bardzo!",1],["No entiendo.","no entiéndo","Nie rozumiem.",0]]]
+    ]},
+    {title:"Poznajemy się",icon:"🤝",steps:[
+      ["them","¡Hola! ¿Cómo te llamas?","óla, kómo te jámas","Cześć! Jak masz na imię?"],
+      ["you",[["Me llamo Ana. ¿Y tú?","me jámo Ana, i tu","Nazywam się Ana. A ty?",1],["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?",0],["¿Dónde está el baño?","dónde está el bánio","Gdzie jest toaleta?",0]]],
+      ["them","Soy Juan. ¿De dónde eres?","soj Huán, de dónde éres","Jestem Juan. Skąd jesteś?"],
+      ["you",[["Soy de Polonia.","soj de Polónia","Jestem z Polski.",1],["Tengo hambre.","téngo ámbre","Jestem głodny.",0]]],
+      ["them","¡Mucho gusto!","múczo gústo","Bardzo mi miło!"],
+      ["you",[["¡Igualmente!","igualménte","Wzajemnie!",1],["No, gracias.","no grásias","Nie, dziękuję.",0]]]
+    ]},
+    {title:"W sklepie",icon:"🛒",steps:[
+      ["them","¡Hola! ¿En qué puedo ayudar?","óla, en ke puédo ajudár","Cześć! W czym mogę pomóc?"],
+      ["you",[["¿Tiene pan?","tiéne pan","Czy macie chleb?",1],["Me llamo Ana.","me jámo Ana","Nazywam się Ana.",0],["Siga recto.","síga rékto","Proszę iść prosto.",0]]],
+      ["them","Sí, claro. ¿Algo más?","si kláro, álgo mas","Tak, jasne. Coś jeszcze?"],
+      ["you",[["Leche y agua.","lécze i água","Mleko i wodę.",1],["Mucho gusto.","múczo gústo","Bardzo mi miło.",0]]],
+      ["them","Vale. Cinco euros.","bále, sínko éuros","Dobrze. Pięć euro."],
+      ["you",[["Aquí tiene.","akí tiéne","Proszę, oto.",1],["No sé.","no se","Nie wiem.",0]]]
+    ]}
+  ]
+};
+
+const AVAIL_LEVELS=3;
+const L2={
+  ru:{
+    vocab:{
+      "Pytania":[["кто","kto","kto"],["что","szto","co"],["где","gdie","gdzie"],["когда","kagdá","kiedy"],["почему","paczimú","dlaczego"],["как","kak","jak"],["сколько","skólka","ile"],["какой","kakój","który/jaki"]],
+      "Opisy":[["большой","bal'szój","duży"],["маленький","málin'kij","mały"],["хороший","charószyj","dobry"],["плохой","płachój","zły"],["новый","nówyj","nowy"],["старый","stáryj","stary"],["дорогой","daragój","drogi"],["дешёвый","diszówyj","tani"]],
+      "W mieście":[["улица","úlica","ulica"],["магазин","magazín","sklep"],["гостиница","gastínica","hotel"],["вокзал","wakzáł","dworzec"],["билет","bilét","bilet"],["налево","naléwa","w lewo"],["направо","napráwa","w prawo"],["прямо","priáma","prosto"]],
+      "Dni tygodnia":[["понедельник","panidiél'nik","poniedziałek"],["вторник","ftórnik","wtorek"],["среда","sridá","środa"],["четверг","czetwiérk","czwartek"],["пятница","piátnica","piątek"],["суббота","subóta","sobota"],["воскресенье","waskrisién'je","niedziela"]]
+    },
+    phrases:[["Что это?","szto éta","Co to jest?"],["Как пройти?","kak prajtí","Jak dojść?"],["Я ищу…","ja iszczú","Szukam…"],["Налево или направо?","naléwa íli napráwa","W lewo czy w prawo?"],["Один билет, пожалуйста.","adín bilét pażáłusta","Jeden bilet proszę."],["В котором часу?","f katóram czisú","O której godzinie?"],["Можно меню?","móżna minú","Można menu?"]],
+    sentences:[
+      {group:"Pytania o informacje (LVL 2)",items:[["Что это значит?","szto éta znáczit","Co to znaczy?"],["Как это сказать по-русски?","kak éta skazát' pa-rúski","Jak to powiedzieć po rosyjsku?"],["Где находится вокзал?","gdie nachóditsa wakzáł","Gdzie znajduje się dworzec?"],["Во сколько открывается?","wa skólka atkrywájetsa","O której się otwiera?"]]},
+      {group:"W podróży (LVL 2)",items:[["Сколько стоит билет?","skólka stóit bilét","Ile kosztuje bilet?"],["Этот поезд идёт в Москву?","état póist idiót w Maskwú","Czy ten pociąg jedzie do Moskwy?"],["Где мой отель?","gdie moj atél'","Gdzie jest mój hotel?"],["Поверните налево.","pawirnítie naléwa","Proszę skręcić w lewo."]]}
+    ],
+    dialogs:[
+      {title:"Na dworcu",icon:"🚉",steps:[
+        ["them","Здравствуйте! Куда едете?","zdrástwujtie, kudá jédietie","Dzień dobry! Dokąd Pan jedzie?"],
+        ["you",[["В Москву, один билет.","w Maskwú, adín bilét","Do Moskwy, jeden bilet.",1],["Очень приятно.","óczin' prijátna","Bardzo mi miło.",0],["Я не знаю.","ja nie znáju","Nie wiem.",0]]],
+        ["them","Туда и обратно?","tudá i abrátna","W obie strony?"],
+        ["you",[["Нет, только туда.","niet, tól'ka tudá","Nie, tylko tam.",1],["Спасибо, до свидания.","spasíba, da swidánija","Dziękuję, do widzenia.",0]]],
+        ["them","С вас пятьсот рублей.","s was pit'sót rubléj","Pięćset rubli."],
+        ["you",[["Вот, пожалуйста.","wot pażáłusta","Proszę, oto.",1],["Где туалет?","gdie tualét","Gdzie jest toaleta?",0]]]
+      ]},
+      {title:"W restauracji",icon:"🍽️",steps:[
+        ["them","Добрый вечер! Что будете заказывать?","dóbryj wéczir, szto búditie zakázywat'","Dobry wieczór! Co Pan zamówi?"],
+        ["you",[["Можно меню?","móżna minú","Można menu?",1],["Налево.","naléwa","W lewo.",0],["Я из Польши.","ja iz Pólszy","Jestem z Polski.",0]]],
+        ["them","Конечно. Что будете пить?","kaniészna, szto búditie pit'","Oczywiście. Co do picia?"],
+        ["you",[["Воду, пожалуйста.","wódu pażáłusta","Wodę proszę.",1],["До свидания.","da swidánija","Do widzenia.",0]]],
+        ["them","Хорошо, сейчас принесу.","charaszó, sicziás prinisú","Dobrze, zaraz przyniosę."],
+        ["you",[["Спасибо большое!","spasíba bal'szóje","Dziękuję bardzo!",1],["Я не понимаю.","ja nie panimáju","Nie rozumiem.",0]]]
+      ]}
+    ]
+  },
+  es:{
+    vocab:{
+      "Pytania":[["quién","kien","kto"],["qué","ke","co"],["dónde","dónde","gdzie"],["cuándo","kuándo","kiedy"],["por qué","por ke","dlaczego"],["cómo","kómo","jak"],["cuánto","kuánto","ile"],["cuál","kual","który"]],
+      "Opisy":[["grande","gránde","duży"],["pequeño","pekénio","mały"],["bueno","buéno","dobry"],["malo","málo","zły"],["nuevo","nuébo","nowy"],["viejo","biého","stary"],["caro","káro","drogi"],["barato","baráto","tani"]],
+      "W mieście":[["calle","káje","ulica"],["tienda","tiénda","sklep"],["hotel","otél","hotel"],["estación","estasión","dworzec"],["billete","bijéte","bilet"],["izquierda","iskiérda","w lewo"],["derecha","derécza","w prawo"],["recto","rékto","prosto"]],
+      "Dni tygodnia":[["lunes","lúnes","poniedziałek"],["martes","mártes","wtorek"],["miércoles","miérkoles","środa"],["jueves","huébes","czwartek"],["viernes","biérnes","piątek"],["sábado","sábado","sobota"],["domingo","domíngo","niedziela"]]
+    },
+    phrases:[["¿Qué es esto?","ke es ésto","Co to jest?"],["¿Cómo llego?","kómo jégo","Jak dojdę?"],["Busco…","búsko","Szukam…"],["¿Izquierda o derecha?","iskiérda o derécza","W lewo czy w prawo?"],["Un billete, por favor.","un bijéte por fabór","Jeden bilet proszę."],["¿A qué hora?","a ke óra","O której godzinie?"],["¿La carta, por favor?","la kárta por fabór","Poproszę menu?"]],
+    sentences:[
+      {group:"Pytania o informacje (LVL 2)",items:[["¿Qué significa esto?","ke signifíka ésto","Co to znaczy?"],["¿Cómo se dice en español?","kómo se díse en espaniól","Jak to powiedzieć po hiszpańsku?"],["¿Dónde está la estación?","dónde está la estasión","Gdzie jest dworzec?"],["¿A qué hora abre?","a ke óra ábre","O której się otwiera?"]]},
+      {group:"W podróży (LVL 2)",items:[["¿Cuánto cuesta el billete?","kuánto kuésta el bijéte","Ile kosztuje bilet?"],["¿Este tren va a Madrid?","éste tren ba a Madríd","Czy ten pociąg jedzie do Madrytu?"],["¿Dónde está mi hotel?","dónde está mi otél","Gdzie jest mój hotel?"],["Gire a la izquierda.","híre a la iskiérda","Proszę skręcić w lewo."]]}
+    ],
+    dialogs:[
+      {title:"Na dworcu",icon:"🚉",steps:[
+        ["them","¡Hola! ¿A dónde va?","óla, a dónde ba","Cześć! Dokąd Pan jedzie?"],
+        ["you",[["A Madrid, un billete.","a Madríd, un bijéte","Do Madrytu, jeden bilet.",1],["Mucho gusto.","múczo gústo","Bardzo mi miło.",0],["No sé.","no se","Nie wiem.",0]]],
+        ["them","¿Ida y vuelta?","ída i buélta","W obie strony?"],
+        ["you",[["No, solo ida.","no, sólo ída","Nie, tylko tam.",1],["Gracias, adiós.","grásias, adiós","Dziękuję, do widzenia.",0]]],
+        ["them","Son cincuenta euros.","son sinkuénta éuros","Pięćdziesiąt euro."],
+        ["you",[["Aquí tiene.","akí tiéne","Proszę, oto.",1],["¿Dónde está el baño?","dónde está el bánio","Gdzie jest toaleta?",0]]]
+      ]},
+      {title:"W restauracji",icon:"🍽️",steps:[
+        ["them","¡Buenas noches! ¿Qué va a pedir?","buénas nócze, ke ba a pedír","Dobry wieczór! Co Pan zamówi?"],
+        ["you",[["¿La carta, por favor?","la kárta por fabór","Poproszę menu?",1],["A la izquierda.","a la iskiérda","W lewo.",0],["Soy de Polonia.","soj de Polónia","Jestem z Polski.",0]]],
+        ["them","Claro. ¿Qué desea beber?","kláro, ke deséa bebér","Jasne. Co do picia?"],
+        ["you",[["Agua, por favor.","água por fabór","Wodę proszę.",1],["Adiós.","adiós","Do widzenia.",0]]],
+        ["them","Muy bien, ahora vuelvo.","muj bien, aóra buélbo","Dobrze, zaraz wracam."],
+        ["you",[["¡Muchas gracias!","múczas grásias","Dziękuję bardzo!",1],["No entiendo.","no entiéndo","Nie rozumiem.",0]]]
+      ]}
+    ]
+  }
+};
+const L3={
+  ru:{
+    vocab:{
+      "Praca":[["работа","rabóta","praca"],["офис","ófis","biuro"],["деньги","dién'gi","pieniądze"],["время","wrémia","czas"],["встреча","fstriécza","spotkanie"],["телефон","tilifón","telefon"],["почта","póczta","poczta/e-mail"],["документ","dakumiént","dokument"]],
+      "Zakupy":[["цена","ciná","cena"],["скидка","skítka","zniżka"],["касса","kássa","kasa"],["карта","kárta","karta"],["наличные","nalícznyje","gotówka"],["дорого","dóraga","drogo"],["дёшево","diószywa","tanio"],["размер","razmiér","rozmiar"]],
+      "Czas i godziny":[["час","czas","godzina"],["минута","minúta","minuta"],["утром","útram","rano"],["днём","dniom","w dzień"],["вечером","wécziram","wieczorem"],["ночью","nóczju","w nocy"],["рано","rána","wcześnie"],["поздно","pózna","późno"]],
+      "Liczby 30–100":[["тридцать","trídcat'","30"],["сорок","sórak","40"],["пятьдесят","pit'disiát","50"],["шестьдесят","szyzdisiát","60"],["семьдесят","siém'disit","70"],["восемьдесят","wósim'disit","80"],["девяносто","divinósta","90"],["сто","sto","100"]]
+    },
+    phrases:[["Сколько времени?","skól'ka wrémini","Która godzina?"],["Я работаю в…","ja rabótaju w","Pracuję w…"],["Можно картой?","móżna kártaj","Można kartą?"],["Это слишком дорого.","éta slíszkam dóraga","To za drogo."],["У вас есть скидка?","u was jest' skítka","Czy jest zniżka?"],["Я плачу наличными.","ja placzú nalícznymi","Płacę gotówką."],["Подождите минуту.","padażdítie minútu","Proszę chwilę poczekać."]],
+    sentences:[
+      {group:"W pracy (LVL 3)",items:[["Я работаю в офисе.","ja rabótaju w ófisi","Pracuję w biurze."],["У меня встреча в три часа.","u miniá fstriécza f tri czisá","Mam spotkanie o trzeciej."],["Позвоните мне позже.","pazwanítie mnie pózże","Proszę zadzwonić później."],["Отправьте документ по почте.","atpráf'tie dakumiént pa póczti","Proszę wysłać dokument mailem."]]},
+      {group:"Pieniądze i zakupy (LVL 3)",items:[["Можно заплатить картой?","móżna zaplatít' kártaj","Można zapłacić kartą?"],["Это слишком дорого для меня.","éta slíszkam dóraga dlia miniá","To dla mnie za drogie."],["У вас есть скидка?","u was jest' skítka","Czy macie zniżkę?"],["Дайте чек, пожалуйста.","dájtie czek pażáłusta","Poproszę paragon."]]}
+    ],
+    dialogs:[
+      {title:"Spotkanie w pracy",icon:"💼",steps:[
+        ["them","Добрый день! У вас встреча?","dóbryj dién', u was fstriécza","Dzień dobry! Ma Pan spotkanie?"],
+        ["you",[["Да, в три часа.","da, f tri czisá","Tak, o trzeciej.",1],["Очень вкусно.","óczin' fkúsna","Bardzo smaczne.",0],["Налево.","naléwa","W lewo.",0]]],
+        ["them","Как вас зовут?","kak was zawút","Jak się Pan nazywa?"],
+        ["you",[["Меня зовут Иван.","miniá zawút Iwán","Nazywam się Iwan.",1],["Сколько это стоит?","skólka éta stóit","Ile to kosztuje?",0]]],
+        ["them","Подождите минуту, пожалуйста.","padażdítie minútu pażáłusta","Proszę chwilę poczekać."],
+        ["you",[["Хорошо, спасибо.","charaszó, spasíba","Dobrze, dziękuję.",1],["Я не знаю.","ja nie znáju","Nie wiem.",0]]]
+      ]},
+      {title:"Płatność w sklepie",icon:"💳",steps:[
+        ["them","С вас пятьдесят евро.","s was pit'disiát éwra","Pięćdziesiąt euro."],
+        ["you",[["Можно картой?","móżna kártaj","Można kartą?",1],["Доброе утро.","dóbraje útra","Dzień dobry (rano).",0],["Я из Польши.","ja iz Pólszy","Jestem z Polski.",0]]],
+        ["them","Конечно. Введите пин-код.","kaniészna, widítie pin-kód","Oczywiście. Proszę wpisać PIN."],
+        ["you",[["Готово.","gatóva","Gotowe.",1],["Сколько времени?","skól'ka wrémini","Która godzina?",0]]],
+        ["them","Спасибо за покупку!","spasíba za pakúpku","Dziękujemy za zakupy!"],
+        ["you",[["До свидания!","da swidánija","Do widzenia!",1],["Я не понимаю.","ja nie panimáju","Nie rozumiem.",0]]]
+      ]}
+    ]
+  },
+  es:{
+    vocab:{
+      "Praca":[["trabajo","trabáho","praca"],["oficina","ofisína","biuro"],["dinero","dinéro","pieniądze"],["tiempo","tiémpo","czas"],["reunión","reunión","spotkanie"],["teléfono","teléfono","telefon"],["correo","korréo","poczta/e-mail"],["documento","dokuménto","dokument"]],
+      "Zakupy":[["precio","présio","cena"],["descuento","deskuénto","zniżka"],["caja","káha","kasa"],["tarjeta","tarhéta","karta"],["efectivo","efektíbo","gotówka"],["caro","káro","drogo"],["barato","baráto","tanio"],["talla","tája","rozmiar"]],
+      "Czas i godziny":[["hora","óra","godzina"],["minuto","minúto","minuta"],["por la mañana","por la maniána","rano"],["por la tarde","por la tárde","po południu"],["por la noche","por la nócze","w nocy"],["temprano","tempráno","wcześnie"],["tarde","tárde","późno"],["ahora","aóra","teraz"]],
+      "Liczby 30–100":[["treinta","tréinta","30"],["cuarenta","kuarénta","40"],["cincuenta","sinkuénta","50"],["sesenta","sesénta","60"],["setenta","seténta","70"],["ochenta","ochénta","80"],["noventa","nobénta","90"],["cien","sien","100"]]
+    },
+    phrases:[["¿Qué hora es?","ke óra es","Która godzina?"],["Trabajo en…","trabáho en","Pracuję w…"],["¿Puedo pagar con tarjeta?","puédo pagár kon tarhéta","Mogę zapłacić kartą?"],["Es demasiado caro.","es demasiádo káro","To za drogo."],["¿Hay descuento?","aj deskuénto","Czy jest zniżka?"],["Pago en efectivo.","págo en efektíbo","Płacę gotówką."],["Espere un minuto.","espére un minúto","Proszę chwilę poczekać."]],
+    sentences:[
+      {group:"W pracy (LVL 3)",items:[["Trabajo en una oficina.","trabáho en úna ofisína","Pracuję w biurze."],["Tengo una reunión a las tres.","téngo úna reunión a las tres","Mam spotkanie o trzeciej."],["Llámeme más tarde.","jámeme mas tárde","Proszę zadzwonić później."],["Envíe el documento por correo.","embíe el dokuménto por korréo","Proszę wysłać dokument mailem."]]},
+      {group:"Pieniądze i zakupy (LVL 3)",items:[["¿Puedo pagar con tarjeta?","puédo pagár kon tarhéta","Czy mogę zapłacić kartą?"],["Es demasiado caro para mí.","es demasiádo káro pára mi","To dla mnie za drogie."],["¿Hay algún descuento?","aj algún deskuénto","Czy jest jakaś zniżka?"],["¿Me da el recibo, por favor?","me da el resíbo por fabór","Poproszę paragon."]]}
+    ],
+    dialogs:[
+      {title:"Spotkanie w pracy",icon:"💼",steps:[
+        ["them","¡Buenos días! ¿Tiene una reunión?","buénos días, tiéne úna reunión","Dzień dobry! Ma Pan spotkanie?"],
+        ["you",[["Sí, a las tres.","si, a las tres","Tak, o trzeciej.",1],["Está muy rico.","está muj ríko","Bardzo smaczne.",0],["A la izquierda.","a la iskiérda","W lewo.",0]]],
+        ["them","¿Cómo se llama?","kómo se jáma","Jak się Pan nazywa?"],
+        ["you",[["Me llamo Juan.","me jámo Huán","Nazywam się Juan.",1],["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?",0]]],
+        ["them","Espere un minuto, por favor.","espére un minúto por fabór","Proszę chwilę poczekać."],
+        ["you",[["Vale, gracias.","bále, grásias","Dobrze, dziękuję.",1],["No sé.","no se","Nie wiem.",0]]]
+      ]},
+      {title:"Płatność w sklepie",icon:"💳",steps:[
+        ["them","Son cincuenta euros.","son sinkuénta éuros","Pięćdziesiąt euro."],
+        ["you",[["¿Puedo con tarjeta?","puédo kon tarhéta","Można kartą?",1],["Buenos días.","buénos días","Dzień dobry.",0],["Soy de Polonia.","soj de Polónia","Jestem z Polski.",0]]],
+        ["them","Claro. Marque su PIN.","kláro, márke su pin","Oczywiście. Proszę wpisać PIN."],
+        ["you",[["Hecho.","écho","Gotowe.",1],["¿Qué hora es?","ke óra es","Która godzina?",0]]],
+        ["them","¡Gracias por su compra!","grásias por su kómpra","Dziękujemy za zakupy!"],
+        ["you",[["¡Adiós!","adiós","Do widzenia!",1],["No entiendo.","no entiéndo","Nie rozumiem.",0]]]
+      ]}
+    ]
+  }
+};
+function extra(lang,lvl){return lvl===2?(L2[lang]||null):lvl===3?(L3[lang]||null):null;}
+const DLG={
+  ru:[
+    {title:"W kawiarni",icon:"☕",lvl:1,n:[
+      ["m","Здравствуйте! Что будете?","zdrástwujtie, szto búditie","Dzień dobry! Co podać?",1],
+      ["y",[["Один кофе, пожалуйста.","adín kófie pażáłusta","Poproszę kawę.",2],["Один чай, пожалуйста.","adín czaj pażáłusta","Poproszę herbatę.",2],["До свидания.","da swidánija","Do widzenia.","x"]]],
+      ["m","Что-нибудь ещё?","szto-nibút' jiszczó","Coś jeszcze?",3],
+      ["y",[["Нет, спасибо.","niet spasíba","Nie, dziękuję.",4],["Да, воду, пожалуйста.","da, wódu pażáłusta","Tak, wodę poproszę.",4],["Извините.","izwinítie","Przepraszam.","x"]]],
+      ["m","С вас три евро.","s was tri jéwra","Trzy euro.",5],
+      ["y",[["Вот, пожалуйста.","wot pażáłusta","Proszę, oto.",-1],["Где туалет?","gdie tualét","Gdzie jest toaleta?","x"]]]
+    ]},
+    {title:"Pytanie o drogę",icon:"🗺️",lvl:1,n:[
+      ["m","Вы заблудились?","wy zabludílis'","Zgubił się Pan?",1],
+      ["y",[["Да, где вокзал?","da, gdie wakzáł","Tak, gdzie jest dworzec?",2],["Очень вкусно.","óczin' fkúsna","Bardzo smaczne.","x"],["Я хочу пить.","ja chaczú pit'","Chce mi się pić.","x"]]],
+      ["m","Идите прямо.","idítie priáma","Proszę iść prosto.",3],
+      ["y",[["Это далеко?","éta dalikó","Czy to daleko?",4],["Сколько это стоит?","skólka éta stóit","Ile to kosztuje?","x"]]],
+      ["m","Нет, пять минут.","niet, piat' minút","Nie, pięć minut.",5],
+      ["y",[["Спасибо большое!","spasíba bal'szóje","Dziękuję bardzo!",-1],["Я не понимаю.","ja nie panimáju","Nie rozumiem.","x"]]]
+    ]},
+    {title:"Poznajemy się",icon:"🤝",lvl:1,n:[
+      ["m","Привет! Как тебя зовут?","priwiét, kak tibiá zawút","Cześć! Jak masz na imię?",1],
+      ["y",[["Меня зовут Анна.","miniá zawút Anna","Nazywam się Anna.",2],["Где туалет?","gdie tualét","Gdzie jest toaleta?","x"]]],
+      ["m","Очень приятно! Откуда ты?","óczin' prijátna, atkúda ty","Miło mi! Skąd jesteś?",3],
+      ["y",[["Я из Польши.","ja iz Pólszy","Jestem z Polski.",4],["Я из Варшавы.","ja iz Warszáwy","Jestem z Warszawy.",4],["Я хочу есть.","ja chaczú jest'","Jestem głodny.","x"]]],
+      ["m","Здорово! Сколько тебе лет?","zdórawa, skól'ka tibié liet","Super! Ile masz lat?",5],
+      ["y",[["Мне двадцать лет.","mnie dwádcat' liet","Mam dwadzieścia lat.",-1],["Спасибо.","spasíba","Dziękuję.","x"]]]
+    ]},
+    {title:"W sklepie",icon:"🛒",lvl:1,n:[
+      ["m","Здравствуйте! Чем могу помочь?","zdrástwujtie, czem magú pamócz'","Dzień dobry! W czym mogę pomóc?",1],
+      ["y",[["У вас есть хлеб?","u was jest' chlep","Czy macie chleb?",2],["Меня зовут Анна.","miniá zawút Anna","Nazywam się Anna.","x"]]],
+      ["m","Да, конечно. Что ещё?","da, kaniészna, szto jiszczó","Tak. Co jeszcze?",3],
+      ["y",[["Молоко и воду.","małakó i wódu","Mleko i wodę.",4],["Налево.","naléwa","W lewo.","x"]]],
+      ["m","Хорошо. Сто рублей.","charaszó, sto rubléj","Dobrze. Sto rubli.",5],
+      ["y",[["Вот, пожалуйста.","wot pażáłusta","Proszę.",-1],["Я не знаю.","ja nie znáju","Nie wiem.","x"]]]
+    ]},
+    {title:"Small talk",icon:"☀️",lvl:1,n:[
+      ["m","Привет! Как дела?","priwiét, kak dilá","Cześć! Co słychać?",1],
+      ["y",[["Хорошо, спасибо. А у тебя?","charaszó spasíba, a u tibiá","Dobrze, dzięki. A u ciebie?",2],["Сколько это стоит?","skólka éta stóit","Ile to kosztuje?","x"]]],
+      ["m","Тоже хорошо. Какая сегодня погода?","tóże charaszó, kakája siwódnia pagóda","Też dobrze. Jaka dziś pogoda?",3],
+      ["y",[["Сегодня тепло.","siwódnia tipłó","Dziś jest ciepło.",4],["Сегодня холодно.","siwódnia chóładna","Dziś jest zimno.",4],["До свидания.","da swidánija","Do widzenia.","x"]]],
+      ["m","Да, хороший день!","da, charószyj dién'","Tak, ładny dzień!",5],
+      ["y",[["Хорошего дня!","charósziwa dnia","Miłego dnia!",-1],["Я не понимаю.","ja nie panimáju","Nie rozumiem.","x"]]]
+    ]},
+    {title:"Na dworcu",icon:"🚉",lvl:2,n:[
+      ["m","Здравствуйте! Куда едете?","zdrástwujtie, kudá jédietie","Dzień dobry! Dokąd Pan jedzie?",1],
+      ["y",[["В Москву, пожалуйста.","w Maskwú pażáłusta","Do Moskwy proszę.",2],["Очень приятно.","óczin' prijátna","Miło mi.","x"]]],
+      ["m","Туда и обратно?","tudá i abrátna","W obie strony?",3],
+      ["y",[["Да, туда и обратно.","da, tudá i abrátna","Tak, w obie strony.",4],["Нет, только туда.","niet, tól'ka tudá","Nie, tylko tam.",5],["Спасибо, до свидания.","spasíba, da swidánija","Dziękuję, do widzenia.","x"]]],
+      ["m","Хорошо. Тысяча рублей.","charaszó, týsicza rubléj","Dobrze. Tysiąc rubli.",6],
+      ["m","Хорошо. Пятьсот рублей.","charaszó, pit'sót rubléj","Dobrze. Pięćset rubli.",6],
+      ["y",[["Вот, пожалуйста.","wot pażáłusta","Proszę.",-1],["Где туалет?","gdie tualét","Gdzie toaleta?","x"]]]
+    ]},
+    {title:"W restauracji",icon:"🍽️",lvl:2,n:[
+      ["m","Добрый вечер! Что будете заказывать?","dóbryj wéczir, szto búditie zakázywat'","Dobry wieczór! Co Pan zamówi?",1],
+      ["y",[["Можно меню?","móżna minú","Można menu?",2],["Налево.","naléwa","W lewo.","x"]]],
+      ["m","Конечно. Что будете пить?","kaniészna, szto búditie pit'","Oczywiście. Co do picia?",3],
+      ["y",[["Воду, пожалуйста.","wódu pażáłusta","Wodę proszę.",4],["Вино, пожалуйста.","winó pażáłusta","Wino proszę.",4],["До свидания.","da swidánija","Do widzenia.","x"]]],
+      ["m","Хорошо, сейчас принесу.","charaszó, sicziás prinisú","Dobrze, zaraz przyniosę.",5],
+      ["y",[["Спасибо большое!","spasíba bal'szóje","Dziękuję bardzo!",-1],["Я не понимаю.","ja nie panimáju","Nie rozumiem.","x"]]]
+    ]},
+    {title:"W hotelu",icon:"🏨",lvl:2,n:[
+      ["m","Добрый день! У вас бронь?","dóbryj dién', u was bron'","Dzień dobry! Ma Pan rezerwację?",1],
+      ["y",[["Да, на одну ночь.","da, na adnú nocz'","Tak, na jedną noc.",2],["Очень вкусно.","óczin' fkúsna","Bardzo smaczne.","x"]]],
+      ["m","На какое имя?","na kakóje ímia","Na jakie nazwisko?",3],
+      ["y",[["На имя Ковальски.","na ímia Kawál'ski","Na nazwisko Kowalski.",4],["Сколько времени?","skól'ka wrémini","Która godzina?","x"]]],
+      ["m","Вот ваш ключ. Комната пять.","wot wasz klucz, kómnata piat'","Oto klucz. Pokój pięć.",5],
+      ["y",[["Спасибо большое!","spasíba bal'szóje","Dziękuję bardzo!",-1],["Я не знаю.","ja nie znáju","Nie wiem.","x"]]]
+    ]},
+    {title:"Spotkanie w pracy",icon:"💼",lvl:3,n:[
+      ["m","Добрый день! У вас встреча?","dóbryj dién', u was fstriécza","Dzień dobry! Ma Pan spotkanie?",1],
+      ["y",[["Да, в три часа.","da, f tri czisá","Tak, o trzeciej.",2],["Налево.","naléwa","W lewo.","x"]]],
+      ["m","Как вас зовут?","kak was zawút","Jak się Pan nazywa?",3],
+      ["y",[["Меня зовут Иван.","miniá zawút Iwán","Nazywam się Iwan.",4],["Сколько это стоит?","skólka éta stóit","Ile to kosztuje?","x"]]],
+      ["m","Подождите минуту, пожалуйста.","padażdítie minútu pażáłusta","Proszę chwilę poczekać.",5],
+      ["y",[["Хорошо, спасибо.","charaszó, spasíba","Dobrze, dziękuję.",-1],["Я не знаю.","ja nie znáju","Nie wiem.","x"]]]
+    ]},
+    {title:"Płatność w sklepie",icon:"💳",lvl:3,n:[
+      ["m","С вас пятьдесят евро.","s was pit'disiát éwra","Pięćdziesiąt euro.",1],
+      ["y",[["Можно картой?","móżna kártaj","Można kartą?",2],["Наличными, пожалуйста.","nalícznymi pażáłusta","Gotówką proszę.",3],["Доброе утро.","dóbraje útra","Dzień dobry.","x"]]],
+      ["m","Конечно. Введите пин-код.","kaniészna, widítie pin-kód","Oczywiście. Proszę wpisać PIN.",4],
+      ["m","Хорошо. Возьмите сдачу.","charaszó, waz'mítie sdáczu","Dobrze. Proszę resztę.",4],
+      ["y",[["Готово, спасибо.","gatóva, spasíba","Gotowe, dziękuję.",-1],["Который час?","katóryj czas","Która godzina?","x"]]]
+    ]}
+  ],
+  es:[
+    {title:"W kawiarni",icon:"☕",lvl:1,n:[
+      ["m","¡Hola! ¿Qué desea?","óla, ke deséa","Cześć! Co podać?",1],
+      ["y",[["Un café, por favor.","un kafé por fabór","Poproszę kawę.",2],["Un té, por favor.","un te por fabór","Poproszę herbatę.",2],["Adiós.","adiós","Do widzenia.","x"]]],
+      ["m","¿Algo más?","álgo mas","Coś jeszcze?",3],
+      ["y",[["No, gracias.","no grásias","Nie, dziękuję.",4],["Sí, agua, por favor.","si, água por fabór","Tak, wodę poproszę.",4],["Perdón.","perdón","Przepraszam.","x"]]],
+      ["m","Son tres euros.","son tres éuros","Trzy euro.",5],
+      ["y",[["Aquí tiene.","akí tiéne","Proszę.",-1],["¿Dónde está el baño?","dónde está el bánio","Gdzie toaleta?","x"]]]
+    ]},
+    {title:"Pytanie o drogę",icon:"🗺️",lvl:1,n:[
+      ["m","¿Está perdido?","está perdído","Zgubił się Pan?",1],
+      ["y",[["Sí, ¿dónde está la estación?","si, dónde está la estasión","Tak, gdzie jest dworzec?",2],["Está muy rico.","está muj ríko","Bardzo smaczne.","x"],["Tengo sed.","téngo sed","Chce mi się pić.","x"]]],
+      ["m","Siga recto.","síga rékto","Proszę iść prosto.",3],
+      ["y",[["¿Está lejos?","está léhos","Czy to daleko?",4],["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?","x"]]],
+      ["m","No, cinco minutos.","no, sínko minútos","Nie, pięć minut.",5],
+      ["y",[["¡Muchas gracias!","múczas grásias","Dziękuję bardzo!",-1],["No entiendo.","no entiéndo","Nie rozumiem.","x"]]]
+    ]},
+    {title:"Poznajemy się",icon:"🤝",lvl:1,n:[
+      ["m","¡Hola! ¿Cómo te llamas?","óla, kómo te jámas","Cześć! Jak masz na imię?",1],
+      ["y",[["Me llamo Ana.","me jámo Ana","Nazywam się Ana.",2],["¿Dónde está el baño?","dónde está el bánio","Gdzie toaleta?","x"]]],
+      ["m","¡Mucho gusto! ¿De dónde eres?","múczo gústo, de dónde éres","Miło mi! Skąd jesteś?",3],
+      ["y",[["Soy de Polonia.","soj de Polónia","Jestem z Polski.",4],["Soy de Varsovia.","soj de Barsóbia","Jestem z Warszawy.",4],["Tengo hambre.","téngo ámbre","Jestem głodny.","x"]]],
+      ["m","¡Qué bien! ¿Cuántos años tienes?","ke bien, kuántos ánios tiénes","Super! Ile masz lat?",5],
+      ["y",[["Tengo veinte años.","téngo béinte ánios","Mam dwadzieścia lat.",-1],["Gracias.","grásias","Dziękuję.","x"]]]
+    ]},
+    {title:"W sklepie",icon:"🛒",lvl:1,n:[
+      ["m","¡Hola! ¿En qué puedo ayudar?","óla, en ke puédo ajudár","Cześć! W czym mogę pomóc?",1],
+      ["y",[["¿Tiene pan?","tiéne pan","Czy macie chleb?",2],["Me llamo Ana.","me jámo Ana","Nazywam się Ana.","x"]]],
+      ["m","Sí, claro. ¿Algo más?","si kláro, álgo mas","Tak. Coś jeszcze?",3],
+      ["y",[["Leche y agua.","lécze i água","Mleko i wodę.",4],["A la izquierda.","a la iskiérda","W lewo.","x"]]],
+      ["m","Vale. Cinco euros.","bále, sínko éuros","Dobrze. Pięć euro.",5],
+      ["y",[["Aquí tiene.","akí tiéne","Proszę.",-1],["No sé.","no se","Nie wiem.","x"]]]
+    ]},
+    {title:"Small talk",icon:"☀️",lvl:1,n:[
+      ["m","¡Hola! ¿Qué tal?","óla, ke tal","Cześć! Co słychać?",1],
+      ["y",[["Bien, gracias. ¿Y tú?","bien grásias, i tu","Dobrze, dzięki. A ty?",2],["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?","x"]]],
+      ["m","También bien. ¿Qué tiempo hace hoy?","tambien bien, ke tiémpo áse oj","Też dobrze. Jaka dziś pogoda?",3],
+      ["y",[["Hoy hace calor.","oj áse kalór","Dziś jest ciepło.",4],["Hoy hace frío.","oj áse frío","Dziś jest zimno.",4],["Adiós.","adiós","Do widzenia.","x"]]],
+      ["m","Sí, ¡buen día!","si, buen día","Tak, ładny dzień!",5],
+      ["y",[["¡Buen día!","buen día","Miłego dnia!",-1],["No entiendo.","no entiéndo","Nie rozumiem.","x"]]]
+    ]},
+    {title:"Na dworcu",icon:"🚉",lvl:2,n:[
+      ["m","¡Hola! ¿A dónde va?","óla, a dónde ba","Dzień dobry! Dokąd Pan jedzie?",1],
+      ["y",[["A Madrid, por favor.","a Madríd por fabór","Do Madrytu proszę.",2],["Mucho gusto.","múczo gústo","Miło mi.","x"]]],
+      ["m","¿Ida y vuelta?","ída i buélta","W obie strony?",3],
+      ["y",[["Sí, ida y vuelta.","si, ída i buélta","Tak, w obie strony.",4],["No, solo ida.","no, sólo ída","Nie, tylko tam.",5],["Gracias, adiós.","grásias, adiós","Dziękuję, do widzenia.","x"]]],
+      ["m","Bien. Cien euros.","bien, sien éuros","Dobrze. Sto euro.",6],
+      ["m","Bien. Cincuenta euros.","bien, sinkuénta éuros","Dobrze. Pięćdziesiąt euro.",6],
+      ["y",[["Aquí tiene.","akí tiéne","Proszę.",-1],["¿Dónde está el baño?","dónde está el bánio","Gdzie toaleta?","x"]]]
+    ]},
+    {title:"W restauracji",icon:"🍽️",lvl:2,n:[
+      ["m","¡Buenas noches! ¿Qué va a pedir?","buénas nócze, ke ba a pedír","Dobry wieczór! Co Pan zamówi?",1],
+      ["y",[["¿La carta, por favor?","la kárta por fabór","Poproszę menu?",2],["A la izquierda.","a la iskiérda","W lewo.","x"]]],
+      ["m","Claro. ¿Qué desea beber?","kláro, ke deséa bebér","Jasne. Co do picia?",3],
+      ["y",[["Agua, por favor.","água por fabór","Wodę proszę.",4],["Vino, por favor.","bíno por fabór","Wino proszę.",4],["Adiós.","adiós","Do widzenia.","x"]]],
+      ["m","Muy bien, ahora vuelvo.","muj bien, aóra buélbo","Dobrze, zaraz wracam.",5],
+      ["y",[["¡Muchas gracias!","múczas grásias","Dziękuję bardzo!",-1],["No entiendo.","no entiéndo","Nie rozumiem.","x"]]]
+    ]},
+    {title:"W hotelu",icon:"🏨",lvl:2,n:[
+      ["m","¡Buenos días! ¿Tiene reserva?","buénos días, tiéne resérba","Dzień dobry! Ma Pan rezerwację?",1],
+      ["y",[["Sí, para una noche.","si, pára úna nócze","Tak, na jedną noc.",2],["Está muy rico.","está muj ríko","Bardzo smaczne.","x"]]],
+      ["m","¿A nombre de quién?","a nómbre de kien","Na jakie nazwisko?",3],
+      ["y",[["A nombre de Kowalski.","a nómbre de Kowálski","Na nazwisko Kowalski.",4],["¿Qué hora es?","ke óra es","Która godzina?","x"]]],
+      ["m","Aquí está su llave. Habitación cinco.","akí está su jábe, abitasión sínko","Oto klucz. Pokój pięć.",5],
+      ["y",[["¡Muchas gracias!","múczas grásias","Dziękuję bardzo!",-1],["No sé.","no se","Nie wiem.","x"]]]
+    ]},
+    {title:"Spotkanie w pracy",icon:"💼",lvl:3,n:[
+      ["m","¡Buenos días! ¿Tiene una reunión?","buénos días, tiéne úna reunión","Dzień dobry! Ma Pan spotkanie?",1],
+      ["y",[["Sí, a las tres.","si, a las tres","Tak, o trzeciej.",2],["A la izquierda.","a la iskiérda","W lewo.","x"]]],
+      ["m","¿Cómo se llama?","kómo se jáma","Jak się Pan nazywa?",3],
+      ["y",[["Me llamo Juan.","me jámo Huán","Nazywam się Juan.",4],["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?","x"]]],
+      ["m","Espere un minuto, por favor.","espére un minúto por fabór","Proszę chwilę poczekać.",5],
+      ["y",[["Vale, gracias.","bále, grásias","Dobrze, dziękuję.",-1],["No sé.","no se","Nie wiem.","x"]]]
+    ]},
+    {title:"Płatność w sklepie",icon:"💳",lvl:3,n:[
+      ["m","Son cincuenta euros.","son sinkuénta éuros","Pięćdziesiąt euro.",1],
+      ["y",[["¿Puedo con tarjeta?","puédo kon tarhéta","Można kartą?",2],["En efectivo, por favor.","en efektíbo por fabór","Gotówką proszę.",3],["Buenos días.","buénos días","Dzień dobry.","x"]]],
+      ["m","Claro. Marque su PIN.","kláro, márke su pin","Oczywiście. Proszę wpisać PIN.",4],
+      ["m","Bien. Aquí tiene el cambio.","bien, akí tiéne el kámbio","Dobrze. Oto reszta.",4],
+      ["y",[["Hecho, gracias.","écho, grásias","Gotowe, dziękuję.",-1],["¿Qué hora es?","ke óra es","Która godzina?","x"]]]
+    ]}
+  ]
+};
+let state={lang:"ru",tab:"guide",verbIdx:0,vocabCat:null,fcIdx:0,fcFlip:false,fcDeck:[],quiz:null,quizSound:true,hard:{ru:new Set(),es:new Set()},hardIdx:0,daily:{ru:null,es:null},dlg:null,level:{ru:1,es:1},justLeveled:null,srs:{ru:{},es:{}},stats:{ru:{},es:{}},revIdx:0,revFlip:false,mw:null,zhMode:"list",zhIdx:0,zhFlip:false,zhDeck:null,
+  spellDeck:[],spellIdx:0,spellChecked:false,spellSession:{done:0,ok:0},known:{ru:new Set(),es:new Set()},
+  genPerson:0,genVerb:0,genCompl:0,gen:null,genSess:{ok:0,done:0},listen:null,speakItem:null,speakSess:{ok:0,done:0},streak:null};
+let recog=null;
+
+/* ---- storage (safe; persists if browser allows) ---- */
+const SK='jezyklab_v4';
+function loadStore(){try{const s=localStorage.getItem(SK);return s?JSON.parse(s):{};}catch(e){return {};}}
+function saveStore(o){try{localStorage.setItem(SK,JSON.stringify(o));return true;}catch(e){return false;}}
+function saveKnown(){const s=loadStore();s.known={ru:[...state.known.ru],es:[...state.known.es]};saveStore(s);}
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function PL(){return 'pl-PL';}function TL(){return DATA[state.lang].speech;}
+function speak(text,e){if(e)e.stopPropagation();try{const u=new SpeechSynthesisUtterance(text);u.lang=TL();u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(err){}}
+function sayBtn(t){return '<button class="say" title="Posłuchaj" onclick="speak(\''+String(t).replace(/'/g,"\\'")+'\',event)">🔊</button>';}
+function speakL(text,lang,e){if(e)e.stopPropagation();try{const u=new SpeechSynthesisUtterance(text);u.lang=lang;u.rate=.78;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(err){}}
+function sayBtnL(t,lang){return '<button class="say" title="Posłuchaj" onclick="speakL(\''+String(t).replace(/'/g,"\\'")+'\',\''+lang+'\',event)">🔊</button>';}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function stopSeq(){try{speechSynthesis.cancel();}catch(e){}}
+function stopRecog(){if(recog){try{recog.abort();}catch(e){}recog=null;}}
+function playSeq(items){stopSeq();items.forEach(it=>{if(!it.t)return;const u=new SpeechSynthesisUtterance(it.t);u.lang=it.lang;u.rate=String(it.lang).startsWith('pl')?0.95:0.82;speechSynthesis.speak(u);});}
+const RU_V=new Set(['а','е','ё','и','о','у','ы','э','ю','я']);
+function ruLetterSay(l){if(l==='ъ'||l==='ь')return '';if(l==='й')return 'ай';if(RU_V.has(l))return l;return l+'а';}
+function ruLow(d){const p=d.trim().split(/\s+/);return (p[1]||p[0]).toLowerCase();}
+function lcp(a){if(!a.length)return '';let p=a[0];for(const s of a){let i=0;while(i<p.length&&i<s.length&&p[i].toLowerCase()===s[i].toLowerCase())i++;p=p.slice(0,i);}return p;}
+function stripAcc(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function normSpell(s,l){s=String(s).trim().toLowerCase().replace(/[?!.…¿¡]+/g,'').replace(/\s+/g,' ');if(l==='ru')s=s.replace(/ё/g,'е');return s;}
+function lev(a,b){const m=a.length,n=b.length;const dp=[];for(let i=0;i<=m;i++){dp.push([i]);for(let j=1;j<=n;j++)dp[i].push(i===0?j:0);}for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=Math.min(dp[i-1][j]+1,dp[i][j-1]+1,dp[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return dp[m][n];}
+function sim(a,b){if(!a&&!b)return 1;return 1-lev(a,b)/Math.max(a.length,b.length,1);}
+
+function lvlOf(){return state.level[state.lang]||1;}
+function levelItems(lang,lvl){let o=[];if(lvl===1){const d=DATA[lang];d.phrases.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]}));Object.values(d.vocab).forEach(a=>a.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]})));d.numbers.forEach(r=>o.push({t:r[0],f:r[1],p:"liczba "+r[2]}));d.pronouns.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]}));}else{const d=extra(lang,lvl);if(d){(d.phrases||[]).forEach(r=>o.push({t:r[0],f:r[1],p:r[2]}));Object.values(d.vocab||{}).forEach(a=>a.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]})));}}return o;}
+function levelSentences(lang,lvl){if(lvl===1)return DATA[lang].sentences;const d=extra(lang,lvl);return (d&&d.sentences)||[];}
+function shortDeck(l){let o=[];const lv=state.level[l]||1;for(let k=1;k<=lv;k++)o=o.concat(levelItems(l,k));return o;}
+function fullDeck(l){let o=shortDeck(l).slice();const lv=state.level[l]||1;for(let k=1;k<=lv;k++)levelSentences(l,k).forEach(g=>g.items.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]})));return o;}
+function saveLevel(){const s=loadStore();s.level=state.level;saveStore(s);}
+const SRS_INT=[0,1,3,7,14,30];
+function todayDay(){return Math.floor(Date.now()/86400000);}
+function saveSrs(){const s=loadStore();s.srs={ru:state.srs.ru,es:state.srs.es};saveStore(s);}
+function srsHit(t){const g=state.srs[state.lang];const e=g[t]||{box:0,hits:0,misses:0};e.box=Math.min((e.box||0)+1,5);e.hits=(e.hits||0)+1;e.due=todayDay()+SRS_INT[e.box];g[t]=e;if(e.box>=4){state.known[state.lang].add(t);saveKnown();}saveSrs();}
+function srsMiss(t){const g=state.srs[state.lang];const e=g[t]||{box:0,hits:0,misses:0};e.box=1;e.misses=(e.misses||0)+1;e.due=todayDay()+SRS_INT[1];g[t]=e;if(state.known[state.lang].delete(t))saveKnown();saveSrs();}
+function srsStrong(t){const g=state.srs[state.lang];const e=g[t]||{box:0,hits:0,misses:0};e.box=5;e.hits=(e.hits||0)+1;e.due=todayDay()+SRS_INT[5];g[t]=e;state.known[state.lang].add(t);saveKnown();saveSrs();}
+function isMastered(lang,t){const e=state.srs[lang][t];return !!(e&&e.box>=4);}
+function dueList(lang){const pool=fullDeck(lang);const td=todayDay();const seen={};let o=[];pool.forEach(it=>{const e=state.srs[lang][it.t];if(e&&e.due<=td&&!seen[it.t]){seen[it.t]=1;o.push(Object.assign({},it,{box:e.box,due:e.due}));}});o.sort((a,b)=>a.due-b.due||a.box-b.box);return o;}
+function saveStats(){const s=loadStore();s.stats={ru:state.stats.ru,es:state.stats.es};saveStore(s);}
+function statHit(mode,ok){const g=state.stats[state.lang];const e=g[mode]||{ok:0,n:0};e.n++;if(ok)e.ok++;g[mode]=e;saveStats();}
+function markKnown(t){srsStrong(t);updateProgress();}
+function saveHard(){const s=loadStore();s.hard={ru:[...state.hard.ru],es:[...state.hard.es]};saveStore(s);}
+function addHard(t){state.hard[state.lang].add(t);saveHard();}
+function removeHard(t){if(state.hard[state.lang].delete(t))saveHard();}
+function findItem(t){const all=fullDeck(state.lang);for(const it of all)if(it.t===t)return it;return {t:t,f:'',p:'?'};}
+function saveDaily(){const s=loadStore();s.daily=state.daily;saveStore(s);}
+function freshDaily(){return {date:todayStr(),done:DAILY_TASKS.map(()=>false)};}
+function dailyCur(){const t=todayStr();let d=state.daily[state.lang];if(!d||d.date!==t){d=freshDaily();state.daily[state.lang]=d;saveDaily();}return d;}
+function initDaily(){const s=loadStore();const d=s.daily;state.daily={ru:(d&&d.ru)||null,es:(d&&d.es)||null};}
+function totalItems(){return fullDeck(state.lang).length;}
+function updateProgress(){if(state.lang==='zh')return;const total=totalItems(),k=state.known[state.lang].size,pct=total?Math.round(k/total*100):0;const f=document.getElementById('progFill'),n=document.getElementById('progNum');if(f)f.style.width=pct+'%';if(n)n.textContent=k+' / '+total+' · '+pct+'%';}
+
+/* timer */
+let timer={sec:0,id:null};
+function fmt(s){const m=Math.floor(s/60),x=s%60;return String(m).padStart(2,'0')+':'+String(x).padStart(2,'0');}
+function timerPaint(){const el=document.getElementById('timer');if(el)el.textContent=fmt(timer.sec);}
+function timerStart(){if(timer.id)return;timer.id=setInterval(()=>{timer.sec++;timerPaint();},1000);}
+function timerStop(){if(timer.id){clearInterval(timer.id);timer.id=null;}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){timerStop();timer.sec=0;timerPaint();}else{timer.sec=0;timerPaint();timerStart();}});
+
+/* streak */
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function dayDiff(a,b){return Math.round((Date.parse(b+'T00:00:00')-Date.parse(a+'T00:00:00'))/86400000);}
+function initStreak(){const st=loadStore();let s=st.streak||{date:null,count:0,best:0};const t=todayStr();
+  if(s.date===t){}else if(s.date&&dayDiff(s.date,t)===1){s.count+=1;}else{s.count=1;}
+  s.date=t;s.best=Math.max(s.best||0,s.count);st.streak=s;saveStore(st);state.streak=s;}
+function paintStreak(){const el=document.getElementById('streak');if(el){const c=state.streak?state.streak.count:1;el.textContent='🔥 '+c+(c===1?' dzień':' dni');}}
+function paintLevel(){const el=document.getElementById('lvl');if(el){const r=state.level[state.lang]||1;el.innerHTML='<span style="opacity:.7;margin-right:4px">📚</span>'+[1,2,3].map(n=>'<button data-rng="'+n+'" style="border:none;background:'+(n<=r?'var(--accent)':'transparent')+';color:'+(n<=r?'#fff':'var(--ink-soft)')+';width:22px;height:22px;border-radius:6px;font-family:var(--disp);font-weight:700;font-size:12px;cursor:pointer;margin:0 1px">'+n+'</button>').join('');el.title='Zakres materiału: LVL 1–'+r+' (kliknij, by zmienić)';}}
+
+function applyTheme(){const root=document.documentElement;const v=state.lang==='es'?'--es':state.lang==='zh'?'--audio':'--ru';root.style.setProperty('--accent','var('+v+')');root.style.setProperty('--accent-soft','color-mix(in srgb, var('+v+') 13%, transparent)');document.querySelectorAll('#langToggle button').forEach(b=>b.classList.toggle('active',b.dataset.l===state.lang));}
+function curSection(){return SECTIONS.find(s=>s.tabs.indexOf(state.tab)>=0)||SECTIONS[0];}
+function renderTabs(){const cs=curSection();
+  document.getElementById('sections').innerHTML=SECTIONS.map(s=>'<button data-sec="'+s.id+'" class="'+(s.id===cs.id?'active':'')+'">'+s.label+'</button>').join('');
+  const bn=document.getElementById('bottomnav');if(bn){bn.style.display='';bn.innerHTML=SECTIONS.map(s=>{const sp=s.label.split(' ');const ic=sp.shift();return '<button data-sec="'+s.id+'" class="'+(s.id===cs.id?'active':'')+'"><span class="bic">'+ic+'</span>'+sp.join(' ')+'</button>';}).join('');}
+  document.getElementById('tabs').innerHTML=cs.tabs.map(id=>{const t=TABS.find(x=>x.id===id);if(!t)return '';return '<button data-tab="'+id+'" class="'+(state.tab===id?'active':'')+'"><span class="ix">'+t.ix+'</span>'+t.label+'</button>';}).join('');}
+function readbar(l){return '<div class="readbar"><button class="btn primary" id="readPlay">▶ '+l+'</button><button class="btn ghost" id="readStop">■ Stop</button></div>';}
+
+/* ============== WIDOKI (skróty z v3) ============== */
+function viewGuide(){const pr=[["Atakuj najczęstsze słowa (Pareto/Zipf)","Częstość słów spada wykładniczo; mały rdzeń pokrywa większość mowy.","≈100→~50% · ≈1000→~80%"],["Powtórki rozłożone (krzywa zapominania)","M(t)=e^(−t/τ). Powtórka tuż przed zapomnieniem wydłuża τ.","1d→3→7→16→35"],["Aktywne przywoływanie > bierne czytanie","Ślad wzmacnia wysiłek przypomnienia: Fiszki, Słuchanie, Mówienie, Pisownia, Quiz.","recall > recognition"],["Gramatyka jako system","forma = temat + końcówka(osoba). Kolor w zakładce 04 pokazuje, co się zmienia.","forma = temat ∘ końcówka"],["Mowa first","Używaj Słuchania i Mówienia, mów na głos za 🔊. Pisownia to wsparcie.","input ↔ output"],["Chunking","Ucz się gotowych zdań (Zdania) i składaj własne (Generator).","1 fraza < 4 słowa"],["Regularność > intensywność","Krótko, codziennie. Pilnuje tego seria dni 🔥 i licznik sesji ⏱.","konsystencja > zryw"]];
+  return '<div class="view"><div class="head"><div class="eyebrow">Metoda · uczysz się '+(state.lang==='ru'?'rosyjskiego':'hiszpańskiego')+'</div><h1>Język jako system, nie zbiór wyjątków</h1><p class="lede">Model i reguły → dane → wymuszone powtórki i mowa.</p></div><div class="card panel"><div class="curve-wrap"><div><h2 style="margin-top:0"><span class="num">τ</span>Krzywa zapominania</h2><p style="color:var(--ink-soft);font-size:14px;margin:0 0 6px">Każda powtórka podnosi ślad i spłaszcza zanik.</p>'+forgetCurveSVG()+'</div><div><h2 style="margin-top:0"><span class="num">%</span>Zwrot ze słówek</h2><p style="color:var(--ink-soft);font-size:14px;margin:0 0 12px">Pierwsze setki słów dają najwięcej.</p>'+coverageBars()+'</div></div></div><h2><span class="num">7</span>Zasady</h2><div class="guide">'+pr.map((p,i)=>'<div class="principle"><div class="p-no">'+(i+1)+'</div><div><h3>'+p[0]+'</h3><p>'+p[1]+'</p><span class="formula">'+p[2]+'</span></div></div>').join('')+'</div></div>';}
+function forgetCurveSVG(){const W=320,H=180,pad=24,x0=pad,x1=W-8,y0=8,y1=H-pad,span=x1-x0,hgt=y1-y0;function dec(t,tau){return Math.exp(-t/tau);}const rs=[0,.18,.40,.66],ts=[.10,.18,.30,.55];let s="";for(let i=0;i<rs.length;i++){const a=rs[i],b=(i<rs.length-1)?rs[i+1]:1,tau=ts[i];let d="";for(let f=0;f<=1;f+=0.04){const gx=x0+(a+(b-a)*f)*span;const gy=y0+(1-dec((b-a)*f,tau))*hgt*.95;d+=(f===0?"M":"L")+gx.toFixed(1)+" "+gy.toFixed(1)+" ";}s+='<path d="'+d+'" fill="none" stroke="var(--accent)" stroke-width="2.4"/>';if(i>0){const rx=x0+a*span;s+='<line x1="'+rx+'" y1="'+y0+'" x2="'+rx+'" y2="'+y1+'" stroke="var(--slate)" stroke-dasharray="3 3" opacity=".55"/>';}}return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:360px;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:10px"><line x1="'+x0+'" y1="'+y1+'" x2="'+x1+'" y2="'+y1+'" stroke="var(--line)"/><line x1="'+x0+'" y1="'+y0+'" x2="'+x0+'" y2="'+y1+'" stroke="var(--line)"/>'+s+'</svg>';}
+function coverageBars(){return [["100 słów",50],["300 słów",65],["1 000 słów",80],["3 000 słów",90],["5 000 słów",95]].map(r=>'<div class="barrow"><span class="lab">'+r[0]+'</span><span class="bar"><i style="width:'+r[1]+'%"></i></span><span class="val">'+r[1]+'%</span></div>').join('');}
+function viewAlpha(){const d=DATA[state.lang];let grid=d.alphabet.map(a=>{const say=(state.lang==='ru')?ruLetterSay(ruLow(a[0])):(a[3]||a[0]);return '<div class="tile"><div class="target">'+esc(a[0])+'</div><div class="ipa">['+esc(a[1])+']</div><div class="pl">'+a[2]+'</div>'+(say?'<div style="position:absolute;bottom:11px;right:11px">'+sayBtn(say)+'</div>':'')+'</div>';}).join('');let mnem=d.mnemonics.map(m=>{const say=(state.lang==='ru')?ruLetterSay(ruLow(m[0])):(m[3]||m[0]);return '<div class="tile mnemtile"><div class="target">'+esc(m[0])+'</div><div class="ipa">['+esc(m[1])+']</div><div class="mnem">'+m[2]+'</div>'+(say?sayBtn(say):'')+'</div>';}).join('');return '<div class="view"><div class="head"><div class="eyebrow">01 · Fundament</div><h1>Alfabet i wymowa</h1></div><div class="note">'+d.alphaNote+'</div>'+readbar('Przesłuchaj wszystkie dźwięki')+'<div class="grid g-letters">'+grid+'</div><h2><span class="num">★</span>Skojarzenia</h2><div class="note">Kształt litery → polskie słowo-haczyk (np. <b>Д = domek</b>, <b>Ш = szumiący las</b>).</div><div class="grid g-letters">'+mnem+'</div></div>';}
+function tileGrid(arr){return '<div class="grid g-word">'+arr.map(r=>'<div class="tile word"><div class="target">'+esc(r[0])+'</div><div class="ipa">'+esc(r[1])+'</div><div class="pl">'+r[2]+'</div>'+sayBtn(r[0])+'</div>').join('')+'</div>';}
+function viewNumbers(){const d=DATA[state.lang];return '<div class="view"><div class="head"><div class="eyebrow">02 · Fundament</div><h1>Liczby 0–20</h1></div><div class="note">Ciągłe odtwarzanie policzy 0–20 po '+(state.lang==='ru'?'rosyjsku':'hiszpańsku')+' (bez polskiego).</div>'+readbar('Odtwórz 0–20 po '+(state.lang==='ru'?'rosyjsku':'hiszpańsku'))+'<div class="grid g-word">'+d.numbers.map(n=>'<div class="tile word"><span class="badge">'+n[2]+'</span><div class="target">'+esc(n[0])+'</div><div class="ipa">'+esc(n[1])+'</div><div class="pl">liczba '+n[2]+'</div>'+sayBtn(n[0])+'</div>').join('')+'</div></div>';}
+function viewPron(){const d=DATA[state.lang];return '<div class="view"><div class="head"><div class="eyebrow">03 · Fundament</div><h1>Zaimki osobowe</h1></div><div class="note">Zaimki decydują o końcówce czasownika (04).</div>'+readbar('Przesłuchaj stronę (PL + '+(state.lang==='ru'?'RU':'ES')+')')+tileGrid(d.pronouns)+'</div>';}
+function viewVerbs(){const d=DATA[state.lang],v=d.verbs[state.verbIdx];const forms=v.rows.map(r=>r[1]);const stem=lcp(forms);const rows=v.rows.map(r=>{const f=r[1],st=f.slice(0,stem.length),en=f.slice(stem.length);return '<tr><td class="osoba">'+esc(r[0])+'</td><td class="forma">'+(st?'<span class="stem">'+esc(st)+'</span>':'')+'<span class="end">'+esc(en)+'</span></td><td class="phon">'+esc(r[2])+'</td><td class="tr">'+esc(r[3])+'</td><td>'+sayBtn(r[1])+'</td></tr>';}).join('');const refCols=d.ref.map(r=>({h:r[0].replace(' koniugacja','').replace('grupa ',''),ends:r[1].split(' · ')}));const refTable='<div style="overflow-x:auto"><table class="ftable" style="font-size:13px"><tr><th>osoba</th>'+refCols.map(c=>'<th>'+esc(c.h)+'</th>').join('')+'</tr>'+v.rows.map((row,i)=>'<tr><td class="osoba">'+esc(row[0])+'</td>'+refCols.map(c=>'<td class="phon" style="font-weight:700">'+esc(c.ends[i]||'')+'</td>').join('')+'</tr>').join('')+'</table></div>';return '<div class="view"><div class="head"><div class="eyebrow">04 · System</div><h1>Czasowniki — odmiana z wymową</h1></div><div class="note">'+d.verbsNote+'</div><div class="verbpick">'+d.verbs.map((vb,i)=>'<button class="'+(i===state.verbIdx?'active':'')+'" data-verb="'+i+'">'+esc(vb.inf)+'<span class="gl">'+vb.gloss+'</span></button>').join('')+'</div>'+readbar('Przesłuchaj odmianę (PL + '+(state.lang==='ru'?'RU':'ES')+')')+'<div class="machine"><table class="ftable"><tr><th>osoba</th><th>forma</th><th>wymowa</th><th>tłumaczenie</th><th></th></tr>'+rows+'</table><div class="refcard"><div class="vstatus '+(v.reg?'reg':'irr')+'">'+(v.reg?'✓ regularny — '+esc(v.type):'△ '+esc(v.type)+' — formy na pamięć')+'</div><h4>Macierz końcówek (pionowo)</h4>'+refTable+'<div class="colorkey">Na <span class="end">kolorowo</span> część zmienna (zależna od osoby).</div></div></div></div>';}
+function viewPhrases(){const lang=state.lang,lv=lvlOf();let list=DATA[lang].phrases.slice();for(let k=2;k<=lv;k++){const d=extra(lang,k);if(d&&d.phrases)list=list.concat(d.phrases);}return '<div class="view"><div class="head"><div class="eyebrow">05 · Bloki · zakres LVL 1–'+lv+'</div><h1>Zwroty codzienne</h1></div><div class="note">Gotowe „chunki” — 🔊 i powtórz na głos.</div>'+readbar('Przesłuchaj stronę (PL + '+(lang==='ru'?'RU':'ES')+')')+tileGrid(list)+'</div>';}
+function viewSentences(){const lang=state.lang,lv=lvlOf();let groups=DATA[lang].sentences.slice();for(let k=2;k<=lv;k++){const d=extra(lang,k);if(d&&d.sentences)groups=groups.concat(d.sentences);}let g=groups.map(gr=>'<div class="sgroup"><h3><span class="tick"></span>'+gr.group+'</h3>'+gr.items.map(s=>'<div class="sent">'+sayBtn(s[0])+'<div class="body"><div class="t">'+esc(s[0])+'</div><div class="f">'+esc(s[1])+'</div><div class="p">'+esc(s[2])+'</div></div></div>').join('')+'</div>').join('');return '<div class="view"><div class="head"><div class="eyebrow">06 · Komunikacja · zakres LVL 1–'+lv+'</div><h1>Zdania na co dzień</h1></div><div class="note"><b>Serce poziomu komunikatywnego.</b> Ucz się całych zdań i mów na głos.</div>'+readbar('Przesłuchaj wszystkie (PL + '+(lang==='ru'?'RU':'ES')+')')+g+'</div>';}
+function vocabCats(lang){let out=[];Object.keys(DATA[lang].vocab).forEach(c=>out.push({name:c,lvl:1,items:DATA[lang].vocab[c]}));for(let k=2;k<=AVAIL_LEVELS;k++){const d=extra(lang,k);if(d&&d.vocab)Object.keys(d.vocab).forEach(c=>out.push({name:c,lvl:k,items:d.vocab[c]}));}return out;}
+function viewVocab(){const lang=state.lang,lv=lvlOf();const cats=vocabCats(lang).filter(c=>c.lvl<=lv);if(!state.vocabCat||!cats.find(c=>c.name===state.vocabCat))state.vocabCat=cats[0].name;const picker=cats.map(c=>'<button class="'+(c.name===state.vocabCat?'active':'')+'" data-cat="'+esc(c.name)+'">'+esc(c.name)+(c.lvl>1?' ·L'+c.lvl:'')+'</button>').join('');const cur=cats.find(c=>c.name===state.vocabCat);return '<div class="view"><div class="head"><div class="eyebrow">Dane · zakres LVL 1–'+lv+'</div><h1>Słownictwo tematyczne</h1></div><div class="verbpick">'+picker+'</div>'+readbar('Przesłuchaj „'+state.vocabCat+'” (PL + '+(lang==='ru'?'RU':'ES')+')')+tileGrid(cur.items)+'</div>';}
+
+/* ---- Generator ---- */
+function newGen(){const d=DATA[state.lang],per=d.persons,verbs=d.verbs,comp=d.compl;
+  const vc=VCOMPL[state.lang],vKeys=Object.keys(vc).map(Number);
+  const gv=vKeys[Math.floor(Math.random()*vKeys.length)];
+  const allowed=vc[gv];const gc=allowed[Math.floor(Math.random()*allowed.length)];
+  const gp=Math.floor(Math.random()*per.length);
+  const v=verbs[gv],row=v.rows[gp],pr=per[gp],cp=comp[gc];
+  const correctSeq=[pr[0],row[1],cp[0]];
+  const phon=[pr[1],row[2],cp[1]].join(' ');
+  const goalPol=pr[2]+' '+row[3]+' '+cp[2];
+  let dist=[];
+  let dp=(gp+1+Math.floor(Math.random()*4))%per.length;if(dp===gp)dp=(dp+1)%per.length;
+  if(correctSeq.indexOf(v.rows[dp][1])<0)dist.push(v.rows[dp][1]);
+  let dc=gc,tries=0;while((dc===gc||correctSeq.indexOf(comp[dc][0])>=0)&&tries<12){dc=1+Math.floor(Math.random()*(comp.length-1));tries++;}
+  if(correctSeq.indexOf(comp[dc][0])<0)dist.push(comp[dc][0]);
+  const tiles=shuffle(correctSeq.concat(dist)).map((w,i)=>({id:i,w}));
+  state.gen={correctSeq,sentence:correctSeq.join(' '),phon,goalPol,tiles,chosen:[],answered:false,correct:false};
+}
+function viewGen(){const d=DATA[state.lang];if(!state.gen)newGen();const g=state.gen;
+  const slot=g.chosen.length?g.chosen.map((id,i)=>{const t=g.tiles.find(x=>x.id===id);return '<span class="chip" data-chip="'+i+'">'+esc(t?t.w:'')+'</span>';}).join(''):'<span class="ph">stuknij słowa poniżej, aby ułożyć zdanie (stuknij wybrane słowo, by je cofnąć)</span>';
+  const bank=g.tiles.map(t=>'<button data-tile="'+t.id+'" class="'+(g.chosen.indexOf(t.id)>=0?'used':'')+'">'+esc(t.w)+'</button>').join('');
+  let result='';
+  if(g.answered)result='<div class="result '+(g.correct?'good':'bad')+'" style="margin-top:14px"><div class="status">'+(g.correct?'✓ Dobrze ułożone!':'✕ Jeszcze nie — poprawnie:')+'</div><div class="correct">'+esc(g.sentence)+' '+sayBtn(g.sentence)+'</div><div class="cfon">['+esc(g.phon)+']</div></div>';
+  return '<div class="view"><div class="head"><div class="eyebrow">07 · Buduj sam</div><h1>Generator zdań</h1></div>'
+    +'<div class="note">Dostajesz zdanie po polsku — <b>ułóż jego '+(state.lang==='ru'?'rosyjski':'hiszpański')+' odpowiednik z klocków</b>, stukając słowa w odpowiedniej kolejności. To aktywnie uczy tworzenia zdań. Uwaga: są też klocki-pułapki (np. zła forma czasownika).</div>'
+    +'<div class="goalcard"><div class="glab">ułóż to zdanie po '+(state.lang==='ru'?'rosyjsku':'hiszpańsku')+'</div><div class="gpol">'+esc(g.goalPol)+'</div></div>'
+    +'<div class="slot" id="genSlot">'+slot+'</div>'
+    +'<div class="bank" id="genBank">'+bank+'</div>'
+    +'<div class="spell-ctrl" style="justify-content:flex-start"><button class="btn primary" id="genCheck">Sprawdź</button><button class="btn" id="genClear">Wyczyść</button><button class="btn" id="genHint">🔊 Podpowiedź</button><button class="btn" id="genNext">Nowe zdanie ▸</button></div>'
+    +result
+    +'<div class="sessline" style="text-align:left">Ta sesja: '+state.genSess.ok+' / '+state.genSess.done+' poprawnych</div>'
+    +'<div class="refcard" style="margin-top:18px"><h4>'+esc(d.grammar.title)+'</h4><div style="font-size:14px;color:var(--ink)">'+d.grammar.body+'</div></div></div>';
+}
+
+function viewCards(){if(!state.fcDeck.length){state.fcDeck=shuffle(fullDeck(state.lang));state.fcIdx=0;state.fcFlip=false;}const c=state.fcDeck[state.fcIdx],known=state.known[state.lang].has(c.t);return '<div class="view"><div class="head"><div class="eyebrow">09 · Aktywne przywoływanie</div><h1>Fiszki</h1></div><div class="note">Zobacz znaczenie, <b>przypomnij sobie</b> słowo, odwróć kartę.</div><div class="fc-stage"><div class="flashcard '+(state.fcFlip?'flip':'')+'" id="flashcard"><div class="fc-inner"><div class="fc-face"><span class="lbl">polski</span>'+(known?'<span class="known-tag">✓ opanowane</span>':'')+'<div><div class="big">'+esc(c.p)+'</div><div class="sub">kliknij, aby odwrócić</div></div></div><div class="fc-face fc-back"><span class="lbl">'+DATA[state.lang].name+'</span><div><div class="big">'+esc(c.t)+'</div><div class="fon">['+esc(c.f)+']</div><div class="sub">'+sayBtn(c.t)+' posłuchaj</div></div></div></div></div></div><div class="fc-ctrl"><button class="btn" id="fcPrev">←</button><button class="btn ok" id="fcKnown">✓ Umiem to</button><button class="btn" id="fcRepeat">↻ Powtórz</button><button class="btn" id="fcNext">→</button></div><div class="fc-ctrl"><span class="counter">'+(state.fcIdx+1)+' / '+state.fcDeck.length+'</span><button class="btn" id="fcShuffle">🔀 Przetasuj</button></div></div>';}
+
+/* ---- Słuchanie ---- */
+function newListen(){const deck=shuffle(shortDeck(state.lang));const item=deck[0];const wrong=shuffle(deck.slice(1)).slice(0,3).map(c=>c.p);state.listen={item,opts:shuffle([item.p,...wrong]),answered:false,correct:false,played:false,ok:(state.listen?state.listen.ok:0),done:(state.listen?state.listen.done:0)};}
+function viewListen(){if(!state.listen)newListen();const L=state.listen;return '<div class="view"><div class="head"><div class="eyebrow">10 · Rozumienie ze słuchu</div><h1>Słuchanie</h1></div><div class="note">Usłysz słowo i wskaż jego znaczenie — <b>bez patrzenia na tekst</b>. Jeden klik = odpowiedź i automatyczne przejście dalej.</div><div class="quiz"><div style="text-align:center;margin:6px 0 8px"><button class="mic" id="lsPlay" style="width:84px;height:84px;font-size:32px">🔊</button></div><div id="lsFeedback" style="text-align:center;min-height:42px;font-family:var(--mono);font-size:13px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center">Posłuchaj i wybierz znaczenie</div><div class="q-opts" id="lsOpts">'+L.opts.map((o,i)=>'<button class="q-opt" data-ls="'+i+'">'+esc(o)+'<span class="mk"></span></button>').join('')+'</div><div class="sessline">Ta sesja: '+L.ok+' / '+L.done+' poprawnych</div></div></div>';}
+
+/* ---- Mówienie ---- */
+function newSpeak(){const deck=shuffle(shortDeck(state.lang));state.speakItem=deck[0];}
+function viewSpeak(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!state.speakItem)newSpeak();const it=state.speakItem;
+  if(!SR){return '<div class="view"><div class="head"><div class="eyebrow">11 · Produkcja mowy</div><h1>Mówienie</h1></div><div class="note" style="border-left-color:var(--warn)"><b>Twoja przeglądarka nie wspiera rozpoznawania mowy.</b> Działa najlepiej w Google Chrome na komputerze. W międzyczasie ćwicz w „Słuchaniu” i powtarzaj na głos za przyciskiem 🔊.</div></div>';}
+  return '<div class="view"><div class="head"><div class="eyebrow">11 · Produkcja mowy</div><h1>Mówienie</h1></div><div class="note">Powiedz słowo do mikrofonu — apka rozpozna mowę i oceni trafność. <b>Wskazówka, nie sędzia</b> (rozpoznawanie bywa niedoskonałe). Najlepiej w Chrome; może poprosić o dostęp do mikrofonu.</div><div class="quiz" style="text-align:center"><div style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">powiedz to słowo:</div><div class="q-prompt">'+esc(it.t)+' '+sayBtn(it.t)+'</div><div style="font-family:var(--mono);color:var(--accent);font-size:13px">['+esc(it.f)+']</div><div style="color:var(--ink-soft);font-size:14px;margin-bottom:18px">'+esc(it.p)+'</div><button class="mic" id="micBtn">🎙️</button><div id="spkResult" style="margin-top:16px"></div><div class="spell-ctrl" style="margin-top:14px"><button class="btn" id="spkNext">Następne ▸</button></div><div class="sessline">Ta sesja: '+state.speakSess.ok+' / '+state.speakSess.done+'</div></div></div>';}
+function evalSpeak(alts){const it=state.speakItem,target=normSpell(it.t,state.lang);let best=0,heard=alts[0]||'';alts.forEach(a=>{const s=sim(normSpell(a,state.lang),target);if(s>best){best=s;heard=a;}});const res=document.getElementById('spkResult');let cls,status;if(best>=0.85){cls='good';status='✓ Świetnie!';srsHit(it.t);statHit('speak',true);state.speakSess.ok++;}else if(best>=0.55){cls='almost';status='≈ Blisko — powiedz wyraźniej';}else{cls='bad';status='✕ Spróbuj jeszcze raz';}if(cls!=='good'){srsMiss(it.t);statHit('speak',false);}state.speakSess.done++;if(res)res.innerHTML='<div class="result '+cls+'"><div class="status">'+status+'</div><div style="font-family:var(--mono);font-size:13px;color:var(--ink-soft)">usłyszano: „'+esc(heard)+'” · trafność '+Math.round(best*100)+'%</div></div>';const sl=document.querySelector('.sessline');if(sl)sl.textContent='Ta sesja: '+state.speakSess.ok+' / '+state.speakSess.done;updateProgress();}
+
+/* ---- Pisownia ---- */
+function viewSpell(){if(!state.spellDeck.length){state.spellDeck=shuffle(shortDeck(state.lang));state.spellIdx=0;}const item=state.spellDeck[state.spellIdx],d=DATA[state.lang];const keys=d.keys.map(k=>'<button data-k="'+esc(k)+'">'+esc(k)+'</button>').join('')+'<button class="util" data-k=" ">spacja</button><button class="util" id="spBack">⌫</button><button class="util" id="spClear">wyczyść</button>';return '<div class="view"><div class="head"><div class="eyebrow">12 · Pisownia (wsparcie)</div><h1>Sprawdź pisownię</h1></div><div class="note"><b>Priorytet to mowa</b> — to lekki dodatek. Zobacz polskie słowo, posłuchaj i wpisz je w języku docelowym.'+(state.lang==='ru'?' Masz klawiaturę cyrylicy poniżej.':'')+'</div><div class="spell"><div class="spell-card"><div class="prompt">'+esc(item.p)+'</div><div class="promptsub">napisz po '+(state.lang==='ru'?'rosyjsku':'hiszpańsku')+' · '+sayBtn(item.t)+'</div><div class="hintline" id="spHint"></div><input id="spellInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="tu wpisz..."><div class="keys" id="spKeys">'+keys+'</div><div class="spell-ctrl"><button class="btn primary" id="spCheck">Sprawdź</button><button class="btn" id="spReveal">Podpowiedź</button><button class="btn" id="spNext">Następne ▸</button></div><div id="spResult"></div><div class="sessline">Ta sesja: '+state.spellSession.ok+' / '+state.spellSession.done+' poprawnych</div></div></div></div>';}
+function checkSpell(){const item=state.spellDeck[state.spellIdx],lang=state.lang,inp=document.getElementById('spellInput'),raw=inp?inp.value:'';const a=normSpell(raw,lang),b=normSpell(item.t,lang),res=document.getElementById('spResult');let cls,status;if(a===b){cls='good';status='✓ Dobrze!';}else if(a.length&&stripAcc(a)===stripAcc(b)){cls='almost';status='≈ Prawie — uważaj na akcenty';}else{cls='bad';status='✕ Jeszcze nie';}if(!state.spellChecked){if(cls==='good'){srsHit(item.t);statHit('spell',true);}else{srsMiss(item.t);statHit('spell',false);}state.spellSession.done++;if(a===b)state.spellSession.ok++;state.spellChecked=true;}let diff='';const n=Math.max(raw.length,item.t.length);for(let i=0;i<n;i++){const ca=raw[i]||'',cb=item.t[i]||'';if(ca&&ca.toLowerCase()===(cb||'').toLowerCase())diff+='<span class="dc ok">'+esc(ca)+'</span>';else if(ca)diff+='<span class="dc bad">'+esc(ca)+'</span>';else diff+='<span class="dc miss">_</span>';}res.className='result '+cls;res.innerHTML='<div class="status">'+status+'</div>'+(raw?'<div class="clab">Twój zapis</div><div class="diff">'+diff+'</div>':'')+'<div class="clab" style="margin-top:8px">Poprawnie</div><div class="correct">'+esc(item.t)+' '+sayBtn(item.t)+'</div><div class="cfon">['+esc(item.f)+']</div>';const sl=document.querySelector('.sessline');if(sl)sl.textContent='Ta sesja: '+state.spellSession.ok+' / '+state.spellSession.done+' poprawnych';}
+function nextSpell(){state.spellIdx=(state.spellIdx+1)%state.spellDeck.length;state.spellChecked=false;render();}
+
+/* ---- Quiz ---- */
+function viewQuiz(){if(!state.quiz)startQuiz();const q=state.quiz;const sb='<button class="btn small ghost" id="qSound">'+(state.quizSound?'🔊 Dźwięk: WŁ':'🔇 Dźwięk: WYŁ')+'</button>';if(q.done){const pct=Math.round(q.score/q.total*100);return '<div class="view"><div class="head"><div class="eyebrow">13 · Test</div><h1>Wynik</h1></div><div class="quiztop">'+sb+'</div><div class="quiz card panel" style="text-align:center"><div style="font-family:var(--disp);font-size:54px;font-weight:700;color:var(--accent)">'+q.score+'/'+q.total+'</div><div style="font-family:var(--mono);color:var(--ink-soft)">'+pct+'% poprawnych</div><button class="btn primary" id="quizRestart" style="margin-top:16px">↻ Nowy quiz</button></div></div>';}const item=q.items[q.idx];return '<div class="view"><div class="head"><div class="eyebrow">13 · Test</div><h1>Quiz</h1></div><div class="quiztop">'+sb+'</div><div class="quiz"><div class="scorebar"><span>pytanie '+(q.idx+1)+' / '+q.total+'</span><span>wynik: '+q.score+'</span></div><div class="qprog"><i style="width:'+(q.idx/q.total*100)+'%"></i></div><div class="q-prompt">'+esc(item.p)+'</div><div class="q-sub">Wskaż tłumaczenie na '+DATA[state.lang].name+'</div><div class="q-opts" id="qOpts">'+item.opts.map((o,i)=>'<button class="q-opt" data-opt="'+i+'">'+esc(o)+'<span class="mk"></span></button>').join('')+'</div></div></div>';}
+function startQuiz(){const deck=shuffle(shortDeck(state.lang)),total=Math.min(10,deck.length);const items=deck.slice(0,total).map(card=>{const wrong=shuffle(deck.filter(c=>c.t!==card.t)).slice(0,3).map(c=>c.t);return {p:card.p,answer:card.t,opts:shuffle([card.t,...wrong])};});state.quiz={items,total,idx:0,score:0,done:false,locked:false};}
+
+/* ---- Mini-gra: Wyścig na czas ---- */
+let raceTimer=null;
+function raceStop(){if(raceTimer){clearInterval(raceTimer);raceTimer=null;}}
+function raceBest(l,m){const s=loadStore();return (s.race&&s.race[l+'_'+m])||0;}
+function raceSaveBest(l,m,v){const s=loadStore();s.race=s.race||{};const k=l+'_'+m;if(v>(s.race[k]||0)){s.race[k]=v;saveStore(s);}}
+function startRace(){const mode=state.race?state.race.mode:'text';state.race={phase:'play',mode:mode,timeLeft:60,score:0,combo:0,maxCombo:0,best:raceBest(state.lang,mode),locked:false,deck:shuffle(shortDeck(state.lang)),current:null};}
+function raceNewQ(){const r=state.race,deck=r.deck,item=deck[Math.floor(Math.random()*deck.length)];let answer,opts;if(r.mode==='audio'){answer=item.p;const w=shuffle(deck.filter(c=>c.p!==item.p)).slice(0,3).map(c=>c.p);opts=shuffle([item.p,...w]);}else{answer=item.t;const w=shuffle(deck.filter(c=>c.t!==item.t)).slice(0,3).map(c=>c.t);opts=shuffle([item.t,...w]);}r.current={prompt:item.p,answer:answer,opts:opts,audio:item.t};}
+function renderRaceQuestion(){const r=state.race,q=document.getElementById('raceQ'),sub=document.getElementById('raceSub'),op=document.getElementById('raceOpts');if(!q||!op)return;if(r.mode==='audio'){q.innerHTML='<button class="mic" id="racePlay" style="width:72px;height:72px;font-size:28px">🔊</button>';if(sub)sub.textContent='Posłuchaj i wybierz znaczenie';const pb=document.getElementById('racePlay');if(pb)pb.onclick=()=>speak(r.current.audio);speak(r.current.audio);}else{q.textContent=r.current.prompt;if(sub)sub.textContent='Kliknij tłumaczenie na '+DATA[state.lang].name;}op.innerHTML=r.current.opts.map((o,i)=>'<button class="q-opt" data-ropt="'+i+'">'+esc(o)+'</button>').join('');op.querySelectorAll('[data-ropt]').forEach(b=>b.onclick=()=>raceAnswer(+b.dataset.ropt));}
+function paintRaceHUD(){const r=state.race;if(!r)return;const t=document.getElementById('raceTime'),b=document.getElementById('raceBar'),s=document.getElementById('raceScore'),c=document.getElementById('raceCombo');if(t)t.textContent=Math.max(0,r.timeLeft);if(b)b.style.width=(Math.max(0,r.timeLeft)/60*100)+'%';if(s)s.textContent=r.score;if(c)c.textContent='x'+r.combo;}
+function raceAnswer(idx){const r=state.race;if(!r||r.locked||r.phase!=='play')return;r.locked=true;const correct=r.current.opts[idx]===r.current.answer;document.querySelectorAll('#raceOpts .q-opt').forEach((o,i)=>{if(r.current.opts[i]===r.current.answer)o.classList.add('correct');else if(i===idx)o.classList.add('wrong');});if(correct){r.combo++;r.maxCombo=Math.max(r.maxCombo,r.combo);r.score+=10+(r.combo-1)*5;srsHit(r.current.audio);statHit('race',true);}else{r.combo=0;srsMiss(r.current.audio);statHit('race',false);}paintRaceHUD();setTimeout(()=>{if(!state.race||state.race.phase!=='play')return;r.locked=false;raceNewQ();renderRaceQuestion();},240);}
+function raceTick(){const r=state.race;if(!r||r.phase!=='play')return;r.timeLeft--;paintRaceHUD();if(r.timeLeft<=0)raceEnd();}
+function raceEnd(){raceStop();const r=state.race;if(!r)return;raceSaveBest(state.lang,r.mode,r.score);r.phase='done';render();}
+function viewRace(){if(!state.race)state.race={phase:'start',mode:'text'};const r=state.race;
+  if(r.phase==='start'){const best=raceBest(state.lang,r.mode);return '<div class="view"><div class="head"><div class="eyebrow">14 · Mini-gra</div><h1>Wyścig na czas 🏁</h1></div><div class="note">60 sekund, jak najwięcej trafień. Seria poprawnych = rosnące <b>combo</b> i więcej punktów. Rekord zapisuje się lokalnie.</div><div class="quiz" style="text-align:center"><div class="verbpick" style="justify-content:center"><button class="'+(r.mode==='text'?'active':'')+'" data-mode="text">📖 Tekst</button><button class="'+(r.mode==='audio'?'active':'')+'" data-mode="audio">🔊 Audio</button></div><p style="color:var(--ink-soft);font-size:14px">'+(r.mode==='text'?'Widzisz polskie znaczenie — kliknij poprawne słowo w języku docelowym.':'Słyszysz słowo — kliknij jego polskie znaczenie.')+'</p><div style="font-family:var(--mono);color:var(--ink-soft);margin:10px 0">Rekord ('+(state.lang==='ru'?'RU':'ES')+' · '+(r.mode==='text'?'tekst':'audio')+'): <b style="color:var(--accent)">'+best+'</b></div><button class="btn primary" id="raceStart" style="font-size:16px;padding:14px 28px">▶ Start</button></div></div>';}
+  if(r.phase==='done'){return '<div class="view"><div class="head"><div class="eyebrow">14 · Mini-gra</div><h1>Koniec!</h1></div><div class="quiz card panel" style="text-align:center">'+(r.score>r.best?'<div style="font-family:var(--mono);color:var(--es);font-weight:700">🏆 NOWY REKORD!</div>':'')+'<div style="font-family:var(--disp);font-size:54px;font-weight:700;color:var(--accent)">'+r.score+'</div><div style="font-family:var(--mono);color:var(--ink-soft)">punktów · najdłuższe combo: x'+r.maxCombo+'</div><div style="font-family:var(--mono);color:var(--ink-soft);margin-top:6px">rekord: '+Math.max(r.best,r.score)+'</div><div class="spell-ctrl" style="margin-top:18px"><button class="btn primary" id="raceAgain">↻ Zagraj ponownie</button><button class="btn" id="raceMenu">Zmień tryb</button></div></div></div>';}
+  return '<div class="view"><div class="head"><div class="eyebrow">14 · Mini-gra</div><h1>Wyścig na czas 🏁</h1></div><div class="quiz"><div class="scorebar"><span>⏱ <b id="raceTime">'+r.timeLeft+'</b> s</span><span>combo <b id="raceCombo">x'+r.combo+'</b></span><span>wynik <b id="raceScore">'+r.score+'</b></span></div><div class="qprog"><i id="raceBar" style="width:'+(r.timeLeft/60*100)+'%"></i></div><div class="q-prompt" id="raceQ"></div><div class="q-sub" id="raceSub"></div><div class="q-opts" id="raceOpts"></div></div></div>';
+}
+
+function buildRead(){const d=DATA[state.lang],lang=state.lang,lv=lvlOf(),tl=TL(),pl=PL();let s=[];if(state.tab==='alpha'){d.alphabet.forEach(a=>{const say=(state.lang==='ru')?ruLetterSay(ruLow(a[0])):(a[3]||a[0]);if(say)s.push({t:say,lang:tl});});}else if(state.tab==='numbers'){d.numbers.forEach(n=>s.push({t:n[0],lang:tl}));}else if(state.tab==='pron'){d.pronouns.forEach(r=>{s.push({t:r[0],lang:tl});s.push({t:r[2],lang:pl});});}else if(state.tab==='phrases'){let ph=d.phrases.slice();for(let k=2;k<=lv;k++){const e=extra(lang,k);if(e&&e.phrases)ph=ph.concat(e.phrases);}ph.forEach(r=>{s.push({t:r[0],lang:tl});s.push({t:r[2],lang:pl});});}else if(state.tab==='sentences'){let gr=d.sentences.slice();for(let k=2;k<=lv;k++){const e=extra(lang,k);if(e&&e.sentences)gr=gr.concat(e.sentences);}gr.forEach(g=>g.items.forEach(r=>{s.push({t:r[0],lang:tl});s.push({t:r[2],lang:pl});}));}else if(state.tab==='vocab'){const cur=vocabCats(lang).find(c=>c.name===state.vocabCat);(cur?cur.items:[]).forEach(r=>{s.push({t:r[0],lang:tl});s.push({t:r[2],lang:pl});});}else if(state.tab==='verbs'){const v=d.verbs[state.verbIdx];s.push({t:v.inf,lang:tl});s.push({t:v.gloss,lang:pl});v.rows.forEach(r=>{s.push({t:r[1],lang:tl});s.push({t:r[3],lang:pl});});}return s;}
+
+/* ============== ROUTER ============== */
+function hardList(){return [...state.hard[state.lang]].map(findItem);}
+function viewHard(){const list=hardList();
+  if(!list.length)return '<div class="view"><div class="head"><div class="eyebrow">Powtórka</div><h1>Trudne słowa</h1></div><div class="note">Brak trudnych słów — super! Każde słowo, które pomylisz w Quizie, Słuchaniu, Pisowni lub Mówieniu, trafi tutaj do skupionej powtórki (system Leitnera: pomyłka dodaje, poprawna odpowiedź usuwa).</div></div>';
+  if(state.hardIdx>=list.length)state.hardIdx=0;const c=list[state.hardIdx];
+  return '<div class="view"><div class="head"><div class="eyebrow">Powtórka · Leitner</div><h1>Trudne słowa</h1></div><div class="note"><b>'+list.length+'</b> słów do powtórki — to dokładnie te, które Ci nie wchodzą. „✓ Już umiem” usuwa z listy, „↻ Jeszcze” zostawia na później.</div>'
+    +'<div class="fc-stage"><div class="flashcard '+(state.hardFlip?'flip':'')+'" id="hardCard"><div class="fc-inner"><div class="fc-face"><span class="lbl">polski</span><div><div class="big">'+esc(c.p)+'</div><div class="sub">kliknij, aby odwrócić</div></div></div><div class="fc-face fc-back"><span class="lbl">'+DATA[state.lang].name+'</span><div><div class="big">'+esc(c.t)+'</div><div class="fon">['+esc(c.f)+']</div><div class="sub">'+sayBtn(c.t)+' posłuchaj</div></div></div></div></div></div>'
+    +'<div class="fc-ctrl"><button class="btn ok" id="hardKnown">✓ Już umiem</button><button class="btn" id="hardNext">↻ Jeszcze</button></div><div class="fc-ctrl"><span class="counter">'+(state.hardIdx+1)+' / '+list.length+'</span></div></div>';
+}
+function viewDaily(){const dy=dailyCur();const done=dy.done.filter(Boolean).length,total=DAILY_TASKS.length,pct=Math.round(done/total*100);
+  const tasks=DAILY_TASKS.map((t,i)=>'<div class="sent"><div class="body"><div class="t">'+t.icon+' '+esc(t.label)+'</div></div><div style="display:flex;gap:6px;align-items:center"><button class="btn small" data-go="'+t.tab+'">Przejdź ▸</button><button class="btn small '+(dy.done[i]?'ok':'')+'" data-done="'+i+'">'+(dy.done[i]?'✓':'zrób')+'</button></div></div>').join('');
+  const doneMsg=done>=total?'<div class="note" style="border-left-color:var(--ok)"><b style="color:var(--ok)">✓ Sesja dnia ukończona!</b> 🔥 Seria: '+(state.streak?state.streak.count:1)+'. Wróć jutro, żeby ją podtrzymać.</div>':'';
+  return '<div class="view"><div class="head"><div class="eyebrow">Plan dnia · ~15 min</div><h1>Sesja dnia</h1></div><div class="note">Krótka, codzienna rutyna to najskuteczniejszy sposób nauki (regularność > intensywność). Plan jest <b>osobny dla każdego języka</b> ('+(state.lang==='ru'?'rosyjski':'hiszpański')+') i resetuje się każdego dnia. Odhacz kolejne kroki.</div>'
+    +'<div class="prog" style="padding:0;margin:6px 0 16px"><span class="plab">Dziś</span><span class="ptrack"><i style="width:'+pct+'%"></i></span><span class="pnum">'+done+' / '+total+'</span></div>'
+    +doneMsg+tasks+'</div>';
+}
+function dlgBubble(side,t,f,p,showPl){return '<div class="dbub '+side+'"><div class="dt">'+esc(t)+' '+sayBtn(t)+'</div><div class="df">['+esc(f)+']</div>'+(showPl?'<div class="dp">'+esc(p)+'</div>':'')+'</div>';}
+function dlgPool(){const lang=state.lang,lv=lvlOf();let o=[];DLG[lang].forEach((d,i)=>{if(d.lvl<=lv)o.push(i);});return o;}
+function dlgResolveThem(){const d=DLG[state.lang][state.dlg.di];let guard=0;while(state.dlg.node!=null&&guard++<50){const nd=d.n[state.dlg.node];if(nd[0]!=='m')break;state.dlg.trail.push({ty:'m',ni:state.dlg.node});const nx=nd[4];if(nx===-1){state.dlg.done=true;state.dlg.node=null;}else state.dlg.node=nx;}}
+function dlgStart(){const pool=dlgPool();if(!pool.length){state.dlg=null;return;}const di=pool[Math.floor(Math.random()*pool.length)];state.dlg={di:di,node:0,trail:[],done:false};dlgResolveThem();}
+function dlgChoose(oi){const d=DLG[state.lang][state.dlg.di],nd=d.n[state.dlg.node],opt=nd[1][oi],nx=opt[3];if(nx==='x')return false;state.dlg.trail.push({ty:'y',ni:state.dlg.node,oi:oi});if(nx===-1){state.dlg.done=true;state.dlg.node=null;}else{state.dlg.node=nx;dlgResolveThem();}return true;}
+function viewDialogs(){const lang=state.lang;if(!state.dlg)dlgStart();const S=state.dlg;
+  if(!S)return '<div class="view"><div class="head"><div class="eyebrow">Dialogi</div><h1>Interaktywne dialogi</h1></div><div class="note">Brak rozmów w tym zakresie — zwiększ zakres (📚 u góry).</div></div>';
+  const d=DLG[lang][S.di];
+  let bubbles='';S.trail.forEach(e=>{const nd=d.n[e.ni];if(e.ty==='m')bubbles+=dlgBubble('them',nd[1],nd[2],nd[3],false);else{const o=nd[1][e.oi];bubbles+=dlgBubble('you',o[0],o[1],o[2],false);}});
+  let inter='';
+  if(!S.done){const opts=d.n[S.node][1];inter='<div class="q-sub" style="text-align:left;margin:6px 0 8px">Twoja kolej — posłuchaj (🔊) i wybierz odpowiedź:</div>'+opts.map((o,i)=>'<div class="dopt" data-dopt="'+i+'" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><div class="ot">'+esc(o[0])+'</div><div class="of">['+esc(o[1])+']</div></div>'+sayBtn(o[0])+'</div>').join('')+'<div id="dlgHint" style="text-align:center;font-family:var(--mono);font-size:12px;color:var(--warn);min-height:18px"></div>';}
+  else{let trans=S.trail.map(e=>{const nd=d.n[e.ni];if(e.ty==='m')return '<div class="sent"><div class="body"><div class="t">'+esc(nd[1])+'</div><div class="f">'+esc(nd[2])+'</div><div class="p">'+esc(nd[3])+'</div></div></div>';const o=nd[1][e.oi];return '<div class="sent" style="border-left:3px solid var(--accent)"><div class="body"><div class="t">'+esc(o[0])+'</div><div class="f">'+esc(o[1])+'</div><div class="p">'+esc(o[2])+'</div></div></div>';}).join('');
+    inter='<div class="result good" style="margin-top:8px"><div class="status">✓ Rozmowa ukończona!</div></div><div class="note" style="margin-top:10px">To była rozmowa: <b>'+d.icon+' '+esc(d.title)+'</b>. Oto cały zapis z tłumaczeniem — sprawdź, czy dobrze rozumiałeś:</div>'+trans+'<div class="spell-ctrl" style="margin-top:12px"><button class="btn primary" id="dlgReplay">▶ Odtwórz całość</button><button class="btn" id="dlgNew">🔀 Nowa rozmowa</button></div>';}
+  return '<div class="view"><div class="head"><div class="eyebrow">Dialogi · wywnioskuj z kontekstu</div><h1>Interaktywna rozmowa</h1></div><div style="margin:2px 0 8px"><button class="btn small" id="dlgNew2">🔀 Inna rozmowa</button></div><div class="dlgwrap">'+bubbles+'</div>'+inter+'</div>';
+}
+function viewReview(){const lang=state.lang;const due=dueList(lang);
+  if(!due.length)return '<div class="view"><div class="head"><div class="eyebrow">Powtórki · SRS</div><h1>Powtórki na dziś</h1></div><div class="note">🎉 Nic na dziś! Twoje powtórki są ogarnięte. System sam przypomni Ci słowa, gdy nadejdzie ich czas (interwały: 1 → 3 → 7 → 14 → 30 dni). Wróć jutro albo poćwicz w innych zakładkach — pomyłki tam też trafią do tej kolejki.</div></div>';
+  if(state.revIdx>=due.length)state.revIdx=0;const c=due[state.revIdx];const boxLab=['','🔴 box 1','🟠 box 2','🟡 box 3','🟢 box 4','🔵 box 5'][c.box]||'';
+  return '<div class="view"><div class="head"><div class="eyebrow">Powtórki · SRS</div><h1>Powtórki na dziś</h1></div><div class="note"><b>'+due.length+'</b> do powtórki. „✓ Pamiętam” przesuwa słowo dalej w czasie, „✗ Nie pamiętam” cofa je do częstych powtórek.</div>'
+    +'<div class="fc-stage"><div class="flashcard '+(state.revFlip?'flip':'')+'" id="revCard"><div class="fc-inner"><div class="fc-face"><span class="lbl">polski · '+boxLab+'</span><div><div class="big">'+esc(c.p)+'</div><div class="sub">kliknij, aby odwrócić</div></div></div><div class="fc-face fc-back"><span class="lbl">'+DATA[lang].name+'</span><div><div class="big">'+esc(c.t)+'</div><div class="fon">['+esc(c.f)+']</div><div class="sub">'+sayBtn(c.t)+' posłuchaj</div></div></div></div></div>'
+    +'<div class="fc-ctrl"><button class="btn ok" id="revOk">✓ Pamiętam</button><button class="btn" id="revNo">✗ Nie pamiętam</button></div><div class="fc-ctrl"><span class="counter">'+(state.revIdx+1)+' / '+due.length+'</span></div></div>';
+}
+function mwPool(lang){const lv=lvlOf();let pool=[];const add=arr=>arr.forEach(r=>{if((r[0].trim().split(/\s+/).length)>=2)pool.push({t:r[0],f:r[1],p:r[2]});});DATA[lang].sentences.forEach(g=>add(g.items));add(DATA[lang].phrases);for(let k=2;k<=lv;k++){const e=extra(lang,k);if(e){if(e.sentences)e.sentences.forEach(g=>add(g.items));if(e.phrases)add(e.phrases);}}return pool;}
+function newMW(){const lang=state.lang;const pool=mwPool(lang);if(!pool.length){state.mw=null;return;}const item=pool[Math.floor(Math.random()*pool.length)];const words=item.t.trim().split(/\s+/);let idxs=[];words.forEach((w,i)=>{if(w.replace(/[¿?¡!.,;:]/g,'').length>=2)idxs.push(i);});if(!idxs.length)idxs=words.map((w,i)=>i);const bi=idxs[Math.floor(Math.random()*idxs.length)];const answer=words[bi];let bag={};pool.forEach(p=>p.t.trim().split(/\s+/).forEach(w=>{if(w!==answer&&w.replace(/[¿?¡!.,;:]/g,'').length>=2)bag[w]=1;}));let cand=Object.keys(bag).sort(()=>Math.random()-0.5).slice(0,3);let opts=[answer].concat(cand).sort(()=>Math.random()-0.5);state.mw={item:item,words:words,bi:bi,answer:answer,opts:opts,answered:false,correct:false,played:false};}
+function viewMissing(){const lang=state.lang;if(!state.mw)newMW();const M=state.mw;if(!M)return '<div class="view"><div class="head"><div class="eyebrow">Brakujące słowo</div><h1>Uzupełnij zdanie</h1></div><div class="note">Brak materiału w tym zakresie — zwiększ zakres (📚 u góry).</div></div>';
+  const sent=M.words.map((w,i)=>i===M.bi?'<span style="border-bottom:2px solid var(--accent);padding:0 6px;color:var(--accent);font-weight:700">'+(M.answered?esc(M.answer):'_____')+'</span>':esc(w)).join(' ');
+  return '<div class="view"><div class="head"><div class="eyebrow">Brakujące słowo · zakres LVL 1–'+lvlOf()+'</div><h1>Uzupełnij zdanie</h1></div><div class="note">Posłuchaj całego zdania (🔊) i wybierz brakujące słowo. Most między pojedynczymi słowami a rozumieniem całych wypowiedzi.</div><div class="quiz">'
+    +'<div style="text-align:center;margin:6px 0"><button class="mic" id="mwPlay" style="width:72px;height:72px;font-size:26px">🔊</button></div>'
+    +'<div style="text-align:center;font-family:var(--disp);font-size:21px;margin:10px 0 4px;line-height:1.5">'+sent+'</div>'
+    +'<div style="text-align:center;font-size:13px;color:var(--ink-soft);margin-bottom:10px">'+esc(M.item.p)+'</div>'
+    +'<div class="q-opts" id="mwOpts">'+M.opts.map((o,i)=>'<button class="q-opt" data-mw="'+i+'">'+esc(o)+'<span class="mk"></span></button>').join('')+'</div>'
+    +'<div id="mwFeedback" style="text-align:center;min-height:24px;font-family:var(--mono);font-size:13px;color:var(--ink-soft)">wybierz brakujące słowo</div></div></div>';
+}
+function viewStats(){const lang=state.lang;const srs=state.srs[lang];const ents=Object.keys(srs);let mastered=0,learning=0;ents.forEach(t=>{const b=srs[t].box;if(b>=4)mastered++;else learning++;});const due=dueList(lang).length;const st=state.stats[lang];const streak=state.streak?state.streak.count:1;
+  const modes=[['quiz','Quiz'],['race','Wyścig'],['listen','Słuchanie'],['spell','Pisownia'],['speak','Mówienie'],['missing','Brakujące słowo']];
+  const acc=modes.map(m=>{const e=st[m[0]];if(!e||!e.n)return '';const p=Math.round(e.ok/e.n*100);return '<div class="sent"><div class="body"><div class="t">'+m[1]+'</div><div class="p">'+e.ok+' / '+e.n+' poprawnych</div></div><div style="font-family:var(--disp);font-weight:700;font-size:18px;color:'+(p>=70?'var(--ok)':p>=40?'var(--accent)':'var(--warn)')+'">'+p+'%</div></div>';}).filter(Boolean).join('')||'<div class="note">Brak danych — poćwicz w quizie, słuchaniu, pisowni, mówieniu lub „brakującym słowie”.</div>';
+  const conf=ents.map(t=>({t:t,m:srs[t].misses||0})).filter(x=>x.m>0).sort((a,b)=>b.m-a.m).slice(0,6);
+  const confHtml=conf.length?conf.map(x=>{const it=findItem(x.t);return '<div class="sent">'+sayBtn(it.t)+'<div class="body"><div class="t">'+esc(it.t)+'</div><div class="p">'+esc(it.p)+'</div></div><div style="color:var(--warn);font-family:var(--mono);font-size:12px">'+x.m+'×</div></div>';}).join(''):'<div class="note">Jeszcze brak często mylonych słów — dobrze!</div>';
+  return '<div class="view"><div class="head"><div class="eyebrow">Postępy · '+(lang==='ru'?'rosyjski':'hiszpański')+'</div><h1>Statystyki</h1></div>'
+    +'<div class="grid g-word"><div class="tile"><div class="target">'+mastered+'</div><div class="pl">utrwalone (box 4–5)</div></div><div class="tile"><div class="target">'+learning+'</div><div class="pl">w nauce (box 1–3)</div></div><div class="tile"><div class="target">'+due+'</div><div class="pl">do powtórki dziś</div></div><div class="tile"><div class="target">🔥 '+streak+'</div><div class="pl">seria dni</div></div></div>'
+    +'<h3 style="font-family:var(--disp);margin:18px 0 8px">Skuteczność wg trybu</h3>'+acc
+    +'<h3 style="font-family:var(--disp);margin:18px 0 8px">Najczęściej mylone</h3>'+confHtml+'</div>';
+}
+function viewChinaList(){const tiles=CHINA.map(c=>'<div class="tile word"><div class="target" style="font-size:30px">'+esc(c[0])+'</div><div class="ipa"><b>'+esc(c[1])+'</b> · ['+esc(c[2])+']</div><div class="pl">'+esc(c[3])+'</div>'+sayBtnL(c[4]||c[0],'zh-CN')+'</div>').join('');
+  return '<div style="margin:10px 0"><button class="btn primary" id="cnPlay">▶ Odtwórz wszystkie po chińsku</button></div><div class="grid g-word">'+tiles+'</div>';
+}
+function zhEnsureDeck(){if(!state.zhDeck||!state.zhDeck.length)state.zhDeck=shuffle(CHINA.map((_,i)=>i));}
+function viewChinaCards(){zhEnsureDeck();if(state.zhIdx>=state.zhDeck.length)state.zhIdx=0;const c=CHINA[state.zhDeck[state.zhIdx]];
+  return '<div class="fc-stage"><div class="flashcard '+(state.zhFlip?'flip':'')+'" id="zhCard"><div class="fc-inner"><div class="fc-face"><span class="lbl">polski</span><div><div class="big">'+esc(c[3])+'</div><div class="sub">kliknij, aby odwrócić</div></div></div><div class="fc-face fc-back"><span class="lbl">mandaryński</span><div><div class="big" style="font-size:34px">'+esc(c[0])+'</div><div class="fon">'+esc(c[1])+' · ['+esc(c[2])+']</div><div class="sub">'+sayBtnL(c[4]||c[0],'zh-CN')+' posłuchaj</div></div></div></div></div></div>'
+    +'<div class="fc-ctrl"><button class="btn" id="zhShuffle">🔀 Wymieszaj</button><button class="btn primary" id="zhNext">Następne ▸</button></div><div class="fc-ctrl"><span class="counter">'+(state.zhIdx+1)+' / '+state.zhDeck.length+' · losowo</span></div>';
+}
+function viewChina(){const modeBar='<div class="verbpick" style="margin-bottom:4px"><button class="'+(state.zhMode==='list'?'active':'')+'" data-zhmode="list">📋 Lista</button><button class="'+(state.zhMode==='cards'?'active':'')+'" data-zhmode="cards">🃏 Fiszki</button></div>';
+  return '<div class="view"><div class="head"><div class="eyebrow">🇨🇳 Wyjazd · przetrwanie</div><h1>Chiński — '+CHINA.length+' słów na start</h1></div>'
+    +'<div class="note"><b>Mini-zestaw na wyjazd do Chin.</b> Mandaryński jest <b>tonalny</b> — to samo brzmienie w innym tonie znaczy co innego, więc zapis po polsku to tylko przybliżenie. Prawdziwym wzorcem jest 🔊. Pinyin (pogrubiony) to oficjalna transkrypcja z tonami.</div>'
+    +'<div class="note" style="border-left-color:var(--ink-faint)">Uwaga: dźwięk wymaga chińskiego głosu (zh-CN) w systemie. Jeśli telefon go nie ma, 🔊 może milczeć — wtedy kieruj się pinyinem.</div>'
+    +modeBar+(state.zhMode==='cards'?viewChinaCards():viewChinaList())+'</div>';
+}
+function renderZh(){const sec=document.getElementById('sections');if(sec)sec.innerHTML='<button class="active" style="flex:1">🇨🇳 Chiny — przetrwanie</button>';const bn=document.getElementById('bottomnav');if(bn)bn.style.display='none';const tb=document.getElementById('tabs');if(tb)tb.innerHTML='';const lvl=document.getElementById('lvl');if(lvl)lvl.innerHTML='';const pr=document.getElementById('progRow');if(pr)pr.style.display='none';document.getElementById('main').innerHTML=viewChina();bind();}
+function render(){const _sy=window.scrollY;applyTheme();paintStreak();if(state.lang==='zh'){renderZh();window.scrollTo(0,_sy);return;}const pr=document.getElementById('progRow');if(pr)pr.style.display='';renderTabs();const map={guide:viewGuide,daily:viewDaily,alpha:viewAlpha,numbers:viewNumbers,pron:viewPron,verbs:viewVerbs,phrases:viewPhrases,sentences:viewSentences,gen:viewGen,vocab:viewVocab,cards:viewCards,listen:viewListen,dialogs:viewDialogs,speak:viewSpeak,spell:viewSpell,review:viewReview,missing:viewMissing,stats:viewStats,race:viewRace};document.getElementById('main').innerHTML=(map[state.tab]||viewGuide)();updateProgress();paintLevel();bind();window.scrollTo(0,_sy);
+  if(state.tab==='listen'&&state.listen&&!state.listen.played&&!state.listen.answered){state.listen.played=true;speak(state.listen.item.t);}
+  if(state.tab==='missing'&&state.mw&&!state.mw.played){state.mw.played=true;speak(state.mw.item.t);}
+  if(state.tab==='dialogs'&&state.dlg&&!state.dlg.done){const d=DLG[state.lang][state.dlg.di];let last=null;state.dlg.trail.forEach(e=>{if(e.ty==='m')last=e.ni;});if(last!=null)speak(d.n[last][1]);}
+  window.scrollTo({top:0,behavior:'smooth'});}
+function bind(){
+  const rp=document.getElementById('readPlay');if(rp)rp.onclick=()=>playSeq(buildRead());
+  const rs=document.getElementById('readStop');if(rs)rs.onclick=()=>stopSeq();
+  document.querySelectorAll('[data-verb]').forEach(b=>b.onclick=()=>{stopSeq();state.verbIdx=+b.dataset.verb;render();});
+  document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{if(b.dataset.locked)return;stopSeq();state.vocabCat=b.dataset.cat;render();});
+  document.querySelectorAll('#genBank [data-tile]').forEach(b=>b.onclick=()=>{const g=state.gen;if(g.answered)return;const id=+b.dataset.tile;if(g.chosen.indexOf(id)<0){g.chosen.push(id);render();}});
+  document.querySelectorAll('#genSlot [data-chip]').forEach(s=>s.onclick=()=>{const g=state.gen;if(g.answered)return;g.chosen.splice(+s.dataset.chip,1);render();});
+  const gC=document.getElementById('genCheck');if(gC)gC.onclick=()=>{const g=state.gen;if(g.answered)return;const cw=g.chosen.map(id=>{const t=g.tiles.find(x=>x.id===id);return t?t.w:'';});g.correct=(cw.length===g.correctSeq.length&&cw.every((w,i)=>w===g.correctSeq[i]));g.answered=true;state.genSess.done++;if(g.correct){state.genSess.ok++;speak(g.sentence);}render();};
+  const gCl=document.getElementById('genClear');if(gCl)gCl.onclick=()=>{if(!state.gen.answered){state.gen.chosen=[];render();}};
+  const gH=document.getElementById('genHint');if(gH)gH.onclick=()=>speak(state.gen.sentence);
+  const gN=document.getElementById('genNext');if(gN)gN.onclick=()=>{newGen();render();};
+  const fc=document.getElementById('flashcard');if(fc)fc.onclick=()=>{state.fcFlip=!state.fcFlip;render();};
+  const p=document.getElementById('fcPrev');if(p)p.onclick=()=>{state.fcIdx=(state.fcIdx-1+state.fcDeck.length)%state.fcDeck.length;state.fcFlip=false;render();};
+  const n=document.getElementById('fcNext');if(n)n.onclick=()=>{state.fcIdx=(state.fcIdx+1)%state.fcDeck.length;state.fcFlip=false;render();};
+  const k=document.getElementById('fcKnown');if(k)k.onclick=()=>{markKnown(state.fcDeck[state.fcIdx].t);state.fcIdx=(state.fcIdx+1)%state.fcDeck.length;state.fcFlip=false;render();};
+  const r=document.getElementById('fcRepeat');if(r)r.onclick=()=>{state.fcIdx=(state.fcIdx+1)%state.fcDeck.length;state.fcFlip=false;render();};
+  const sh=document.getElementById('fcShuffle');if(sh)sh.onclick=()=>{state.fcDeck=shuffle(fullDeck(state.lang));state.fcIdx=0;state.fcFlip=false;render();};
+  const lp=document.getElementById('lsPlay');if(lp)lp.onclick=()=>speak(state.listen.item.t);
+  document.querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{const L=state.listen;if(L.answered)return;L.answered=true;const correct=(L.opts[+b.dataset.ls]===L.item.p);L.correct=correct;L.done++;document.querySelectorAll('#lsOpts .q-opt').forEach((o,i)=>{if(L.opts[i]===L.item.p)o.classList.add('correct');else if(i===+b.dataset.ls)o.classList.add('wrong');});const fb=document.getElementById('lsFeedback');if(fb)fb.innerHTML=(correct?'<span style="color:var(--ok);font-weight:700">✓ Dobrze!</span>':'<span style="color:var(--warn);font-weight:700">✕ To było:</span>')+'&nbsp; '+esc(L.item.t)+' · ['+esc(L.item.f)+'] · '+esc(L.item.p);if(correct){L.ok++;srsHit(L.item.t);statHit('listen',true);}else{srsMiss(L.item.t);statHit('listen',false);}const sl=document.querySelector('.sessline');if(sl)sl.textContent='Ta sesja: '+L.ok+' / '+L.done+' poprawnych';setTimeout(()=>{if(state.tab!=='listen')return;newListen();render();},1300);});
+  const ln=document.getElementById('lsNext');if(ln)ln.onclick=()=>{newListen();render();};
+  const mic=document.getElementById('micBtn');if(mic)mic.onclick=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;stopRecog();recog=new SR();recog.lang=TL();recog.maxAlternatives=3;recog.interimResults=false;const res=document.getElementById('spkResult');mic.classList.add('live');if(res)res.innerHTML='<div style="font-family:var(--mono);color:var(--ink-soft)">słucham...</div>';recog.onresult=ev=>{const alts=[];const r0=ev.results[0];for(let i=0;i<r0.length;i++)alts.push(r0[i].transcript);evalSpeak(alts);};recog.onerror=ev=>{mic.classList.remove('live');if(res)res.innerHTML='<div style="color:var(--warn);font-family:var(--mono);font-size:13px">Błąd: '+esc(ev.error)+'. Sprawdź dostęp do mikrofonu / użyj Chrome.</div>';};recog.onend=()=>{mic.classList.remove('live');};try{recog.start();}catch(e){}};
+  const sn2=document.getElementById('spkNext');if(sn2)sn2.onclick=()=>{stopRecog();newSpeak();render();};
+  const inp=document.getElementById('spellInput');if(inp){inp.focus();inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();if(!state.spellChecked)checkSpell();else nextSpell();}};}
+  document.querySelectorAll('#spKeys [data-k]').forEach(b=>b.onclick=()=>{if(inp){inp.value+=b.dataset.k;inp.focus();}});
+  const bk=document.getElementById('spBack');if(bk)bk.onclick=()=>{if(inp){inp.value=inp.value.slice(0,-1);inp.focus();}};
+  const cl=document.getElementById('spClear');if(cl)cl.onclick=()=>{if(inp){inp.value='';inp.focus();}};
+  const ck=document.getElementById('spCheck');if(ck)ck.onclick=()=>checkSpell();
+  const rv=document.getElementById('spReveal');if(rv)rv.onclick=()=>{const h=document.getElementById('spHint');if(h)h.textContent='['+state.spellDeck[state.spellIdx].f+']';};
+  const sn=document.getElementById('spNext');if(sn)sn.onclick=()=>nextSpell();
+  const qs=document.getElementById('qSound');if(qs)qs.onclick=()=>{state.quizSound=!state.quizSound;render();};
+  document.querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>{const q=state.quiz;if(q.locked)return;q.locked=true;const item=q.items[q.idx],chosen=item.opts[+b.dataset.opt];document.querySelectorAll('.q-opt').forEach(opt=>{const t=item.opts[+opt.dataset.opt];if(t===item.answer){opt.classList.add('correct');opt.querySelector('.mk').textContent='✓';}else if(opt===b){opt.classList.add('wrong');opt.querySelector('.mk').textContent='✕';}});if(chosen===item.answer){q.score++;srsHit(item.answer);statHit('quiz',true);}else{srsMiss(item.answer);statHit('quiz',false);}if(state.quizSound)speak(item.answer);setTimeout(()=>{q.locked=false;if(q.idx+1>=q.total)q.done=true;else q.idx++;render();},1100);});
+  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{stopSeq();stopRecog();raceStop();state.race=null;state.tab=b.dataset.go;render();});
+  document.querySelectorAll('[data-done]').forEach(b=>b.onclick=()=>{const dy=dailyCur();const i=+b.dataset.done;dy.done[i]=!dy.done[i];saveDaily();render();});
+  const hc=document.getElementById('hardCard');if(hc)hc.onclick=()=>{state.hardFlip=!state.hardFlip;render();};
+  const hk=document.getElementById('hardKnown');if(hk)hk.onclick=()=>{const l=hardList();if(l.length){removeHard(l[state.hardIdx].t);markKnown(l[state.hardIdx].t);state.hardFlip=false;render();}};
+  const hn=document.getElementById('hardNext');if(hn)hn.onclick=()=>{const l=hardList();if(l.length){state.hardIdx=(state.hardIdx+1)%l.length;state.hardFlip=false;render();}};
+  const rc=document.getElementById('revCard');if(rc)rc.onclick=()=>{state.revFlip=!state.revFlip;render();};
+  const rok=document.getElementById('revOk');if(rok)rok.onclick=()=>{const d=dueList(state.lang);if(d.length){srsHit(d[Math.min(state.revIdx,d.length-1)].t);state.revFlip=false;render();}};
+  const rno=document.getElementById('revNo');if(rno)rno.onclick=()=>{const d=dueList(state.lang);if(d.length){srsMiss(d[Math.min(state.revIdx,d.length-1)].t);state.revFlip=false;render();}};
+  const mp=document.getElementById('mwPlay');if(mp)mp.onclick=()=>{if(state.mw)speak(state.mw.item.t);};
+  document.querySelectorAll('[data-mw]').forEach(b=>b.onclick=()=>{const M=state.mw;if(!M||M.answered)return;M.answered=true;const chosen=M.opts[+b.dataset.mw];M.correct=(chosen===M.answer);document.querySelectorAll('#mwOpts .q-opt').forEach((o,i)=>{if(M.opts[i]===M.answer)o.classList.add('correct');else if(i===+b.dataset.mw)o.classList.add('wrong');});const fb=document.getElementById('mwFeedback');if(fb)fb.innerHTML=M.correct?'<span style="color:var(--ok);font-weight:700">✓ Dobrze!</span>':'<span style="color:var(--warn);font-weight:700">✕ Poprawnie: '+esc(M.answer)+'</span>';if(M.correct){srsHit(M.item.t);statHit('missing',true);}else{srsMiss(M.item.t);statHit('missing',false);}speak(M.item.t);setTimeout(()=>{if(state.tab!=='missing')return;newMW();render();},1500);});
+  const cn=document.getElementById('cnPlay');if(cn)cn.onclick=()=>{playSeq(CHINA.map(c=>({t:c[4]||c[0],lang:'zh-CN'})));};
+  document.querySelectorAll('[data-zhmode]').forEach(b=>b.onclick=()=>{stopSeq();state.zhMode=b.dataset.zhmode;if(state.zhMode==='cards'){state.zhDeck=shuffle(CHINA.map((_,i)=>i));state.zhIdx=0;state.zhFlip=false;}render();});
+  const zc=document.getElementById('zhCard');if(zc)zc.onclick=()=>{state.zhFlip=!state.zhFlip;render();};
+  const zsh=document.getElementById('zhShuffle');if(zsh)zsh.onclick=()=>{state.zhDeck=shuffle(CHINA.map((_,i)=>i));state.zhIdx=0;state.zhFlip=false;render();};
+  const zn=document.getElementById('zhNext');if(zn)zn.onclick=()=>{zhEnsureDeck();state.zhIdx++;if(state.zhIdx>=state.zhDeck.length){state.zhDeck=shuffle(CHINA.map((_,i)=>i));state.zhIdx=0;}state.zhFlip=false;render();};
+  const qr=document.getElementById('quizRestart');if(qr)qr.onclick=()=>{startQuiz();render();};
+  const dn=document.getElementById('dlgNew');if(dn)dn.onclick=()=>{stopSeq();dlgStart();render();};
+  const dn2=document.getElementById('dlgNew2');if(dn2)dn2.onclick=()=>{stopSeq();dlgStart();render();};
+  document.querySelectorAll('[data-dopt]').forEach(b=>b.onclick=()=>{const ok=dlgChoose(+b.dataset.dopt);if(ok){render();requestAnimationFrame(()=>{const tgt=document.querySelector('.q-sub')||document.querySelector('.result');if(tgt)tgt.scrollIntoView({behavior:'smooth',block:'center'});});}else{b.classList.add('wrong');const h=document.getElementById('dlgHint');if(h)h.textContent='Spróbuj jeszcze raz — posłuchaj ponownie 🔊';}});
+  const dr=document.getElementById('dlgReplay');if(dr)dr.onclick=()=>{const d=DLG[state.lang][state.dlg.di];const seq=state.dlg.trail.map(e=>{const nd=d.n[e.ni];return e.ty==='m'?{t:nd[1],lang:TL()}:{t:nd[1][e.oi][0],lang:TL()};});playSeq(seq);};
+  if(state.tab==='race'&&state.race){const r=state.race;
+    if(r.phase==='start'){document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{r.mode=b.dataset.mode;render();});const st=document.getElementById('raceStart');if(st)st.onclick=()=>{startRace();render();};}
+    else if(r.phase==='play'){if(!r.current)raceNewQ();renderRaceQuestion();raceStop();raceTimer=setInterval(raceTick,1000);}
+    else if(r.phase==='done'){const a=document.getElementById('raceAgain');if(a)a.onclick=()=>{startRace();render();};const m=document.getElementById('raceMenu');if(m)m.onclick=()=>{state.race={phase:'start',mode:r.mode};render();};}
+  }
+}
+document.getElementById('bottomnav').addEventListener('click',e=>{const b=e.target.closest('[data-sec]');if(!b)return;stopSeq();stopRecog();raceStop();state.race=null;const s=SECTIONS.find(x=>x.id===b.dataset.sec);if(s){state.tab=s.tabs[0];render();window.scrollTo(0,0);}});
+document.getElementById('sections').addEventListener('click',e=>{const b=e.target.closest('[data-sec]');if(!b)return;stopSeq();stopRecog();raceStop();state.race=null;const s=SECTIONS.find(x=>x.id===b.dataset.sec);if(s){state.tab=s.tabs[0];render();window.scrollTo(0,0);}});
+document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;stopSeq();stopRecog();raceStop();state.race=null;state.tab=b.dataset.tab;render();window.scrollTo(0,0);});
+document.getElementById('lvl').addEventListener('click',e=>{const b=e.target.closest('[data-rng]');if(!b)return;const n=+b.dataset.rng;if(n===state.level[state.lang])return;state.level[state.lang]=n;saveLevel();stopSeq();state.vocabCat=null;state.fcDeck=[];state.fcIdx=0;state.quiz=null;state.spellDeck=[];state.spellIdx=0;state.listen=null;state.dlg=null;state.mw=null;state.revIdx=0;render();});
+document.getElementById('langToggle').addEventListener('click',e=>{const b=e.target.closest('[data-l]');if(!b)return;stopSeq();stopRecog();raceStop();state.lang=b.dataset.l;state.verbIdx=0;state.vocabCat=null;state.fcDeck=[];state.fcIdx=0;state.fcFlip=false;state.quiz=null;state.spellDeck=[];state.spellIdx=0;state.spellChecked=false;state.genPerson=0;state.genVerb=0;state.genCompl=0;state.gen=null;state.listen=null;state.speakItem=null;state.race=null;state.hardIdx=0;state.hardFlip=false;state.dlg=null;state.revIdx=0;state.revFlip=false;state.mw=null;render();window.scrollTo(0,0);});
+
+/* init: restore known + streak */
+(function(){const st=loadStore();if(st.known){if(st.known.ru)state.known.ru=new Set(st.known.ru);if(st.known.es)state.known.es=new Set(st.known.es);}if(st.hard){if(st.hard.ru)state.hard.ru=new Set(st.hard.ru);if(st.hard.es)state.hard.es=new Set(st.hard.es);}if(st.level){state.level.ru=st.level.ru||1;state.level.es=st.level.es||1;}if(st.srs){if(st.srs.ru)state.srs.ru=st.srs.ru;if(st.srs.es)state.srs.es=st.srs.es;}if(st.stats){if(st.stats.ru)state.stats.ru=st.stats.ru;if(st.stats.es)state.stats.es=st.stats.es;}['ru','es'].forEach(lg=>{state.known[lg].forEach(t=>{if(!state.srs[lg][t])state.srs[lg][t]={box:4,hits:1,misses:0,due:todayDay()+SRS_INT[4]};});});initStreak();initDaily();})();
+timerStart();timerPaint();render();
+</script>
+</body>
+</html>
