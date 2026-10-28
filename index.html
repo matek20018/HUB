@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HUB</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HUB">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f3f4f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131816" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<script src="config.js"></script>
+<style>
+:root{
+  --bg:#f3f4f2; --surface:#ffffff; --line:#dfe2de; --fg:#1d2422; --muted:#66706c;
+  --read:#b5741c; --med:#4f7d62; --lang:#3a64a8; --audio:#8a4f9e; --soft:#e9ece8;
+  --ok:#3f8a5a; --warn:#b5741c; --err:#b8473b;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --hh:56px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131816; --surface:#1b211f; --line:#2c3431; --fg:#e7ebe8; --muted:#94a09b;
+  --read:#e0a04a; --med:#7fb592; --lang:#7ea3e6; --audio:#c393d4; --soft:#232a27;
+  --ok:#7fb592; --warn:#e0a04a; --err:#e48478; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+[hidden]{display:none!important}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.topin{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:4px;height:52px}
+.brand{font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.02em;padding:0 8px 0 4px}
+.tabs{display:flex;gap:2px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:none;border-radius:9px;padding:7px 10px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-current="page"]{background:var(--surface);color:var(--fg);box-shadow:0 0 0 1px var(--line)}
+.gear{background:none;border:none;cursor:pointer;padding:6px 8px;border-radius:9px;display:flex;align-items:center;gap:6px;color:var(--muted)}
+.gear[aria-current="page"]{background:var(--surface);box-shadow:0 0 0 1px var(--line);color:var(--fg)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.dot.ok{background:var(--ok)} .dot.busy,.dot.pend{background:var(--warn)} .dot.err{background:var(--err)}
+@media (max-width:420px){.brand{display:none}.tab{padding:7px 8px;font-size:13.5px}}
+
+.wrap{max-width:620px;margin:0 auto;padding-block:24px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:26px}
+h1{font-family:var(--f-display);font-size:32px;line-height:1.05;margin:0;letter-spacing:-.02em}
+h2{font-family:var(--f-display);font-size:13px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 10px;font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.btn{background:var(--fg);color:var(--bg);border:none;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+.btn.sec{background:var(--soft);color:var(--fg);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--err);border:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type=text],input[type=email],input[type=password],input[type=url]{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+
+/* header of start / habits */
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.date{color:var(--muted);font-size:14px;margin-top:4px}
+.score{font-family:var(--f-mono);font-size:13px;color:var(--muted);text-align:right}
+.score b{display:block;font-size:26px;color:var(--fg);font-family:var(--f-display)}
+
+/* habits (from Rytm dnia) */
+.habits{display:flex;flex-direction:column;gap:10px}
+.habit{--c:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  display:grid;grid-template-columns:44px 1fr auto;gap:4px 14px;align-items:center}
+.habit[data-k="read"]{--c:var(--read)} .habit[data-k="med"]{--c:var(--med)} .habit[data-k="lang"]{--c:var(--lang)}
+.check{width:44px;height:44px;border-radius:50%;border:2px solid var(--c);background:transparent;cursor:pointer;display:grid;place-items:center;color:var(--surface);grid-row:span 2;transition:background .15s}
+.check svg{width:22px;height:22px;opacity:0}
+.habit.done .check{background:var(--c)} .habit.done .check svg{opacity:1}
+.habit.min .check{background:color-mix(in srgb,var(--c) 35%,transparent)} .habit.min .check svg{opacity:1}
+.hname{font-weight:600;font-size:16px;min-width:0}
+.hsub{color:var(--muted);font-size:13px;min-width:0}
+.streak{font-family:var(--f-mono);font-size:13px;color:var(--c);text-align:right;grid-row:span 2;white-space:nowrap}
+.streak small{display:block;color:var(--muted);font-size:11px;font-family:var(--f-body)}
+.hextra{grid-column:2 / 4;display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{font:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--soft);color:var(--fg);border-radius:999px;padding:4px 10px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--c,var(--fg));border-color:var(--c,var(--fg));color:var(--surface)}
+.chip.ghost{background:transparent}
+.note{margin-top:10px;display:grid;gap:6px}
+.note label{font-size:13px;color:var(--muted);font-weight:600}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.mhead h2{margin:0}
+.nav{display:flex;gap:4px}
+.nav button{background:var(--surface);border:1px solid var(--line);border-radius:8px;width:32px;height:32px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dow{font-size:11px;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.06em}
+.day{position:relative;aspect-ratio:1;border-radius:9px;background:var(--surface);border:1px solid var(--line);font-family:var(--f-mono);font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0}
+.day.hasnote::after{content:"";position:absolute;left:30%;right:30%;bottom:4px;height:2px;border-radius:2px;background:var(--fg);opacity:.55}
+.day.out{visibility:hidden} .day.future{opacity:.4;cursor:default}
+.day.sel{border-color:var(--fg);border-width:2px} .day.full{background:var(--soft)}
+.dots{display:flex;gap:3px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}
+.dots i.r{background:var(--read)} .dots i.m{background:var(--med)} .dots i.l{background:var(--lang)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+@media (max-width:460px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:4px}
+.stat .lab{font-size:12px;color:var(--muted)}
+.stat .pct{font-family:var(--f-mono);font-size:18px}
+.stat .bar{height:4px;border-radius:4px;background:var(--soft);overflow:hidden}
+.stat .bar span{display:block;height:100%;background:var(--c)}
+.stat .cnt{font-size:11px;color:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.nmark{width:12px!important;height:2px!important;border-radius:2px!important;background:var(--fg);opacity:.55}
+.notes{display:flex;flex-direction:column;margin-top:14px;border-top:1px solid var(--line)}
+.notes button{background:none;border:none;border-bottom:1px solid var(--line);text-align:left;padding:9px 0;display:grid;grid-template-columns:52px 1fr;gap:10px;cursor:pointer}
+.notes .nd{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:2px}
+.notes .nt{min-width:0;overflow-wrap:anywhere}
+.notes .empty{font-size:13px;color:var(--muted);padding:10px 0}
+.rule{font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:12px}
+.rule p{margin:0} .rule b{color:var(--fg)}
+details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--fg)}
+.form{display:grid;gap:10px;margin-top:12px}
+.form label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+
+/* start cards */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{--c:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;min-width:0}
+.tile .k{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--c);font-weight:700}
+.tile .big{font-family:var(--f-display);font-size:26px;line-height:1.1}
+.tile .sub{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.tile.wide{grid-column:1 / 3}
+.mini{display:flex;flex-direction:column;gap:8px}
+.mini .habit{grid-template-columns:44px 1fr auto;padding:10px 14px}
+.mini .hextra{display:none}
+
+/* lango */
+#v-lango{position:fixed;left:0;right:0;top:var(--hh);bottom:0;background:var(--bg)}
+#langoFrame{width:100%;height:100%;border:0;display:block;background:#fff}
+.banner{position:absolute;left:50%;transform:translateX(-50%);top:10px;z-index:5;background:var(--fg);color:var(--bg);border:none;border-radius:999px;padding:8px 14px;font-weight:600;font-size:13.5px;box-shadow:0 4px 18px rgba(0,0,0,.2);cursor:pointer}
+
+/* audio */
+.player{--c:var(--audio);display:grid;gap:10px}
+.ptitle{font-family:var(--f-display);font-size:20px;line-height:1.15;overflow-wrap:anywhere}
+.ptrack{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.seek{width:100%;accent-color:var(--audio)}
+.times{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.ctrls{display:flex;align-items:center;justify-content:center;gap:14px}
+.cbtn{background:var(--soft);border:1px solid var(--line);border-radius:50%;width:52px;height:52px;cursor:pointer;font-family:var(--f-mono);font-size:13px;font-weight:500}
+.cbtn.play{width:68px;height:68px;background:var(--audio);border-color:var(--audio);color:var(--surface);font-size:22px}
+.books{display:flex;flex-direction:column;gap:8px}
+.book{display:grid;grid-template-columns:48px 1fr auto;gap:4px 12px;align-items:center}
+.cov{width:48px;height:68px;border-radius:6px;object-fit:cover;background:var(--soft);border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:20px;overflow:hidden}
+.pcover{width:auto;max-width:min(240px,62vw);max-height:300px;height:auto;border-radius:8px;object-fit:contain;justify-self:center;box-shadow:0 8px 28px rgba(0,0,0,.18);background:var(--soft)}
+.tile.wide{flex-direction:row;align-items:center;gap:14px}
+.tile .tcov{width:54px;height:76px;border-radius:6px;object-fit:cover;flex:none;background:var(--soft)}
+.tile .tcol{display:flex;flex-direction:column;gap:6px;min-width:0}
+.book .bn{font-weight:600;overflow-wrap:anywhere;min-width:0}
+.book .bp{height:4px;border-radius:4px;background:var(--soft);overflow:hidden;grid-column:1 / 4}
+.book .bp span{display:block;height:100%;background:var(--audio)}
+.book .ba{display:flex;gap:6px}
+.book.cur{border-color:var(--audio)}
+.status{font-size:12.5px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top" id="top">
+  <div class="topin">
+    <div class="brand">HUB</div>
+    <nav class="tabs" aria-label="Sekcje">
+      <button class="tab" data-v="start">Start</button>
+      <button class="tab" data-v="habits">Nawyki</button>
+      <button class="tab" data-v="lango">Lango</button>
+      <button class="tab" data-v="audio">Audio</button>
+    </nav>
+    <button class="gear" data-v="settings" aria-label="Ustawienia i synchronizacja"><span class="dot" id="syncDot"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+  </div>
+</header>
+
+<!-- START -->
+<main id="v-start" class="wrap" hidden>
+  <div class="head">
+    <div><h1 id="hello">Dzień dobry</h1><div class="date" id="sDate"></div></div>
+    <div class="score"><b id="sScore">0/3</b><span id="sStreak">pełne dni z rzędu: 0</span></div>
+  </div>
+  <section><h2>Dzisiaj</h2><div class="mini habits" id="sHabits"></div></section>
+  <section class="tiles">
+    <button class="tile" style="--c:var(--lang)" data-go="lango">
+      <span class="k">Lango</span><span class="big" id="tLangoBig">–</span><span class="sub" id="tLangoSub">Otwórz, żeby zacząć</span>
+    </button>
+    <button class="tile" style="--c:var(--med)" data-go="habits">
+      <span class="k">Ten miesiąc</span><span class="big" id="tMonthBig">–</span><span class="sub" id="tMonthSub"></span>
+    </button>
+    <button class="tile wide" style="--c:var(--audio)" id="tAudio">
+      <img class="tcov" id="tAudioCov" alt="" hidden><span class="tcol">
+      <span class="k">Audiobook</span><span class="big" id="tAudioBig">Brak audiobooka</span><span class="sub" id="tAudioSub">Dodaj plik MP3 w zakładce Audio</span></span>
+    </button>
+  </section>
+  <p class="status" id="sSync"></p>
+</main>
+
+<!-- HABITS -->
+<main id="v-habits" class="wrap" hidden>
+  <div class="head">
+    <div><h1>Rytm dnia</h1><div class="date" id="hDate"></div></div>
+    <div class="score"><b id="hScore">0/3</b><span id="hStreak">pełne dni z rzędu: 0</span></div>
+  </div>
+  <section>
+    <h2 id="habitsTitle">Dzisiaj</h2>
+    <div class="habits" id="habits"></div>
+    <div class="note"><label for="note">Zdanie Dnia</label>
+      <input type="text" id="note" maxlength="280" autocomplete="off" placeholder="np. Skończyłem 3. rozdział. Nowe słowo: привычка"></div>
+  </section>
+  <section>
+    <div class="mhead"><h2 id="monthTitle"></h2>
+      <div class="nav"><button id="prevM" aria-label="Poprzedni miesiąc">‹</button><button id="nextM" aria-label="Następny miesiąc">›</button></div></div>
+    <div class="stats" id="stats"></div>
+    <div class="grid" id="grid"></div>
+    <div class="legend"><span><i style="background:var(--read)"></i>czytanie</span><span><i style="background:var(--med)"></i>medytacja</span><span><i style="background:var(--lang)"></i>język</span><span><i class="nmark"></i>wpis w dzienniku</span></div>
+    <div class="notes" id="notes"></div>
+  </section>
+  <section class="rule">
+    <p><b>Zasada minimum.</b> Gorszy dzień, zmiana na morzu albo podróż? Zrób wersję minimum (1 strona, 2 minuty oddechu, 5 słówek). Liczy się do serii.</p>
+    <p><b>Automatycznie:</b> ćwiczenie w Lango zalicza język (minimum), a 10 minut słuchania audiobooka zalicza czytanie. Ręczne kliknięcie zawsze wygrywa.</p>
+    <details>
+      <summary>Co teraz czytasz i jakiego języka się uczysz</summary>
+      <div class="form">
+        <label for="sBook">Co teraz czytasz<input type="text" id="sBook" placeholder="np. Atomowe nawyki"></label>
+        <label for="sLang">Jakiego języka się uczysz<input type="text" id="sLang" placeholder="np. rosyjski"></label>
+      </div>
+    </details>
+  </section>
+</main>
+
+<!-- LANGO -->
+<div id="v-lango" hidden>
+  <button class="banner" id="langoBanner" hidden>Nowe postępy z innego urządzenia · odśwież</button>
+  <iframe id="langoFrame" title="Lango"></iframe>
+</div>
+
+<!-- AUDIO -->
+<main id="v-audio" class="wrap" hidden>
+  <div class="head"><div><h1>Audiobooki</h1><div class="date">Słuchasz offline, miejsce synchronizuje się między urządzeniami</div></div></div>
+  <section class="card player" id="playerCard" hidden>
+    <img class="pcover" id="pCover" alt="" hidden>
+    <div><div class="ptitle" id="pTitle"></div><div class="ptrack" id="pTrack"></div></div>
+    <input type="range" class="seek" id="pSeek" min="0" max="1000" value="0" aria-label="Pozycja">
+    <div class="times"><span id="pCur">0:00</span><span id="pLeft">0:00</span></div>
+    <div class="ctrls">
+      <button class="cbtn" id="pBack" aria-label="30 sekund wstecz">−30</button>
+      <button class="cbtn play" id="pPlay" aria-label="Odtwarzaj">▶</button>
+      <button class="cbtn" id="pFwd" aria-label="30 sekund do przodu">+30</button>
+    </div>
+    <div class="row" style="justify-content:center"><button class="chip" id="pSpeed">1.0×</button><button class="chip ghost" id="pPrevT">‹ rozdział</button><button class="chip ghost" id="pNextT">rozdział ›</button></div>
+  </section>
+  <section>
+    <h2>Twoje audiobooki</h2>
+    <div class="books" id="books"></div>
+    <div class="row" style="margin-top:12px">
+      <label class="btn" for="abFile" style="display:inline-block">+ Dodaj pliki MP3</label>
+      <input type="file" id="abFile" accept=".mp3,.m4a,.m4b,audio/mpeg,audio/mp4" multiple hidden>
+      <button class="btn sec" id="openConv" hidden>Otwórz konwerter</button>
+    </div>
+    <p class="status" style="margin-top:10px">Zaznacz od razu wszystkie pliki jednej książki (rozdziały), zapiszą się jako jeden audiobook. Pliki zostają tylko na tym urządzeniu.</p>
+  </section>
+</main>
+
+<!-- SETTINGS -->
+<main id="v-settings" class="wrap" hidden>
+  <div class="head"><div><h1>Ustawienia</h1></div></div>
+  <section class="card">
+    <h2>Synchronizacja Mac ↔ iPhone</h2>
+    <p class="status" id="syncText" style="margin:0 0 10px"></p>
+    <div id="loginBox">
+      <div class="form" style="margin-top:0">
+        <label for="lEmail">E-mail<input type="email" id="lEmail" autocomplete="username"></label>
+        <label for="lPass">Hasło<input type="password" id="lPass" autocomplete="current-password"></label>
+        <details id="cfgBox"><summary>Dane projektu Supabase</summary>
+          <div class="form">
+            <label for="cUrl">Project URL<input type="url" id="cUrl" placeholder="https://xxxx.supabase.co"></label>
+            <label for="cKey">Publishable / anon key<input type="text" id="cKey" autocomplete="off"></label>
+          </div>
+        </details>
+        <button class="btn" id="loginBtn">Zaloguj</button>
+      </div>
+    </div>
+    <div id="loggedBox" class="row" hidden>
+      <button class="btn" id="syncNow">Synchronizuj teraz</button>
+      <button class="btn sec" id="logoutBtn">Wyloguj</button>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Kopia zapasowa</h2>
+    <p class="status" style="margin:0 0 10px">Plik ze wszystkimi postępami (nawyki, Lango, miejsca w audiobookach). Bez plików audio.</p>
+    <div class="row">
+      <button class="btn sec" id="expBtn">Eksportuj kopię</button>
+      <label class="btn sec" for="impFile">Importuj kopię</label>
+      <input type="file" id="impFile" accept=".json,application/json" hidden>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Aplikacja</h2>
+    <p class="status" style="margin:0 0 10px" id="verText"></p>
+    <div class="row"><button class="btn sec" id="updBtn">Pobierz najnowszą wersję</button></div>
+  </section>
+</main>
+
+<audio id="player" preload="auto"></audio>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+"use strict";
+const APP_VERSION="1.1.0";
+const $=s=>document.querySelector(s);
+const HABITS=[
+  {k:"read",name:"Czytanie",goal:"20 min lub 10 stron",min:"1 strona",dot:"r",opts:[10,20,30,45],auto:"z audiobooka"},
+  {k:"med",name:"Medytacja",goal:"10 min",min:"2 min oddechu",dot:"m",opts:[5,10,15,20]},
+  {k:"lang",name:"Język",goal:"15 min",min:"5 słówek",dot:"l",opts:[10,15,30,45],auto:"z Lango"},
+];
+const MONTHS=["styczeń","luty","marzec","kwiecień","maj","czerwiec","lipiec","sierpień","wrzesień","październik","listopad","grudzień"];
+const MONTHS_GEN=["stycznia","lutego","marca","kwietnia","maja","czerwca","lipca","sierpnia","września","października","listopada","grudnia"];
+const MONTHS_LOC=["styczniu","lutym","marcu","kwietniu","maju","czerwcu","lipcu","sierpniu","wrześniu","październiku","listopadzie","grudniu"];
+const DOW=["pon","wt","śr","czw","pt","sob","nd"];
+const DOW_FULL=["niedziela","poniedziałek","wtorek","środa","czwartek","piątek","sobota"];
+const pad=n=>String(n).padStart(2,"0");
+const keyOf=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const plDays=n=>n===1?"dzień":"dni";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function stable(v){if(v===null||typeof v!=="object")return JSON.stringify(v);if(Array.isArray(v))return "["+v.map(stable).join(",")+"]";return "{"+Object.keys(v).sort().filter(k=>v[k]!==undefined).map(k=>JSON.stringify(k)+":"+stable(v[k])).join(",")+"}"}
+let toastT;function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>e.hidden=true,3200)}
+
+/* ================= local store =================
+   kv: key -> {v: value, t: changed-at ms, d: 1 if not yet sent}
+   keys: "h:YYYY-MM-DD" day of habits · "settings" · "lango" · "ab:<bookId>" audiobook position */
+const LSK="hub_v1";
+let S={kv:{},cursor:null,session:null,cfg:{},langoScore:null,lastSync:0};
+try{const v=JSON.parse(localStorage.getItem(LSK)||"null");if(v)S=Object.assign(S,v)}catch(e){}
+function saveLocal(){try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){toast("Brak miejsca w pamięci przeglądarki")}}
+function get(k){const e=S.kv[k];return e?e.v:undefined}
+function putQuiet(k,v){S.kv[k]={v:v,t:Date.now(),d:1};saveLocal();paintSync()}
+function put(k,v){putQuiet(k,v);queueSync(2000)}
+
+/* ================= sync (Supabase REST, no library) ================= */
+function cfg(){const c=window.HUB_CONFIG||{};return{url:String(S.cfg.url||c.supabaseUrl||"").trim().replace(/\/+$/,""),key:String(S.cfg.key||c.supabaseKey||"").trim()}}
+async function authCall(grant,body){
+  const c=cfg();
+  const r=await fetch(c.url+"/auth/v1/token?grant_type="+grant,{method:"POST",headers:{apikey:c.key,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(j.error_description||j.msg||j.message||("HTTP "+r.status));e.status=r.status;throw e}
+  S.session={access:j.access_token,refresh:j.refresh_token,exp:Date.now()+(j.expires_in||3600)*1000,uid:j.user&&j.user.id,email:j.user&&j.user.email};
+  saveLocal();
+}
+async function token(){
+  if(!S.session)throw new Error("Nie zalogowano");
+  if(Date.now()>S.session.exp-60000){
+    try{await authCall("refresh_token",{refresh_token:S.session.refresh})}
+    catch(e){if(e.status&&e.status>=400&&e.status<500){S.session=null;saveLocal();renderSettings()}throw e}
+  }
+  return S.session.access;
+}
+async function rest(path,opt){
+  opt=opt||{};const c=cfg();const t=await token();
+  const r=await fetch(c.url+"/rest/v1/"+path,Object.assign({},opt,{headers:Object.assign({apikey:c.key,Authorization:"Bearer "+t,"Content-Type":"application/json"},opt.headers||{})}));
+  if(!r.ok){const tx=await r.text().catch(()=>"");throw new Error("HTTP "+r.status+" "+tx.slice(0,160))}
+  if(r.status===204)return null;
+  const tx=await r.text();return tx?JSON.parse(tx):null;
+}
+let syncing=false,syncAgain=false,syncTimer=null,syncState="idle",syncErr="";
+function queueSync(ms){clearTimeout(syncTimer);syncTimer=setTimeout(sync,ms==null?2000:ms)}
+async function sync(){
+  if(!S.session||!cfg().url){paintSync();return}
+  if(!navigator.onLine){syncState="off";paintSync();return}
+  if(syncing){syncAgain=true;return}
+  syncing=true;syncState="busy";paintSync();
+  try{
+    for(let round=0;round<3;round++){
+      await push();await pull();
+      if(!Object.values(S.kv).some(e=>e.d))break;
+    }
+    S.lastSync=Date.now();saveLocal();syncState="ok";syncErr="";
+  }catch(e){console.warn(e);syncState=S.session?"err":"idle";syncErr=String(e.message||e)}
+  finally{syncing=false;paintSync();if(syncAgain){syncAgain=false;queueSync(500)}}
+}
+async function push(){
+  const dirty=Object.entries(S.kv).filter(([,e])=>e.d);
+  for(let i=0;i<dirty.length;i+=200){
+    const part=dirty.slice(i,i+200);
+    await rest("hub_kv?on_conflict=user_id,key",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+      body:JSON.stringify(part.map(([k,e])=>({user_id:S.session.uid,key:k,value:e.v===undefined?null:e.v,updated_at:e.t})))});
+    part.forEach(([k,e])=>{const cur=S.kv[k];if(cur&&cur.t===e.t)cur.d=0});
+  }
+  if(dirty.length)saveLocal();
+}
+function minus5s(ts){const ms=Date.parse(String(ts).replace(/(\.\d{3})\d+/,"$1"));return isNaN(ms)?ts:new Date(ms-5000).toISOString()}
+async function pull(){
+  let got=0,lango=false,cursor=S.cursor?minus5s(S.cursor):null;
+  for(let page=0;page<100;page++){
+    let q="hub_kv?select=key,value,updated_at,server_at&order=server_at.asc&limit=500";
+    if(cursor)q+="&server_at=gt."+encodeURIComponent(cursor);
+    const rows=await rest(q)||[];
+    for(const r of rows){
+      const loc=S.kv[r.key],ut=Number(r.updated_at);
+      if(r.key==="lango"){
+        if(!loc||loc.v==null){S.kv.lango={v:r.value,t:ut,d:0}}
+        else{
+          const m=ut>loc.t?mergeLango(loc.v,r.value):mergeLango(r.value,loc.v);
+          const same=stable(m)===stable(r.value);
+          S.kv.lango=same?{v:r.value,t:ut,d:0}:{v:m,t:Math.max(Date.now(),ut+1),d:1};
+        }
+        lango=true;
+      }else if(!loc||ut>loc.t){S.kv[r.key]={v:r.value,t:ut,d:0}}
+      else if(ut===loc.t){loc.d=0}
+      if(!S.cursor||r.server_at>S.cursor)S.cursor=r.server_at;
+      cursor=r.server_at;got++;
+    }
+    if(rows.length<500)break;
+  }
+  if(got){saveLocal();if(lango)applyLangoToFrame();renderAll()}
+  return got;
+}
+function paintSync(){
+  const dot=$("#syncDot"),pend=Object.values(S.kv).filter(e=>e.d).length;
+  let cls="",txt;
+  if(!cfg().url){txt="Synchronizacja nieskonfigurowana. Dane zapisują się tylko na tym urządzeniu."}
+  else if(!S.session){txt="Nie zalogowano. Dane zapisują się tylko na tym urządzeniu.";cls="pend"}
+  else if(syncState==="busy"){txt="Synchronizuję…";cls="busy"}
+  else if(syncState==="off"){txt="Offline. Zmiany czekają na internet"+(pend?" ("+pend+")":"")+".";cls="pend"}
+  else if(syncState==="err"){txt="Błąd synchronizacji: "+syncErr;cls="err"}
+  else if(pend){txt="Zmiany czekają na wysłanie ("+pend+").";cls="pend"}
+  else{txt="Zsynchronizowano"+(S.lastSync?" "+new Date(S.lastSync).toLocaleTimeString("pl-PL",{hour:"2-digit",minute:"2-digit"}):"")+(S.session.email?" · "+S.session.email:"");cls="ok"}
+  dot.className="dot "+cls;
+  const a=$("#syncText");if(a)a.textContent=txt;
+  const b=$("#sSync");if(b)b.textContent=txt;
+}
+
+/* ================= habits ================= */
+let sel=today(),view=new Date(sel.getFullYear(),sel.getMonth(),1);
+function dayData(d){return get("h:"+keyOf(d))||{}}
+function setDay(d,patch){
+  const cur=Object.assign({},dayData(d),patch);
+  for(const k in cur)if(cur[k]===null||cur[k]===undefined)delete cur[k];
+  put("h:"+keyOf(d),cur);renderAll();
+}
+function settings(){return get("settings")||{book:"",lang:""}}
+function isDone(d,k){return !!dayData(d)[k]}
+function streak(test){let d=today(),n=0;if(!test(d))d.setDate(d.getDate()-1);while(test(d)&&n<3000){n++;d.setDate(d.getDate()-1)}return n}
+const allDone=d=>HABITS.every(h=>isDone(d,h.k));
+const checkSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function habitSub(h,dd){
+  const st=dd[h.k]||"",mins=dd[h.k+"Min"]||0,set=settings();
+  if(st&&dd[h.k+"Auto"])return "Automatycznie "+h.auto+(mins?" · "+mins+" min":"");
+  if(st==="done")return mins?"Zrobione · "+mins+" min":"Zrobione";
+  if(st==="min")return "Wersja minimum · "+h.min;
+  if(h.k==="read"&&set.book)return set.book+" · "+h.goal;
+  if(h.k==="lang"&&set.lang)return set.lang+" · "+h.goal;
+  return h.goal;
+}
+function habitEl(h,d,withExtra){
+  const dd=dayData(d),st=dd[h.k]||"",mins=dd[h.k+"Min"]||0,sk=streak(x=>isDone(x,h.k));
+  const el=document.createElement("div");
+  el.className="habit"+(st==="done"?" done":st==="min"?" min":"");el.dataset.k=h.k;
+  el.innerHTML='<button class="check" aria-label="'+h.name+': oznacz jako zrobione" aria-pressed="'+(!!st)+'">'+checkSvg+'</button>'+
+    '<div class="hname">'+h.name+'</div><div class="streak">'+sk+' '+plDays(sk)+'<small>seria</small></div><div class="hsub"></div><div class="hextra"></div>';
+  el.querySelector(".hsub").textContent=habitSub(h,dd);
+  el.querySelector(".check").onclick=()=>setDay(d,{[h.k]:st?null:"done",[h.k+"Min"]:st?null:(dd[h.k+"Auto"]?null:(mins||null)),[h.k+"Auto"]:null});
+  if(withExtra){
+    const ex=el.querySelector(".hextra");
+    h.opts.forEach(m=>{const b=document.createElement("button");b.className="chip";b.textContent=m+" min";
+      const on=st==="done"&&mins===m&&!dd[h.k+"Auto"];b.setAttribute("aria-pressed",String(on));
+      b.onclick=()=>setDay(d,on?{[h.k]:null,[h.k+"Min"]:null,[h.k+"Auto"]:null}:{[h.k]:"done",[h.k+"Min"]:m,[h.k+"Auto"]:null});ex.appendChild(b)});
+    const mb=document.createElement("button");mb.className="chip ghost";mb.textContent="minimum";
+    const mon=st==="min"&&!dd[h.k+"Auto"];mb.setAttribute("aria-pressed",String(mon));
+    mb.onclick=()=>setDay(d,mon?{[h.k]:null,[h.k+"Min"]:null,[h.k+"Auto"]:null}:{[h.k]:"min",[h.k+"Min"]:null,[h.k+"Auto"]:null});ex.appendChild(mb);
+  }
+  return el;
+}
+function dateLabel(d){return DOW_FULL[d.getDay()]+", "+d.getDate()+" "+MONTHS_GEN[d.getMonth()]+" "+d.getFullYear()}
+const noteEl=$("#note");let noteTimer;
+noteEl.addEventListener("input",()=>{
+  const d=new Date(sel),txt=noteEl.value;clearTimeout(noteTimer);
+  noteTimer=setTimeout(()=>{const cur=Object.assign({},dayData(d));if(txt.trim())cur.note=txt;else delete cur.note;put("h:"+keyOf(d),cur);renderMonth()},700);
+});
+function renderHabits(){
+  const t=today(),isToday=keyOf(sel)===keyOf(t),dd=dayData(sel);
+  $("#hDate").textContent=dateLabel(sel);
+  $("#habitsTitle").textContent=isToday?"Dzisiaj":"Uzupełniasz "+sel.getDate()+" "+MONTHS_GEN[sel.getMonth()];
+  $("#hScore").textContent=HABITS.filter(h=>dd[h.k]).length+"/3";
+  $("#hStreak").textContent="pełne dni z rzędu: "+streak(allDone);
+  const box=$("#habits");box.innerHTML="";HABITS.forEach(h=>box.appendChild(habitEl(h,sel,true)));
+  if(document.activeElement!==noteEl)noteEl.value=dd.note||"";
+  const s=settings();
+  if(document.activeElement!==$("#sBook"))$("#sBook").value=s.book||"";
+  if(document.activeElement!==$("#sLang"))$("#sLang").value=s.lang||"";
+  renderMonth();
+}
+function monthDays(v){const t=today();const elapsed=v>t?0:(v.getFullYear()===t.getFullYear()&&v.getMonth()===t.getMonth()?t.getDate():new Date(v.getFullYear(),v.getMonth()+1,0).getDate());const a=[];for(let i=1;i<=elapsed;i++)a.push(new Date(v.getFullYear(),v.getMonth(),i));return a}
+function renderMonth(){
+  $("#monthTitle").textContent=MONTHS[view.getMonth()]+" "+view.getFullYear();
+  const g=$("#grid");g.innerHTML="";
+  DOW.forEach(x=>{const e=document.createElement("div");e.className="dow";e.textContent=x;g.appendChild(e)});
+  const first=(view.getDay()+6)%7,n=new Date(view.getFullYear(),view.getMonth()+1,0).getDate(),t=today();
+  const days=monthDays(view),el=days.length;
+  const rows=HABITS.map(h=>({lab:h.name,c:"var(--"+h.k+")",k:days.filter(d=>isDone(d,h.k)).length})).concat([{lab:"Pełne dni",c:"var(--fg)",k:days.filter(allDone).length}]);
+  $("#stats").innerHTML=rows.map(r=>{const p=el?Math.round(r.k/el*100):0;return '<div class="stat" style="--c:'+r.c+'"><span class="lab">'+r.lab+'</span><span class="pct">'+(el?p+"%":"–")+'</span><span class="bar"><span style="width:'+p+'%"></span></span><span class="cnt">'+r.k+' z '+el+' dni</span></div>'}).join("");
+  for(let i=0;i<first;i++){const e=document.createElement("div");e.className="day out";g.appendChild(e)}
+  for(let d=1;d<=n;d++){
+    const date=new Date(view.getFullYear(),view.getMonth(),d),dd=dayData(date),fut=date>t;
+    const b=document.createElement("button");
+    b.className="day"+(fut?" future":"")+(keyOf(date)===keyOf(sel)?" sel":"")+(allDone(date)?" full":"")+(dd.note?" hasnote":"");
+    b.innerHTML=d+'<span class="dots">'+HABITS.map(h=>'<i class="'+(dd[h.k]?h.dot:"")+'"></i>').join("")+'</span>';
+    b.setAttribute("aria-label",d+" "+MONTHS_GEN[view.getMonth()]+": "+HABITS.filter(h=>dd[h.k]).length+" z 3");
+    if(fut)b.disabled=true;else b.onclick=()=>{sel=date;renderHabits();window.scrollTo({top:0,behavior:"smooth"})};
+    g.appendChild(b);
+  }
+  const nb=$("#notes");nb.innerHTML="";
+  const ent=[];for(let d=n;d>=1;d--){const dd=dayData(new Date(view.getFullYear(),view.getMonth(),d));if(dd.note)ent.push([d,dd.note])}
+  if(!ent.length){nb.innerHTML='<div class="empty">Brak wpisów w tym miesiącu.</div>';return}
+  ent.forEach(([d,txt])=>{const b=document.createElement("button");b.innerHTML='<span class="nd"></span><span class="nt"></span>';
+    b.querySelector(".nd").textContent=d+" "+MONTHS_GEN[view.getMonth()].slice(0,3);b.querySelector(".nt").textContent=txt;
+    b.onclick=()=>{sel=new Date(view.getFullYear(),view.getMonth(),d);renderHabits();window.scrollTo({top:0,behavior:"smooth"})};nb.appendChild(b)});
+}
+$("#prevM").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderMonth()};
+$("#nextM").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);renderMonth()};
+let setT;["sBook","sLang"].forEach(id=>$("#"+id).addEventListener("input",()=>{clearTimeout(setT);setT=setTimeout(()=>{put("settings",{book:$("#sBook").value.trim(),lang:$("#sLang").value.trim()});renderHabits()},600)}));
+
+/* auto-ticks */
+function autoLang(){const d=today(),dd=dayData(d);if(!dd.lang)setDay(d,{lang:"min",langAuto:1})}
+function addListening(sec){
+  if(sec<=0)return;const d=today(),k="h:"+keyOf(d),dd=Object.assign({},dayData(d));
+  dd.abSec=Math.round((dd.abSec||0)+sec);
+  if(dd.abSec>=600&&(!dd.read||dd.readAuto)){dd.read="done";dd.readAuto=1;dd.readMin=Math.floor(dd.abSec/60)}
+  putQuiet(k,dd);
+}
+
+/* ================= Lango ================= */
+const LANGO_KEY="jezyklab_v4";
+function langoScore(v){let n=0;if(!v)return 0;["ru","es"].forEach(l=>{const st=v.stats&&v.stats[l];if(st)Object.values(st).forEach(e=>n+=(e&&e.n)||0);const s=v.srs&&v.srs[l];if(s)Object.values(s).forEach(e=>n+=((e&&e.hits)||0)+((e&&e.misses)||0))});return n}
+function keysOf(...os){return [...new Set(os.flatMap(o=>Object.keys(o||{})))]}
+function mergeLango(a,b){ // b is the newer one: it wins on everything that can't be merged
+  if(!a||typeof a!=="object")return b;if(!b||typeof b!=="object")return a;
+  const o=Object.assign({},a,b);
+  if(a.srs||b.srs){o.srs={};keysOf(a.srs,b.srs).forEach(l=>{const A=(a.srs||{})[l]||{},B=(b.srs||{})[l]||{},r={};
+    keysOf(A,B).forEach(w=>{const x=A[w],y=B[w];if(!x){r[w]=y;return}if(!y){r[w]=x;return}
+      const nx=(x.hits||0)+(x.misses||0),ny=(y.hits||0)+(y.misses||0);r[w]=ny>nx?y:nx>ny?x:((y.due||0)>=(x.due||0)?y:x)});o.srs[l]=r})}
+  if(a.stats||b.stats){o.stats={};keysOf(a.stats,b.stats).forEach(l=>{const A=(a.stats||{})[l]||{},B=(b.stats||{})[l]||{},r={};
+    keysOf(A,B).forEach(m=>{const x=A[m],y=B[m];r[m]=!x?y:!y?x:(((y.n||0)>=(x.n||0))?y:x)});o.stats[l]=r})}
+  ["known","hard"].forEach(f=>{if(a[f]||b[f]){o[f]={};keysOf(a[f],b[f]).forEach(l=>{
+    let s=[...new Set([...(((a[f]||{})[l])||[]),...(((b[f]||{})[l])||[])])];
+    if(f==="known"&&o.srs&&o.srs[l])s=s.filter(w=>!o.srs[l][w]||o.srs[l][w].box>=4);o[f][l]=s})}});
+  if(a.daily||b.daily){o.daily={};keysOf(a.daily,b.daily).forEach(l=>{const x=(a.daily||{})[l],y=(b.daily||{})[l];
+    if(!x||!y){o.daily[l]=y||x;return}if(x.date!==y.date){o.daily[l]=(x.date||"")>(y.date||"")?x:y;return}
+    o.daily[l]={date:y.date,done:(y.done||[]).map((v,i)=>!!(v||(x.done||[])[i]))}})}
+  if(a.streak&&b.streak){const x=a.streak,y=b.streak;const s=(x.date||"")>(y.date||"")?x:(y.date||"")>(x.date||"")?y:(((y.count||0)>=(x.count||0))?y:x);
+    o.streak=Object.assign({},s,{best:Math.max(x.best||0,y.best||0,s.count||0)})}
+  if(a.race||b.race){o.race=Object.assign({},a.race,b.race);keysOf(a.race).forEach(k=>{o.race[k]=Math.max(a.race[k]||0,(b.race||{})[k]||0)})}
+  return o;
+}
+let langoRaw=null,langoLoaded=false,frameReady=false,langoStale=false;
+function readLS(){try{return localStorage.getItem(LANGO_KEY)}catch(e){return null}}
+function applyLangoToFrame(){
+  const v=get("lango");if(!v)return;let cur=null;const raw=readLS();try{cur=JSON.parse(raw||"null")}catch(e){}
+  if(cur&&stable(cur)===stable(v))return;
+  try{localStorage.setItem(LANGO_KEY,JSON.stringify(v))}catch(e){return}
+  langoRaw=readLS();S.langoScore=langoScore(v);saveLocal();
+  if(frameReady){if(current==="lango"){langoStale=true;$("#langoBanner").hidden=false}else reloadLango()}
+}
+function reloadLango(){langoStale=false;$("#langoBanner").hidden=true;try{$("#langoFrame").contentWindow.location.reload()}catch(e){$("#langoFrame").src="lango.html"}}
+function checkLango(){ // Lango writes its progress to localStorage; pick it up
+  const raw=readLS();if(raw===langoRaw||!raw)return;langoRaw=raw;
+  let v;try{v=JSON.parse(raw)}catch(e){return}
+  const loc=get("lango");const m=loc?mergeLango(loc,v):v;
+  if(!loc||stable(m)!==stable(loc))put("lango",m);
+  if(stable(m)!==stable(v)){try{localStorage.setItem(LANGO_KEY,JSON.stringify(m));langoRaw=readLS()}catch(e){}}
+  const sc=langoScore(m);if(S.langoScore!=null&&sc>S.langoScore)autoLang();S.langoScore=sc;saveLocal();
+}
+window.addEventListener("storage",e=>{if(e.key===LANGO_KEY)checkLango()});
+setInterval(()=>{if(langoLoaded)checkLango()},3000);
+$("#langoBanner").onclick=reloadLango;
+function langoSummary(){
+  const v=get("lango");if(!v)return null;const td=Math.floor(Date.now()/86400000);let due=0,mastered=0;
+  ["ru","es"].forEach(l=>{const s=v.srs&&v.srs[l];if(s)Object.values(s).forEach(e=>{if(!e)return;if(e.due<=td)due++;if(e.box>=4)mastered++})});
+  let st=0;if(v.streak&&v.streak.date){const t=keyOf(today()),y=keyOf(new Date(Date.now()-86400000));if(v.streak.date===t||v.streak.date===y)st=v.streak.count||0}
+  return{due,mastered,streak:st};
+}
+
+/* ================= audiobooks ================= */
+const idb=(()=>{let p;
+  function open(){return p||(p=new Promise((res,rej)=>{const r=indexedDB.open("hub_audio",1);
+    r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore("books",{keyPath:"id"});d.createObjectStore("blobs")};
+    r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}))}
+  async function tx(store,mode,fn){const d=await open();return new Promise((res,rej)=>{const t=d.transaction(store,mode),s=t.objectStore(store);let out;const r=fn(s);if(r)r.onsuccess=()=>{out=r.result};t.oncomplete=()=>res(out);t.onerror=t.onabort=()=>rej(t.error)})}
+  return{all:()=>tx("books","readonly",s=>s.getAll()),putBook:b=>tx("books","readwrite",s=>s.put(b)),delBook:id=>tx("books","readwrite",s=>s.delete(id)),
+    putBlob:(k,v)=>tx("blobs","readwrite",s=>s.put(v,k)),getBlob:k=>tx("blobs","readonly",s=>s.get(k)),delBlob:k=>tx("blobs","readwrite",s=>s.delete(k))};
+})();
+let BOOKS=[];const A=$("#player");let cur=null; // {book,track}
+function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(36)}
+function fmtT(s){s=Math.max(0,Math.floor(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+":"+pad(m):m)+":"+pad(x)}
+function stripName(n){return n.replace(/\.[^.]+$/,"").replace(/[_]+/g," ").trim()}
+function bookName(names){
+  if(names.length===1)return stripName(names[0]);
+  const ns=names.map(n=>stripName(n).replace(/^[\s\-_.()\[\]0-9]+/,""));
+  let p=ns[0];for(const n of ns){let i=0;while(i<p.length&&i<n.length&&p[i]===n[i])i++;p=p.slice(0,i)}
+  for(let k=0;k<3;k++)p=p.replace(/[\s\-_.,:()\[\]0-9]+$/,"").replace(/\b(rozdzia[łl]|chapter|cz[ęe][śs][ćc]|cz|część|part)$/i,"");
+  p=p.trim();
+  return p.length>=3?p:"Audiobook · "+names.length+" plików";
+}
+/* ID3v2 (2.3/2.4): album, track title and embedded cover written by the converter */
+function id3text(b,enc){
+  if(!b.length)return "";
+  const dec=enc===0?"latin1":enc===3?"utf-8":enc===2?"utf-16be":(b[0]===0xFE&&b[1]===0xFF?"utf-16be":"utf-16le");
+  let s=new TextDecoder(dec).decode(enc===1?b.subarray(2):b);return s.replace(/\u0000+$/,"").split("\u0000")[0].trim();
+}
+async function readId3(blob){
+  try{
+    const h=new Uint8Array(await blob.slice(0,10).arrayBuffer());
+    if(h[0]!==73||h[1]!==68||h[2]!==51)return null;
+    const ver=h[3],ss=b=>(b[0]<<21)|(b[1]<<14)|(b[2]<<7)|b[3];
+    if(ver<3||ver>4)return null;
+    const size=ss(h.subarray(6,10)),d=new Uint8Array(await blob.slice(10,10+size).arrayBuffer());
+    let p=0;if(h[5]&0x40){p=ver===4?ss(d.subarray(0,4)):((d[0]<<24|d[1]<<16|d[2]<<8|d[3])+4)}
+    const out={};
+    while(p+10<=d.length){
+      const id=String.fromCharCode(d[p],d[p+1],d[p+2],d[p+3]);if(!/^[A-Z0-9]{4}$/.test(id))break;
+      const fs=ver===4?ss(d.subarray(p+4,p+8)):((d[p+4]<<24)|(d[p+5]<<16)|(d[p+6]<<8)|d[p+7])>>>0;
+      const f=d.subarray(p+10,p+10+fs);p+=10+fs;if(!fs)continue;
+      if(id==="TALB")out.album=id3text(f.subarray(1),f[0]);
+      else if(id==="TIT2")out.title=id3text(f.subarray(1),f[0]);
+      else if(id==="TPE1")out.artist=id3text(f.subarray(1),f[0]);
+      else if(id==="APIC"&&!out.pic){
+        const enc=f[0];let i=1;while(i<f.length&&f[i]!==0)i++;const mime=new TextDecoder("latin1").decode(f.subarray(1,i))||"image/jpeg";i+=2; // mime, \0, picture type
+        if(enc===1||enc===2){while(i+1<f.length&&!(f[i]===0&&f[i+1]===0))i+=2;i+=2}else{while(i<f.length&&f[i]!==0)i++;i++}
+        out.pic=new Blob([f.slice(i)],{type:mime.includes("/")?mime:"image/"+mime.toLowerCase()});
+      }
+    }
+    return out;
+  }catch(e){console.warn("id3",e);return null}
+}
+async function shrinkImg(blob,max){ // keep covers small: JPEG, longest side ≤ max
+  try{const bm=await createImageBitmap(blob);const k=Math.min(1,max/Math.max(bm.width,bm.height));
+    const c=document.createElement("canvas");c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);
+    c.getContext("2d").drawImage(bm,0,0,c.width,c.height);
+    return await new Promise(r=>c.toBlob(b=>r(b||blob),"image/jpeg",.85));
+  }catch(e){return blob}
+}
+const coverUrls={};
+function coverUrl(b){if(!b||!b.cover)return null;return coverUrls[b.id]||(coverUrls[b.id]=URL.createObjectURL(b.cover))}
+async function ensureCover(b){ // books added before covers existed: look into the first file once
+  if(b.coverChecked)return false;b.coverChecked=1;
+  try{const blob=await idb.getBlob(b.id+":0");const m=blob&&await readId3(blob);if(m&&m.pic)b.cover=await shrinkImg(m.pic,600)}catch(e){}
+  try{await idb.putBook(b)}catch(e){}
+  return !!b.cover;
+}
+function getDur(blob){return new Promise(res=>{const a=new Audio(),u=URL.createObjectURL(blob);let done=false;const fin=v=>{if(done)return;done=true;URL.revokeObjectURL(u);res(v)};
+  a.preload="metadata";a.onloadedmetadata=()=>fin(isFinite(a.duration)?a.duration:0);a.onerror=()=>fin(0);setTimeout(()=>fin(0),10000);a.src=u})}
+function bookTotal(b){return b.tracks.reduce((s,t)=>s+(t.dur||0),0)}
+function bookPos(b){const p=get("ab:"+b.id)||{};let s=0;for(let i=0;i<Math.min(p.track||0,b.tracks.length);i++)s+=b.tracks[i].dur||0;return{pos:s+(p.pos||0),p}}
+function bookPct(b){const tot=bookTotal(b);if(!tot)return 0;const p=get("ab:"+b.id)||{};if(p.done)return 100;return Math.min(100,Math.round(bookPos(b).pos/tot*100))}
+async function loadBooks(){
+  try{BOOKS=(await idb.all()||[]).sort((a,b)=>(b.added||0)-(a.added||0))}catch(e){BOOKS=[];console.warn(e)}
+  renderAudio();renderStart();
+  let changed=false;for(const b of BOOKS)if(await ensureCover(b))changed=true;
+  if(changed){renderAudio();renderStart();renderPlayer();mediaMeta()}
+}
+$("#abFile").addEventListener("change",async e=>{
+  const files=[...e.target.files];e.target.value="";if(!files.length)return;
+  files.sort((a,b)=>a.name.localeCompare(b.name,"pl",{numeric:true}));
+  const id=hash(files.map(f=>f.name+":"+f.size).join("|"));
+  if(BOOKS.some(b=>b.id===id)){toast("Ten audiobook już jest na liście");return}
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(x){}
+  const book={id,name:bookName(files.map(f=>f.name)),tracks:[],added:Date.now(),coverChecked:1};
+  const meta=await readId3(files[0]);
+  if(meta&&meta.album)book.name=meta.album;
+  if(meta&&meta.pic)book.cover=await shrinkImg(meta.pic,600);
+  const prev=get("ab:"+id);if(prev&&prev.name)book.name=prev.name;
+  try{
+    for(let i=0;i<files.length;i++){
+      toast("Zapisuję "+(i+1)+" z "+files.length+"…");
+      const f=files[i],blob=new Blob([await f.arrayBuffer()],{type:f.type||"audio/mpeg"});
+      await idb.putBlob(id+":"+i,blob);
+      const tm=i===0?meta:await readId3(blob);
+      book.tracks.push({name:(tm&&tm.title)||stripName(f.name),size:f.size,dur:await getDur(blob)});
+    }
+    await idb.putBook(book);toast("Dodano: "+book.name);
+    if(!prev)put("ab:"+id,{name:book.name,track:0,pos:0});
+  }catch(err){console.warn(err);toast("Nie udało się zapisać pliku. Za mało miejsca?");for(let i=0;i<files.length;i++)idb.delBlob(id+":"+i).catch(()=>{})}
+  await loadBooks();
+});
+let objUrl=null,lastTick=0,listenAcc=0,lastSave=0;
+async function openBook(id,autoplay,track,pos){
+  const b=BOOKS.find(x=>x.id===id);if(!b)return;
+  const p=get("ab:"+id)||{};
+  if(track==null){track=p.done?0:(p.track||0);pos=p.done?0:(p.pos||0)}
+  track=Math.max(0,Math.min(track,b.tracks.length-1));
+  const blob=await idb.getBlob(id+":"+track);if(!blob){toast("Brak pliku na tym urządzeniu");return}
+  if(objUrl)URL.revokeObjectURL(objUrl);objUrl=URL.createObjectURL(blob);
+  cur={book:b,track};A.src=objUrl;A.playbackRate=speed();
+  const startAt=pos||0;
+  A.addEventListener("loadedmetadata",()=>{try{A.currentTime=Math.min(startAt,Math.max(0,(A.duration||startAt)-1))}catch(e){}},{once:true});
+  try{localStorage.setItem("hub_lastBook",id)}catch(e){}
+  mediaMeta();renderPlayer();renderAudio();renderStart();
+  if(autoplay){A.play().catch(()=>{})}
+}
+function saveProgress(force){
+  if(!cur)return;const now=Date.now();if(!force&&now-lastSave<5000)return;lastSave=now;
+  putQuiet("ab:"+cur.book.id,{name:cur.book.name,track:cur.track,pos:Math.round((A.currentTime||0)*10)/10});
+}
+function flushListen(){if(listenAcc>=1){addListening(listenAcc);listenAcc=0}}
+A.addEventListener("timeupdate",()=>{
+  const now=performance.now();if(!A.paused&&lastTick&&now-lastTick<3000)listenAcc+=(now-lastTick)/1000;lastTick=now;
+  if(listenAcc>=15){flushListen();renderStartLight()}
+  saveProgress(false);paintPlayerTime();
+});
+A.addEventListener("play",()=>{lastTick=performance.now();renderPlayer()});
+A.addEventListener("pause",()=>{lastTick=0;flushListen();saveProgress(true);queueSync(1500);renderPlayer();renderStart();renderAudio()});
+A.addEventListener("ended",async()=>{
+  if(!cur)return;flushListen();
+  if(cur.track<cur.book.tracks.length-1){await openBook(cur.book.id,true,cur.track+1,0);saveProgress(true)}
+  else{putQuiet("ab:"+cur.book.id,{name:cur.book.name,track:cur.book.tracks.length-1,pos:0,done:1});queueSync(1000);toast("Koniec audiobooka 🎉");renderPlayer();renderAudio();renderStart()}
+});
+function speed(){const v=parseFloat(localStorage.getItem("hub_speed")||"1");return isFinite(v)?v:1}
+const SPEEDS=[1,1.15,1.25,1.5,1.75,2];
+$("#pSpeed").onclick=()=>{const i=SPEEDS.indexOf(speed());const n=SPEEDS[(i+1)%SPEEDS.length];try{localStorage.setItem("hub_speed",n)}catch(e){}A.playbackRate=n;renderPlayer()};
+$("#pPlay").onclick=()=>{if(!cur)return;if(A.paused)A.play().catch(()=>toast("Nie udało się odtworzyć"));else A.pause()};
+$("#pBack").onclick=()=>{A.currentTime=Math.max(0,A.currentTime-30)};
+$("#pFwd").onclick=()=>{A.currentTime=Math.min(A.duration||0,A.currentTime+30)};
+$("#pPrevT").onclick=()=>{if(cur&&cur.track>0)openBook(cur.book.id,!A.paused,cur.track-1,0)};
+$("#pNextT").onclick=()=>{if(cur&&cur.track<cur.book.tracks.length-1)openBook(cur.book.id,!A.paused,cur.track+1,0)};
+let seeking=false;
+$("#pSeek").addEventListener("input",()=>{seeking=true;const d=A.duration||0;$("#pCur").textContent=fmtT($("#pSeek").value/1000*d)});
+$("#pSeek").addEventListener("change",()=>{const d=A.duration||0;A.currentTime=$("#pSeek").value/1000*d;seeking=false;saveProgress(true)});
+function paintPlayerTime(){if(!cur||seeking)return;const d=A.duration||0,c=A.currentTime||0;$("#pSeek").value=d?Math.round(c/d*1000):0;$("#pCur").textContent=fmtT(c);$("#pLeft").textContent="−"+fmtT(d-c)}
+function renderPlayer(){
+  const card=$("#playerCard");if(!cur){card.hidden=true;return}card.hidden=false;
+  $("#pTitle").textContent=cur.book.name;
+  const pc=$("#pCover"),cu=coverUrl(cur.book);pc.hidden=!cu;if(cu&&pc.src!==cu)pc.src=cu;
+  $("#pTrack").textContent=(cur.book.tracks.length>1?"Rozdział "+(cur.track+1)+" z "+cur.book.tracks.length+" · ":"")+cur.book.tracks[cur.track].name;
+  $("#pPlay").textContent=A.paused?"▶":"❚❚";$("#pPlay").setAttribute("aria-label",A.paused?"Odtwarzaj":"Pauza");
+  $("#pSpeed").textContent=speed().toFixed(2).replace(/0$/,"")+"×";
+  $("#pPrevT").hidden=$("#pNextT").hidden=cur.book.tracks.length<2;
+  paintPlayerTime();
+}
+function mediaMeta(){
+  if(!("mediaSession" in navigator)||!cur)return;
+  try{navigator.mediaSession.metadata=new MediaMetadata({title:cur.book.tracks[cur.track].name,album:cur.book.name,artist:"HUB",artwork:coverUrl(cur.book)?[{src:coverUrl(cur.book),sizes:"600x600",type:"image/jpeg"}]:[{src:"icon-512.png",sizes:"512x512",type:"image/png"}]})}catch(e){}
+  const ms=navigator.mediaSession,set=(a,f)=>{try{ms.setActionHandler(a,f)}catch(e){}};
+  set("play",()=>A.play());set("pause",()=>A.pause());
+  set("seekbackward",()=>{A.currentTime=Math.max(0,A.currentTime-30)});set("seekforward",()=>{A.currentTime=Math.min(A.duration||0,A.currentTime+30)});
+  set("previoustrack",()=>$("#pPrevT").click());set("nexttrack",()=>$("#pNextT").click());
+}
+function renderAudio(){
+  const box=$("#books");box.innerHTML="";
+  if(!BOOKS.length){box.innerHTML='<p class="status" style="margin:0">Na tym urządzeniu nie ma jeszcze audiobooków.</p>';}
+  BOOKS.forEach(b=>{
+    const pct=bookPct(b),tot=bookTotal(b),p=get("ab:"+b.id)||{};
+    const el=document.createElement("div");el.className="card book"+(cur&&cur.book.id===b.id?" cur":"");
+    el.innerHTML=(coverUrl(b)?'<img class="cov" alt="" src="'+coverUrl(b)+'">':'<div class="cov" aria-hidden="true">♪</div>')+'<div><div class="bn"></div><div class="status"></div></div><div class="ba"><button class="chip" data-a="play"></button><button class="chip ghost" data-a="ren" aria-label="Zmień nazwę">✎</button><button class="chip ghost" data-a="del" aria-label="Usuń">✕</button></div><div class="bp"><span style="width:'+pct+'%"></span></div>';
+    el.querySelector(".bn").textContent=b.name;
+    el.querySelector(".status").textContent=(p.done?"Przesłuchane":pct+"%")+(tot?" · "+fmtT(tot):"")+(b.tracks.length>1?" · "+b.tracks.length+" rozdz.":"");
+    const playing=cur&&cur.book.id===b.id&&!A.paused;
+    const pb=el.querySelector('[data-a="play"]');pb.textContent=playing?"Pauza":(p.done?"Od nowa":pct>0?"Wznów":"Słuchaj");
+    pb.onclick=()=>{if(cur&&cur.book.id===b.id){if(A.paused)A.play();else A.pause();return}
+      if(p.done)put("ab:"+b.id,{name:b.name,track:0,pos:0});openBook(b.id,true)};
+    el.querySelector('[data-a="ren"]').onclick=async()=>{const n=prompt("Nazwa audiobooka",b.name);if(!n||!n.trim())return;b.name=n.trim();await idb.putBook(b);const pp=Object.assign({},get("ab:"+b.id)||{},{name:b.name});put("ab:"+b.id,pp);if(cur&&cur.book.id===b.id)cur.book.name=b.name;renderAudio();renderPlayer();renderStart()};
+    el.querySelector('[data-a="del"]').onclick=async()=>{if(!confirm("Usunąć „"+b.name+"” z tego urządzenia? Pliki audio zostaną skasowane."))return;
+      if(cur&&cur.book.id===b.id){A.pause();A.removeAttribute("src");A.load();cur=null}
+      for(let i=0;i<b.tracks.length;i++)await idb.delBlob(b.id+":"+i).catch(()=>{});await idb.delBook(b.id);await loadBooks();renderPlayer()};
+    box.appendChild(el);
+  });
+}
+$("#openConv").hidden=isIOS;
+$("#openConv").onclick=()=>window.open("http://127.0.0.1:8765","_blank");
+$("#tAudio").onclick=()=>{const b=cur?cur.book:BOOKS.find(x=>x.id===localStorage.getItem("hub_lastBook"))||BOOKS[0];
+  if(!b){go("audio");return}if(cur&&cur.book.id===b.id){if(A.paused)A.play();else A.pause()}else openBook(b.id,true)};
+
+/* ================= start ================= */
+function renderStartLight(){if(current==="start")renderStart()}
+function renderStart(){
+  if(current!=="start")return;
+  const t=today(),dd=dayData(t),h=new Date().getHours();
+  $("#hello").textContent=h<5?"Dobranoc":h<12?"Dzień dobry":h<18?"Cześć":"Dobry wieczór";
+  $("#sDate").textContent=dateLabel(t);
+  $("#sScore").textContent=HABITS.filter(x=>dd[x.k]).length+"/3";
+  $("#sStreak").textContent="pełne dni z rzędu: "+streak(allDone);
+  const box=$("#sHabits");box.innerHTML="";HABITS.forEach(x=>box.appendChild(habitEl(x,t,false)));
+  const ls=langoSummary();
+  if(ls){$("#tLangoBig").textContent="🔥 "+ls.streak+" "+plDays(ls.streak);$("#tLangoSub").textContent="Do powtórki: "+ls.due+" · opanowane: "+ls.mastered}
+  const days=monthDays(new Date(t.getFullYear(),t.getMonth(),1)),full=days.filter(allDone).length;
+  $("#tMonthBig").textContent=full+" / "+days.length;$("#tMonthSub").textContent="pełnych dni w "+MONTHS_LOC[t.getMonth()];
+  const b=cur?cur.book:BOOKS.find(x=>x.id===localStorage.getItem("hub_lastBook"))||BOOKS[0];
+  const tc=$("#tAudioCov"),tu=b&&coverUrl(b);tc.hidden=!tu;if(tu&&tc.src!==tu)tc.src=tu;
+  if(b){const pct=bookPct(b);$("#tAudioBig").textContent=b.name;
+    $("#tAudioSub").textContent=(cur&&cur.book.id===b.id&&!A.paused?"Gra · dotknij, by zatrzymać":"Dotknij, by słuchać dalej")+" · "+pct+"%"+(dd.abSec>=60?" · dziś "+Math.floor(dd.abSec/60)+" min":"")}
+  else{$("#tAudioBig").textContent="Brak audiobooka";$("#tAudioSub").textContent="Dodaj pliki MP3 w zakładce Audio"}
+  paintSync();
+}
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+/* ================= settings ================= */
+function renderSettings(){
+  const c=cfg(),hc=window.HUB_CONFIG||{};
+  $("#loginBox").hidden=!!S.session;$("#loggedBox").hidden=!S.session;
+  $("#cUrl").value=c.url;$("#cKey").value=c.key;
+  $("#cfgBox").open=!(hc.supabaseUrl&&hc.supabaseKey)&&!c.url;
+  $("#verText").textContent="Wersja "+APP_VERSION+". Nowe wersje pobierają się same, gdy jest internet.";
+  paintSync();
+}
+$("#loginBtn").onclick=async()=>{
+  const url=$("#cUrl").value.trim(),key=$("#cKey").value.trim(),hc=window.HUB_CONFIG||{};
+  S.cfg={url:url&&url!==hc.supabaseUrl?url:"",key:key&&key!==hc.supabaseKey?key:""};saveLocal();
+  if(!cfg().url||!cfg().key){toast("Uzupełnij dane projektu Supabase");$("#cfgBox").open=true;return}
+  const email=$("#lEmail").value.trim(),pw=$("#lPass").value;if(!email||!pw){toast("Wpisz e-mail i hasło");return}
+  $("#loginBtn").disabled=true;$("#loginBtn").textContent="Loguję…";
+  try{await login(email,pw);$("#lPass").value="";S.cursor=null;saveLocal();toast("Zalogowano");renderSettings();await sync()}
+  catch(e){toast(/invalid/i.test(e.message)?"Zły e-mail albo hasło":"Nie udało się zalogować: "+e.message)}
+  finally{$("#loginBtn").disabled=false;$("#loginBtn").textContent="Zaloguj"}
+};
+async function login(email,pw){await authCall("password",{email:email,password:pw})}
+$("#logoutBtn").onclick=()=>{if(!confirm("Wylogować? Dane zostaną na tym urządzeniu, ale przestaną się synchronizować."))return;S.session=null;saveLocal();renderSettings()};
+$("#syncNow").onclick=()=>sync();
+$("#expBtn").onclick=()=>{
+  const kv={};Object.entries(S.kv).forEach(([k,e])=>kv[k]={v:e.v,t:e.t});
+  const blob=new Blob([JSON.stringify({app:"hub",v:1,exported:new Date().toISOString(),kv},null,1)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="hub-kopia-"+keyOf(today())+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+};
+$("#impFile").addEventListener("change",async e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  let j;try{j=JSON.parse(await f.text())}catch(x){toast("To nie jest poprawny plik kopii");return}
+  let n=0;
+  if(j&&j.app==="hub"&&j.kv){
+    Object.entries(j.kv).forEach(([k,e])=>{if(!e||typeof e.t!=="number")return;const loc=S.kv[k];
+      if(k==="lango"){const m=loc?mergeLango(loc.v,e.v):e.v;if(!loc||stable(m)!==stable(loc.v)){S.kv.lango={v:m,t:Date.now(),d:1};n++}}
+      else if(!loc||e.t>loc.t){S.kv[k]={v:e.v,t:e.t,d:1};n++}});
+  }else if(j&&(j.srs||j.stats||j.known)){ // raw Lango progress
+    const loc=get("lango");S.kv.lango={v:loc?mergeLango(loc,j):j,t:Date.now(),d:1};n=1;
+  }else{toast("Nie rozpoznaję tego pliku");return}
+  saveLocal();applyLangoToFrame();renderAll();queueSync(300);toast(n?"Zaimportowano ("+n+")":"Nic nowego w tym pliku");
+});
+$("#updBtn").onclick=async()=>{
+  try{const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs)await r.update()}catch(e){}
+  try{const ks=await caches.keys();await Promise.all(ks.filter(k=>k!=="hub-fonts").map(k=>caches.delete(k)))}catch(e){}
+  location.reload();
+};
+
+/* ================= navigation ================= */
+let current="start";
+const VIEWS=["start","habits","lango","audio","settings"];
+function go(v){
+  if(!VIEWS.includes(v))v="start";current=v;
+  VIEWS.forEach(x=>$("#v-"+x).hidden=x!==v);
+  document.querySelectorAll("[data-v]").forEach(b=>{if(b.dataset.v===v)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
+  document.body.style.overflow=v==="lango"?"hidden":"";
+  if(v==="lango"&&!langoLoaded){ // pull the other device's progress first, then start Lango
+    langoLoaded=true;
+    Promise.race([sync(),new Promise(r=>setTimeout(r,2500))]).then(()=>{applyLangoToFrame();langoRaw=readLS();frameReady=true;$("#langoFrame").src="lango.html"});
+  }
+  if(v!=="lango"&&langoStale)reloadLango();
+  try{sessionStorage.setItem("hub_view",v)}catch(e){}
+  renderAll();window.scrollTo(0,0);
+}
+document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));
+function renderAll(){
+  if(current==="start")renderStart();else if(current==="habits")renderHabits();else if(current==="audio"){renderAudio();renderPlayer()}else if(current==="settings")renderSettings();
+  paintSync();
+}
+function setHH(){document.documentElement.style.setProperty("--hh",$("#top").getBoundingClientRect().height+"px")}
+window.addEventListener("resize",setHH);
+
+/* ================= boot ================= */
+(function boot(){
+  // first run: pick up Lango progress already in this browser
+  const raw=readLS();
+  if(raw&&!get("lango")){try{put("lango",JSON.parse(raw))}catch(e){}}
+  if(S.langoScore==null)S.langoScore=langoScore(get("lango"));
+  langoRaw=readLS();
+  setHH();
+  let v="start";try{v=sessionStorage.getItem("hub_view")||"start"}catch(e){}
+  go(v);loadBooks();
+  sync();
+  setInterval(()=>{if(!document.hidden)sync()},60000);
+  window.addEventListener("online",()=>sync());
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden){sel=keyOf(sel)===keyOf(today())?today():sel;renderAll();sync()}else{flushListen();saveProgress(true);sync()}});
+  window.addEventListener("pagehide",()=>{flushListen();saveProgress(true)});
+  if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
+</script>
+</body>
+</html>
