@@ -159,6 +159,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 .mb .ml b{font-family:var(--f-mono);font-weight:500;color:var(--fg);white-space:nowrap}
 .mb .dl{font-size:11px;color:var(--muted);margin-left:5px}
 .mb .dl.up{color:var(--ok)}
+.linkbtn{background:none;border:none;padding:0;color:var(--fg);font:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .mb .bar{height:4px;border-radius:4px;background:var(--soft);overflow:hidden}
 .mb .bar span{display:block;height:100%;background:var(--c)}
 @media (max-width:460px){.mbars{grid-template-columns:repeat(2,1fr)}}
@@ -237,6 +238,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
       <span class="k">Audiobook</span><span class="big" id="tAudioBig">Brak audiobooka</span><span class="sub" id="tAudioSub">Dodaj plik MP3 w zakładce Audio</span></span>
     </button>
   </section>
+  <p class="status" id="sBackup" hidden>Ostatnia kopia: <span id="sBackupAge"></span> · <button class="linkbtn" id="sBackupBtn">Zrób teraz</button></p>
   <p class="status" id="sSync"></p>
 </main>
 
@@ -352,7 +354,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 
 <script>
 "use strict";
-const APP_VERSION="1.5.0";
+const APP_VERSION="1.6.0";
 const $=s=>document.querySelector(s);
 const HABITS=[
   {k:"read",name:"Czytanie",goal:"20 min lub 10 stron",min:"1 strona",dot:"r",opts:[10,20,30,45],auto:"z audiobooka"},
@@ -868,6 +870,9 @@ function renderStart(){
   $("#sBest").textContent=best>sn?"rekord: "+best:(sn>1?"to Twój rekord":"");
   const box=$("#sHabits");box.innerHTML="";HABITS.forEach(x=>box.appendChild(habitEl(x,t,false)));
   if(document.activeElement!==sNoteEl)sNoteEl.value=dd.note||"";
+  const bk=get("backup"),age=bk&&bk.at?Math.floor((Date.now()-bk.at)/86400000):null;
+  $("#sBackup").hidden=age!==null&&age<30;
+  $("#sBackupAge").textContent=age===null?"jeszcze nie zrobiona":age+" "+plDays(age)+" temu";
   // this week, Monday to Sunday
   const wk=$("#sWeek");wk.innerHTML="";const mon=new Date(t);mon.setDate(t.getDate()-(t.getDay()+6)%7);
   for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);const x=dayData(d),fut=d>t;
@@ -919,11 +924,14 @@ $("#loginBtn").onclick=async()=>{
 async function login(email,pw){await authCall("password",{email:email,password:pw})}
 $("#logoutBtn").onclick=()=>{if(!confirm("Wylogować? Dane zostaną na tym urządzeniu, ale przestaną się synchronizować."))return;S.session=null;saveLocal();renderSettings()};
 $("#syncNow").onclick=()=>sync();
-$("#expBtn").onclick=()=>{
+function exportBackup(){
   const kv={};Object.entries(S.kv).forEach(([k,e])=>kv[k]={v:e.v,t:e.t});
   const blob=new Blob([JSON.stringify({app:"hub",v:1,exported:new Date().toISOString(),kv},null,1)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="hub-kopia-"+keyOf(today())+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
-};
+  put("backup",{at:Date.now()});renderAll(); // synced, so a backup made on the Mac also clears the reminder on the iPhone
+}
+$("#expBtn").onclick=exportBackup;
+$("#sBackupBtn").onclick=exportBackup;
 $("#impFile").addEventListener("change",async e=>{
   const f=e.target.files[0];e.target.value="";if(!f)return;
   let j;try{j=JSON.parse(await f.text())}catch(x){toast("To nie jest poprawny plik kopii");return}
