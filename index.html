@@ -151,12 +151,18 @@ details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--fg)}
 .mini{display:flex;flex-direction:column;gap:8px}
 .mini .habit{grid-template-columns:44px 1fr auto;padding:10px 14px}
 .mini .hextra{display:none}
+/* start: streak card */
+.streakcard{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;padding:18px 20px}
+.streakcard .sn{display:flex;flex-direction:column;line-height:1}
+.streakcard .sn b{font-family:var(--f-display);font-size:76px;font-weight:700;letter-spacing:-.04em}
+.streakcard .sn span{font-size:13px;color:var(--muted);margin-top:6px}
+.streakcard .sinfo{display:flex;flex-direction:column;gap:8px;min-width:0}
+.streakcard p{margin:0;font-size:15px;line-height:1.35;font-weight:500}
+.streakcard small{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.segs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.segs i{height:6px;border-radius:6px;background:var(--soft)}
+.streakcard.full{border-color:var(--ok)}
 /* start: streak + week */
-.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
-.bigstreak{text-align:right;line-height:1}
-.bigstreak b{display:block;font-family:var(--f-display);font-size:56px;font-weight:700;letter-spacing:-.03em}
-.bigstreak span{display:block;font-size:13px;color:var(--muted);margin-top:4px}
-.bigstreak small{display:block;font-size:12px;color:var(--muted);font-family:var(--f-mono);margin-top:2px}
 h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(--fg);margin-left:6px}
 .weekcard{display:flex;flex-direction:column;gap:14px;text-align:left;cursor:pointer;width:100%;font:inherit;color:inherit}
 .weekcard>*{width:100%;align-self:stretch}
@@ -234,11 +240,16 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 
 <!-- START -->
 <main id="v-start" class="wrap" hidden>
-  <div class="hero">
-    <div><h1 id="hello">Dzień dobry</h1><div class="date" id="sDate"></div></div>
-    <div class="bigstreak"><b id="sStreakN">0</b><span id="sStreakL">pełnych dni z rzędu</span><small id="sBest"></small></div>
-  </div>
-  <section><h2>Dzisiaj<span class="sc" id="sScore">0/3</span></h2><div class="mini habits" id="sHabits"></div>
+  <div><h1 id="hello">Dzień dobry</h1><div class="date" id="sDate"></div></div>
+  <section class="card streakcard" aria-live="polite">
+    <div class="sn"><b id="sStreakN">0</b><span id="sStreakL">pełnych dni z rzędu</span></div>
+    <div class="sinfo">
+      <div class="segs" id="sSegs"></div>
+      <p id="sStatus"></p>
+      <small id="sBest"></small>
+    </div>
+  </section>
+  <section><h2>Dzisiaj<span class="sc" id="sScore"></span></h2><div class="mini habits" id="sHabits"></div>
     <div class="note"><label for="sNote">Zdanie Dnia</label><input type="text" id="sNote" maxlength="280" autocomplete="off"></div></section>
   <button class="card weekcard" data-go="habits" aria-label="Ostatnie 7 dni i ten miesiąc, otwórz Nawyki">
     <div class="week" id="sWeek"></div>
@@ -378,7 +389,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 
 <script>
 "use strict";
-const APP_VERSION="1.7.1";
+const APP_VERSION="1.8.0";
 const $=s=>document.querySelector(s);
 const HABITS=[
   {k:"read",name:"Czytanie",goal:"20 min lub 10 stron",min:"1 strona",dot:"r",opts:[10,20,30,45],auto:"z audiobooka"},
@@ -581,8 +592,8 @@ function renderHabits(){
   const t=today(),isToday=keyOf(sel)===keyOf(t),dd=dayData(sel);
   $("#hDate").textContent=dateLabel(sel);
   $("#habitsTitle").textContent=isToday?"Dzisiaj":"Uzupełniasz "+sel.getDate()+" "+MONTHS_GEN[sel.getMonth()];
-  $("#hScore").textContent=HABITS.filter(h=>dd[h.k]).length+"/3";
-  $("#hStreak").textContent="pełne dni z rzędu: "+streak(allDone);
+  $("#hScore").textContent=HABITS.filter(h=>dd[h.k]).length+" z 3";
+  $("#hStreak").textContent=(isToday?"zrobione dziś":"zrobione tego dnia")+" · seria: "+streak(allDone);
   const box=$("#habits");box.innerHTML="";HABITS.forEach(h=>box.appendChild(habitEl(h,sel,true)));
   if(document.activeElement!==noteEl)noteEl.value=dd.note||"";
   $("#noteBox").hidden=isToday; // today's sentence is on Start
@@ -883,10 +894,18 @@ function renderStart(){
   const t=today(),dd=dayData(t),h=new Date().getHours();
   $("#hello").textContent=h<5?"Dobranoc":h<12?"Dzień dobry":h<18?"Cześć":"Dobry wieczór";
   $("#sDate").textContent=dateLabel(t);
-  $("#sScore").textContent=HABITS.filter(x=>dd[x.k]).length+"/3";
-  const sn=streak(allDone),best=Math.max(bestStreak(),sn);
+  const doneN=HABITS.filter(x=>dd[x.k]).length;
+  $("#sScore").textContent=doneN+" z 3 zrobione";
+  const sn=streak(allDone),best=Math.max(bestStreak(),sn),fullToday=allDone(t);
   $("#sStreakN").textContent=sn;
   $("#sStreakL").textContent=(sn===1?"pełny dzień":"pełnych dni")+" z rzędu";
+  $("#sSegs").innerHTML=HABITS.map(h=>'<i style="'+(dd[h.k]?"background:var(--"+h.k+")":"")+'"></i>').join("");
+  const GEN={read:"czytania",med:"medytacji",lang:"języka"},miss=HABITS.filter(h=>!dd[h.k]).map(h=>GEN[h.k]);
+  const missTxt=miss.length===1?miss[0]:miss.slice(0,-1).join(", ")+" i "+miss[miss.length-1];
+  $("#sStatus").textContent=fullToday?"Dziś zaliczone. Seria wynosi "+sn+"."
+    :sn>0?"Brakuje "+missTxt+", żeby seria urosła do "+(sn+1)+"."
+    :miss.length===3?"Zrób dziś wszystkie trzy, żeby zacząć serię.":"Brakuje "+missTxt+", żeby zacząć serię.";
+  $(".streakcard").classList.toggle("full",fullToday);
   $("#sBest").textContent=best>sn?"rekord: "+best:(sn>1?"to Twój rekord":"");
   const box=$("#sHabits");box.innerHTML="";HABITS.forEach(x=>box.appendChild(habitEl(x,t,false)));
   if(document.activeElement!==sNoteEl)sNoteEl.value=dd.note||"";
