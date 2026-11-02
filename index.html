@@ -138,6 +138,36 @@ details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--fg)}
 .mini{display:flex;flex-direction:column;gap:8px}
 .mini .habit{grid-template-columns:44px 1fr auto;padding:10px 14px}
 .mini .hextra{display:none}
+/* start: streak + week */
+.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.bigstreak{text-align:right;line-height:1}
+.bigstreak b{display:block;font-family:var(--f-display);font-size:56px;font-weight:700;letter-spacing:-.03em}
+.bigstreak span{display:block;font-size:13px;color:var(--muted);margin-top:4px}
+.bigstreak small{display:block;font-size:12px;color:var(--muted);font-family:var(--f-mono);margin-top:2px}
+h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(--fg);margin-left:6px}
+.weekcard{display:flex;flex-direction:column;gap:14px;text-align:left;cursor:pointer;width:100%;font:inherit;color:inherit}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 0;border-radius:9px}
+.wd .wl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.wd .wn{font-family:var(--f-mono);font-size:12px}
+.wd.today{background:var(--soft)}
+.wd.future{opacity:.35}
+.wd.full .wn{font-weight:700}
+.mbars{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mb{display:grid;gap:4px;--c:var(--fg)}
+.mb .ml{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:4px}
+.mb .ml b{font-family:var(--f-mono);font-weight:500;color:var(--fg);white-space:nowrap}
+.mb .dl{font-size:11px;color:var(--muted);margin-left:5px}
+.mb .dl.up{color:var(--ok)}
+.mb .bar{height:4px;border-radius:4px;background:var(--soft);overflow:hidden}
+.mb .bar span{display:block;height:100%;background:var(--c)}
+@media (max-width:460px){.mbars{grid-template-columns:repeat(2,1fr)}}
+/* swipe */
+.swipe-edge{position:absolute;top:0;bottom:0;width:18px;z-index:4}
+.swipe-edge.l{left:0}.swipe-edge.r{right:0}
+@keyframes inR{from{transform:translateX(36px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes inL{from{transform:translateX(-36px);opacity:.4}to{transform:none;opacity:1}}
+.in-r{animation:inR .22s ease-out}.in-l{animation:inL .22s ease-out}
 
 /* lango */
 #v-lango{position:fixed;left:0;right:0;top:var(--hh);bottom:0;background:var(--bg)}
@@ -164,6 +194,8 @@ details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--fg)}
 .book .bp{height:4px;border-radius:4px;background:var(--soft);overflow:hidden;grid-column:1 / 4}
 .book .bp span{display:block;height:100%;background:var(--audio)}
 .book .ba{display:flex;gap:6px}
+.book .ask{grid-column:1 / 4;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--soft);border-radius:10px;padding:8px 10px;font-size:13.5px}
+.book .ask .row{gap:6px}
 .book.cur{border-color:var(--audio)}
 .status{font-size:12.5px;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
@@ -186,17 +218,19 @@ details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--fg)}
 
 <!-- START -->
 <main id="v-start" class="wrap" hidden>
-  <div class="head">
+  <div class="hero">
     <div><h1 id="hello">Dzień dobry</h1><div class="date" id="sDate"></div></div>
-    <div class="score"><b id="sScore">0/3</b><span id="sStreak">pełne dni z rzędu: 0</span></div>
+    <div class="bigstreak"><b id="sStreakN">0</b><span id="sStreakL">pełnych dni z rzędu</span><small id="sBest"></small></div>
   </div>
-  <section><h2>Dzisiaj</h2><div class="mini habits" id="sHabits"></div></section>
+  <section><h2>Dzisiaj<span class="sc" id="sScore">0/3</span></h2><div class="mini habits" id="sHabits"></div>
+    <div class="note"><label for="sNote">Zdanie Dnia</label><input type="text" id="sNote" maxlength="280" autocomplete="off"></div></section>
+  <button class="card weekcard" data-go="habits" aria-label="Ostatnie 7 dni i ten miesiąc, otwórz Nawyki">
+    <div class="week" id="sWeek"></div>
+    <div class="mbars" id="sMonth"></div>
+  </button>
   <section class="tiles">
-    <button class="tile" style="--c:var(--lang)" data-go="lango">
-      <span class="k">Lango</span><span class="big" id="tLangoBig">–</span><span class="sub" id="tLangoSub">Otwórz, żeby zacząć</span>
-    </button>
-    <button class="tile" style="--c:var(--med)" data-go="habits">
-      <span class="k">Ten miesiąc</span><span class="big" id="tMonthBig">–</span><span class="sub" id="tMonthSub"></span>
+    <button class="tile wide" style="--c:var(--lang)" data-go="lango">
+      <span class="tcol"><span class="k">Lango</span><span class="big" id="tLangoBig">–</span><span class="sub" id="tLangoSub">Otwórz, żeby zacząć</span></span>
     </button>
     <button class="tile wide" style="--c:var(--audio)" id="tAudio">
       <img class="tcov" id="tAudioCov" alt="" hidden><span class="tcol">
@@ -215,8 +249,8 @@ details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--fg)}
   <section>
     <h2 id="habitsTitle">Dzisiaj</h2>
     <div class="habits" id="habits"></div>
-    <div class="note"><label for="note">Zdanie Dnia</label>
-      <input type="text" id="note" maxlength="280" autocomplete="off" placeholder="np. Skończyłem 3. rozdział. Nowe słowo: привычка"></div>
+    <div class="note" id="noteBox"><label for="note">Zdanie Dnia</label>
+      <input type="text" id="note" maxlength="280" autocomplete="off"></div>
   </section>
   <section>
     <div class="mhead"><h2 id="monthTitle"></h2>
@@ -241,6 +275,7 @@ details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--fg)}
 
 <!-- LANGO -->
 <div id="v-lango" hidden>
+  <div class="swipe-edge l" data-swipe-edge></div><div class="swipe-edge r" data-swipe-edge></div>
   <button class="banner" id="langoBanner" hidden>Nowe postępy z innego urządzenia · odśwież</button>
   <iframe id="langoFrame" title="Lango"></iframe>
 </div>
@@ -317,7 +352,7 @@ details summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--fg)}
 
 <script>
 "use strict";
-const APP_VERSION="1.1.0";
+const APP_VERSION="1.5.0";
 const $=s=>document.querySelector(s);
 const HABITS=[
   {k:"read",name:"Czytanie",goal:"20 min lub 10 stron",min:"1 strona",dot:"r",opts:[10,20,30,45],auto:"z audiobooka"},
@@ -383,7 +418,7 @@ async function sync(){
   syncing=true;syncState="busy";paintSync();
   try{
     for(let round=0;round<3;round++){
-      await push();await pull();
+      await pull();await push(); // pull first: local edits get merged with the other device before sending
       if(!Object.values(S.kv).some(e=>e.d))break;
     }
     S.lastSync=Date.now();saveLocal();syncState="ok";syncErr="";
@@ -417,6 +452,10 @@ async function pull(){
           S.kv.lango=same?{v:r.value,t:ut,d:0}:{v:m,t:Math.max(Date.now(),ut+1),d:1};
         }
         lango=true;
+      }else if(r.key.startsWith("h:")&&loc&&loc.v){
+        const m=mergeDay(loc,{v:r.value,t:ut});
+        if(stable(m)===stable(mergeDay({v:r.value,t:ut},{v:r.value,t:ut})))S.kv[r.key]={v:r.value,t:ut,d:0};
+        else S.kv[r.key]={v:m,t:Math.max(Date.now(),ut+1,loc.t),d:1};
       }else if(!loc||ut>loc.t){S.kv[r.key]={v:r.value,t:ut,d:0}}
       else if(ut===loc.t){loc.d=0}
       if(!S.cursor||r.server_at>S.cursor)S.cursor=r.server_at;
@@ -445,15 +484,33 @@ function paintSync(){
 /* ================= habits ================= */
 let sel=today(),view=new Date(sel.getFullYear(),sel.getMonth(),1);
 function dayData(d){return get("h:"+keyOf(d))||{}}
-function setDay(d,patch){
-  const cur=Object.assign({},dayData(d),patch);
-  for(const k in cur)if(cur[k]===null||cur[k]===undefined)delete cur[k];
-  put("h:"+keyOf(d),cur);renderAll();
+/* A day is merged field by field: every field remembers when it was last changed (_t),
+   so a note written on the Mac and a habit ticked on the iPhone both survive. */
+function patchDay(d,patch,quiet){
+  const now=Date.now(),cur=Object.assign({},dayData(d)),t=Object.assign({},cur._t||{});
+  for(const k in patch){const v=patch[k];if(v===null||v===undefined)delete cur[k];else cur[k]=v;t[k]=now}
+  cur._t=t;(quiet?putQuiet:put)("h:"+keyOf(d),cur);
+}
+function setDay(d,patch){patchDay(d,patch);renderAll()}
+function fieldT(rec,f){const t=rec.v&&rec.v._t;if(t&&t[f]!=null)return t[f];return (rec.v&&f in rec.v)?rec.t:0}
+function mergeDay(a,b){ // a, b: {v,t}; per field the later change wins (a deletion counts as a change)
+  const va=a.v||{},vb=b.v||{},o={},t={};
+  const fields=new Set([...Object.keys(va),...Object.keys(vb),...Object.keys(va._t||{}),...Object.keys(vb._t||{})]);
+  fields.delete("_t");
+  fields.forEach(f=>{const ta=fieldT(a,f),tb=fieldT(b,f),src=tb>=ta?vb:va,ts=Math.max(ta,tb);
+    if(f in src)o[f]=src[f];if(ts)t[f]=ts});
+  o._t=t;return o;
 }
 function settings(){return get("settings")||{book:"",lang:""}}
 function isDone(d,k){return !!dayData(d)[k]}
 function streak(test){let d=today(),n=0;if(!test(d))d.setDate(d.getDate()-1);while(test(d)&&n<3000){n++;d.setDate(d.getDate()-1)}return n}
 const allDone=d=>HABITS.every(h=>isDone(d,h.k));
+function bestStreak(){ // longest run of full days ever
+  const ks=Object.keys(S.kv).filter(k=>k.startsWith("h:")).sort();let best=0,run=0,prev=null;
+  for(const k of ks){const d=new Date(k.slice(2)+"T00:00:00");if(!allDone(d)){run=0;prev=null;continue}
+    run=(prev&&Math.round((d-prev)/86400000)===1)?run+1:1;prev=d;if(run>best)best=run}
+  return best;
+}
 const checkSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 function habitSub(h,dd){
   const st=dd[h.k]||"",mins=dd[h.k+"Min"]||0,set=settings();
@@ -487,8 +544,11 @@ function dateLabel(d){return DOW_FULL[d.getDay()]+", "+d.getDate()+" "+MONTHS_GE
 const noteEl=$("#note");let noteTimer;
 noteEl.addEventListener("input",()=>{
   const d=new Date(sel),txt=noteEl.value;clearTimeout(noteTimer);
-  noteTimer=setTimeout(()=>{const cur=Object.assign({},dayData(d));if(txt.trim())cur.note=txt;else delete cur.note;put("h:"+keyOf(d),cur);renderMonth()},700);
+  noteTimer=setTimeout(()=>{patchDay(d,{note:txt.trim()?txt:null});renderMonth()},700);
 });
+const sNoteEl=$("#sNote");let sNoteTimer;
+sNoteEl.addEventListener("input",()=>{const d=today(),txt=sNoteEl.value;clearTimeout(sNoteTimer);
+  sNoteTimer=setTimeout(()=>patchDay(d,{note:txt.trim()?txt:null}),700)});
 function renderHabits(){
   const t=today(),isToday=keyOf(sel)===keyOf(t),dd=dayData(sel);
   $("#hDate").textContent=dateLabel(sel);
@@ -497,6 +557,7 @@ function renderHabits(){
   $("#hStreak").textContent="pełne dni z rzędu: "+streak(allDone);
   const box=$("#habits");box.innerHTML="";HABITS.forEach(h=>box.appendChild(habitEl(h,sel,true)));
   if(document.activeElement!==noteEl)noteEl.value=dd.note||"";
+  $("#noteBox").hidden=isToday; // today's sentence is on Start
   const s=settings();
   if(document.activeElement!==$("#sBook"))$("#sBook").value=s.book||"";
   if(document.activeElement!==$("#sLang"))$("#sLang").value=s.lang||"";
@@ -535,10 +596,9 @@ let setT;["sBook","sLang"].forEach(id=>$("#"+id).addEventListener("input",()=>{c
 /* auto-ticks */
 function autoLang(){const d=today(),dd=dayData(d);if(!dd.lang)setDay(d,{lang:"min",langAuto:1})}
 function addListening(sec){
-  if(sec<=0)return;const d=today(),k="h:"+keyOf(d),dd=Object.assign({},dayData(d));
-  dd.abSec=Math.round((dd.abSec||0)+sec);
-  if(dd.abSec>=600&&(!dd.read||dd.readAuto)){dd.read="done";dd.readAuto=1;dd.readMin=Math.floor(dd.abSec/60)}
-  putQuiet(k,dd);
+  if(sec<=0)return;const d=today(),dd=dayData(d),p={abSec:Math.round((dd.abSec||0)+sec)};
+  if(p.abSec>=600&&(!dd.read||dd.readAuto)){p.read="done";p.readAuto=1;p.readMin=Math.floor(p.abSec/60)}
+  patchDay(d,p,true);
 }
 
 /* ================= Lango ================= */
@@ -724,7 +784,7 @@ A.addEventListener("pause",()=>{lastTick=0;flushListen();saveProgress(true);queu
 A.addEventListener("ended",async()=>{
   if(!cur)return;flushListen();
   if(cur.track<cur.book.tracks.length-1){await openBook(cur.book.id,true,cur.track+1,0);saveProgress(true)}
-  else{putQuiet("ab:"+cur.book.id,{name:cur.book.name,track:cur.book.tracks.length-1,pos:0,done:1});queueSync(1000);toast("Koniec audiobooka 🎉");renderPlayer();renderAudio();renderStart()}
+  else{putQuiet("ab:"+cur.book.id,{name:cur.book.name,track:cur.book.tracks.length-1,pos:0,done:1});queueSync(1000);toast("Przesłuchane 🎉 Możesz usunąć pliki w zakładce Audio");renderPlayer();renderAudio();renderStart()}
 });
 function speed(){const v=parseFloat(localStorage.getItem("hub_speed")||"1");return isFinite(v)?v:1}
 const SPEEDS=[1,1.15,1.25,1.5,1.75,2];
@@ -756,6 +816,14 @@ function mediaMeta(){
   set("seekbackward",()=>{A.currentTime=Math.max(0,A.currentTime-30)});set("seekforward",()=>{A.currentTime=Math.min(A.duration||0,A.currentTime+30)});
   set("previoustrack",()=>$("#pPrevT").click());set("nexttrack",()=>$("#pNextT").click());
 }
+async function deleteBook(b,ask){
+  if(ask&&!confirm("Usunąć „"+b.name+"” z tego urządzenia? Pliki audio zostaną skasowane."))return;
+  if(cur&&cur.book.id===b.id){A.pause();A.removeAttribute("src");A.load();cur=null}
+  for(let i=0;i<b.tracks.length;i++)await idb.delBlob(b.id+":"+i).catch(()=>{});
+  await idb.delBook(b.id);
+  if(coverUrls[b.id]){URL.revokeObjectURL(coverUrls[b.id]);delete coverUrls[b.id]}
+  toast("Usunięto: "+b.name);await loadBooks();renderPlayer();
+}
 function renderAudio(){
   const box=$("#books");box.innerHTML="";
   if(!BOOKS.length){box.innerHTML='<p class="status" style="margin:0">Na tym urządzeniu nie ma jeszcze audiobooków.</p>';}
@@ -770,9 +838,14 @@ function renderAudio(){
     pb.onclick=()=>{if(cur&&cur.book.id===b.id){if(A.paused)A.play();else A.pause();return}
       if(p.done)put("ab:"+b.id,{name:b.name,track:0,pos:0});openBook(b.id,true)};
     el.querySelector('[data-a="ren"]').onclick=async()=>{const n=prompt("Nazwa audiobooka",b.name);if(!n||!n.trim())return;b.name=n.trim();await idb.putBook(b);const pp=Object.assign({},get("ab:"+b.id)||{},{name:b.name});put("ab:"+b.id,pp);if(cur&&cur.book.id===b.id)cur.book.name=b.name;renderAudio();renderPlayer();renderStart()};
-    el.querySelector('[data-a="del"]').onclick=async()=>{if(!confirm("Usunąć „"+b.name+"” z tego urządzenia? Pliki audio zostaną skasowane."))return;
-      if(cur&&cur.book.id===b.id){A.pause();A.removeAttribute("src");A.load();cur=null}
-      for(let i=0;i<b.tracks.length;i++)await idb.delBlob(b.id+":"+i).catch(()=>{});await idb.delBook(b.id);await loadBooks();renderPlayer()};
+    el.querySelector('[data-a="del"]').onclick=()=>deleteBook(b,true);
+    if(p.done&&!b.keep){ // finished: offer to free the space
+      const ask=document.createElement("div");ask.className="ask";
+      ask.innerHTML='<span>Przesłuchane. Usunąć pliki z tego urządzenia?</span><span class="row"><button class="chip" data-a="yes" style="--c:var(--audio)" aria-pressed="true">Usuń</button><button class="chip ghost" data-a="no">Zostaw</button></span>';
+      ask.querySelector('[data-a="yes"]').onclick=()=>deleteBook(b,false);
+      ask.querySelector('[data-a="no"]').onclick=async()=>{b.keep=1;await idb.putBook(b);renderAudio()};
+      el.insertBefore(ask,el.querySelector(".bp"));
+    }
     box.appendChild(el);
   });
 }
@@ -789,12 +862,32 @@ function renderStart(){
   $("#hello").textContent=h<5?"Dobranoc":h<12?"Dzień dobry":h<18?"Cześć":"Dobry wieczór";
   $("#sDate").textContent=dateLabel(t);
   $("#sScore").textContent=HABITS.filter(x=>dd[x.k]).length+"/3";
-  $("#sStreak").textContent="pełne dni z rzędu: "+streak(allDone);
+  const sn=streak(allDone),best=Math.max(bestStreak(),sn);
+  $("#sStreakN").textContent=sn;
+  $("#sStreakL").textContent=(sn===1?"pełny dzień":"pełnych dni")+" z rzędu";
+  $("#sBest").textContent=best>sn?"rekord: "+best:(sn>1?"to Twój rekord":"");
   const box=$("#sHabits");box.innerHTML="";HABITS.forEach(x=>box.appendChild(habitEl(x,t,false)));
+  if(document.activeElement!==sNoteEl)sNoteEl.value=dd.note||"";
+  // this week, Monday to Sunday
+  const wk=$("#sWeek");wk.innerHTML="";const mon=new Date(t);mon.setDate(t.getDate()-(t.getDay()+6)%7);
+  for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);const x=dayData(d),fut=d>t;
+    const e=document.createElement("div");e.className="wd"+(keyOf(d)===keyOf(t)?" today":"")+(fut?" future":"")+(!fut&&allDone(d)?" full":"");
+    e.innerHTML='<span class="wl">'+DOW[(d.getDay()+6)%7]+'</span><span class="wn">'+d.getDate()+'</span><span class="dots">'+HABITS.map(h=>'<i class="'+(x[h.k]?h.dot:"")+'"></i>').join("")+'</span>';
+    e.setAttribute("aria-label",d.getDate()+" "+MONTHS_GEN[d.getMonth()]+": "+HABITS.filter(h=>x[h.k]).length+" z 3");wk.appendChild(e)}
+  // this month, like in Nawyki
+  const days=monthDays(new Date(t.getFullYear(),t.getMonth(),1)),n=days.length;
+  // same stretch of last month (1st..today's day number), so early month isn't compared with a whole month
+  const pm=new Date(t.getFullYear(),t.getMonth()-1,1),pmLen=new Date(t.getFullYear(),t.getMonth(),0).getDate(),pn=Math.min(n,pmLen);
+  const pdays=[];for(let i=1;i<=pn;i++)pdays.push(new Date(pm.getFullYear(),pm.getMonth(),i));
+  const hasPrev=pdays.some(d=>S.kv["h:"+keyOf(d)]);
+  const pct=(k,m)=>m?Math.round(k/m*100):0;
+  const rows=HABITS.map(h=>({lab:h.name,c:"var(--"+h.k+")",k:days.filter(d=>isDone(d,h.k)).length,pk:pdays.filter(d=>isDone(d,h.k)).length}))
+    .concat([{lab:"Pełne dni",c:"var(--fg)",k:days.filter(allDone).length,pk:pdays.filter(allDone).length}]);
+  $("#sMonth").innerHTML=rows.map(r=>{const p=pct(r.k,n),dl=p-pct(r.pk,pn);
+    const delta=hasPrev?'<span class="dl'+(dl>0?' up':dl<0?' down':'')+'" title="względem '+MONTHS_GEN[pm.getMonth()]+'">'+(dl>0?'↑'+dl:dl<0?'↓'+(-dl):'=')+'</span>':'';
+    return '<div class="mb" style="--c:'+r.c+'"><span class="ml">'+r.lab+'<b>'+p+'%'+delta+'</b></span><span class="bar"><span style="width:'+p+'%"></span></span></div>'}).join("");
   const ls=langoSummary();
-  if(ls){$("#tLangoBig").textContent="🔥 "+ls.streak+" "+plDays(ls.streak);$("#tLangoSub").textContent="Do powtórki: "+ls.due+" · opanowane: "+ls.mastered}
-  const days=monthDays(new Date(t.getFullYear(),t.getMonth(),1)),full=days.filter(allDone).length;
-  $("#tMonthBig").textContent=full+" / "+days.length;$("#tMonthSub").textContent="pełnych dni w "+MONTHS_LOC[t.getMonth()];
+  if(ls){$("#tLangoBig").textContent=ls.streak+" "+plDays(ls.streak);$("#tLangoSub").textContent="Do powtórki: "+ls.due+" · opanowane: "+ls.mastered}
   const b=cur?cur.book:BOOKS.find(x=>x.id===localStorage.getItem("hub_lastBook"))||BOOKS[0];
   const tc=$("#tAudioCov"),tu=b&&coverUrl(b);tc.hidden=!tu;if(tu&&tc.src!==tu)tc.src=tu;
   if(b){const pct=bookPct(b);$("#tAudioBig").textContent=b.name;
@@ -838,6 +931,7 @@ $("#impFile").addEventListener("change",async e=>{
   if(j&&j.app==="hub"&&j.kv){
     Object.entries(j.kv).forEach(([k,e])=>{if(!e||typeof e.t!=="number")return;const loc=S.kv[k];
       if(k==="lango"){const m=loc?mergeLango(loc.v,e.v):e.v;if(!loc||stable(m)!==stable(loc.v)){S.kv.lango={v:m,t:Date.now(),d:1};n++}}
+      else if(k.startsWith("h:")&&loc){const m=mergeDay(loc,{v:e.v,t:e.t});if(stable(m)!==stable(mergeDay(loc,loc))){S.kv[k]={v:m,t:Math.max(Date.now(),loc.t+1),d:1};n++}}
       else if(!loc||e.t>loc.t){S.kv[k]={v:e.v,t:e.t,d:1};n++}});
   }else if(j&&(j.srs||j.stats||j.known)){ // raw Lango progress
     const loc=get("lango");S.kv.lango={v:loc?mergeLango(loc,j):j,t:Date.now(),d:1};n=1;
@@ -853,7 +947,7 @@ $("#updBtn").onclick=async()=>{
 /* ================= navigation ================= */
 let current="start";
 const VIEWS=["start","habits","lango","audio","settings"];
-function go(v){
+function go(v,dir){
   if(!VIEWS.includes(v))v="start";current=v;
   VIEWS.forEach(x=>$("#v-"+x).hidden=x!==v);
   document.querySelectorAll("[data-v]").forEach(b=>{if(b.dataset.v===v)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
@@ -865,7 +959,27 @@ function go(v){
   if(v!=="lango"&&langoStale)reloadLango();
   try{sessionStorage.setItem("hub_view",v)}catch(e){}
   renderAll();window.scrollTo(0,0);
+  if(dir){const el=$("#v-"+v);el.classList.remove("in-r","in-l");void el.offsetWidth;el.classList.add(dir>0?"in-r":"in-l");setTimeout(()=>el.classList.remove("in-r","in-l"),260)}
 }
+/* swipe left/right between tabs (phone). In Lango only from the screen edge, Lango has its own sideways lists */
+const ORDER=["start","habits","lango","audio"];
+(function swipe(){
+  let x0=0,y0=0,t0=0,on=false,edge=false;
+  const skip=el=>el&&el.closest&&el.closest('input,textarea,select,.tabs,[type=range],.seek');
+  document.addEventListener("touchstart",e=>{
+    if(e.touches.length!==1||skip(e.target)){on=false;return}
+    edge=!!(e.target.closest&&e.target.closest("[data-swipe-edge]"));
+    const p=e.touches[0];x0=p.clientX;y0=p.clientY;t0=Date.now();on=true;
+  },{passive:true});
+  document.addEventListener("touchend",e=>{
+    if(!on)return;on=false;const p=e.changedTouches[0],dx=p.clientX-x0,dy=p.clientY-y0;
+    if(Date.now()-t0>700||Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.6)return;
+    const i=ORDER.indexOf(current);if(i<0)return;
+    if(current==="lango"&&!edge)return;
+    const j=dx<0?i+1:i-1;if(j<0||j>=ORDER.length)return;
+    go(ORDER[j],dx<0?1:-1);
+  },{passive:true});
+})();
 document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));
 function renderAll(){
   if(current==="start")renderStart();else if(current==="habits")renderHabits();else if(current==="audio"){renderAudio();renderPlayer()}else if(current==="settings")renderSettings();
