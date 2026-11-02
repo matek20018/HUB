@@ -378,7 +378,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 
 <script>
 "use strict";
-const APP_VERSION="1.7.0";
+const APP_VERSION="1.7.1";
 const $=s=>document.querySelector(s);
 const HABITS=[
   {k:"read",name:"Czytanie",goal:"20 min lub 10 stron",min:"1 strona",dot:"r",opts:[10,20,30,45],auto:"z audiobooka"},
@@ -513,7 +513,9 @@ function dayData(d){return get("h:"+keyOf(d))||{}}
 /* A day is merged field by field: every field remembers when it was last changed (_t),
    so a note written on the Mac and a habit ticked on the iPhone both survive. */
 function patchDay(d,patch,quiet){
-  const now=Date.now(),cur=Object.assign({},dayData(d)),t=Object.assign({},cur._t||{});
+  const now=Date.now(),cur=Object.assign({},dayData(d)),t=Object.assign({},cur._t||{}),prev=S.kv["h:"+keyOf(d)];
+  // fields saved before per-field times existed keep the old record time, so they can't look "just changed"
+  for(const f in cur)if(f!=="_t"&&t[f]==null)t[f]=prev?prev.t:0;
   for(const k in patch){const v=patch[k];if(v===null||v===undefined)delete cur[k];else cur[k]=v;t[k]=now}
   cur._t=t;(quiet?putQuiet:put)("h:"+keyOf(d),cur);
 }
