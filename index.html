@@ -49,7 +49,20 @@ button{font:inherit;color:inherit}
 .gear[aria-current="page"]{background:var(--surface);box-shadow:0 0 0 1px var(--line);color:var(--fg)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
 .dot.ok{background:var(--ok)} .dot.busy,.dot.pend{background:var(--warn)} .dot.err{background:var(--err)}
-@media (max-width:420px){.brand{display:none}.tab{padding:7px 8px;font-size:13.5px}}
+@media (max-width:420px){.brand{display:none}.tab{padding:7px 6px;font-size:13px}}
+/* journal */
+input[type=search]{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0;-webkit-appearance:none;appearance:none}
+.jyear{font-family:var(--f-mono);font-size:14px;min-width:46px;text-align:center;align-self:center}
+.nav button:disabled{opacity:.35;cursor:default}
+.jlist{display:flex;flex-direction:column;gap:22px}
+.jmonth h2{margin-bottom:6px}
+.jentry{display:grid;grid-template-columns:54px 1fr;gap:4px 12px;width:100%;text-align:left;background:none;border:none;border-top:1px solid var(--line);padding:11px 0;cursor:pointer;font:inherit;color:inherit}
+.jentry .jd{font-family:var(--f-mono);font-size:12px;color:var(--muted);line-height:1.3;padding-top:2px}
+.jentry .jd b{display:block;font-size:17px;color:var(--fg);font-weight:500}
+.jentry .jt{overflow-wrap:anywhere;font-size:15px}
+.jentry .dots{grid-column:2;margin-top:2px}
+.jentry mark{background:color-mix(in srgb,var(--read) 30%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.jempty{color:var(--muted);font-size:14px;padding:8px 0}
 
 .wrap{max-width:620px;margin:0 auto;padding-block:24px 64px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
@@ -212,6 +225,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
       <button class="tab" data-v="start">Start</button>
       <button class="tab" data-v="habits">Nawyki</button>
       <button class="tab" data-v="lango">Lango</button>
+      <button class="tab" data-v="journal">Dziennik</button>
       <button class="tab" data-v="audio">Audio</button>
     </nav>
     <button class="gear" data-v="settings" aria-label="Ustawienia i synchronizacja"><span class="dot" id="syncDot"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
@@ -261,7 +275,6 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
     <div class="stats" id="stats"></div>
     <div class="grid" id="grid"></div>
     <div class="legend"><span><i style="background:var(--read)"></i>czytanie</span><span><i style="background:var(--med)"></i>medytacja</span><span><i style="background:var(--lang)"></i>język</span><span><i class="nmark"></i>wpis w dzienniku</span></div>
-    <div class="notes" id="notes"></div>
   </section>
   <section class="rule">
     <p><b>Zasada minimum.</b> Gorszy dzień, zmiana na morzu albo podróż? Zrób wersję minimum (1 strona, 2 minuty oddechu, 5 słówek). Liczy się do serii.</p>
@@ -282,6 +295,16 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
   <button class="banner" id="langoBanner" hidden>Nowe postępy z innego urządzenia · odśwież</button>
   <iframe id="langoFrame" title="Lango"></iframe>
 </div>
+
+<!-- JOURNAL -->
+<main id="v-journal" class="wrap" hidden>
+  <div class="head">
+    <div><h1>Dziennik</h1><div class="date" id="jSub"></div></div>
+    <div class="nav" id="jYearNav"><button id="jPrev" aria-label="Poprzedni rok">‹</button><span id="jYear" class="jyear"></span><button id="jNext" aria-label="Następny rok">›</button></div>
+  </div>
+  <input type="search" id="jSearch" placeholder="Szukaj w notatkach" autocomplete="off" aria-label="Szukaj w notatkach">
+  <div id="jList" class="jlist"></div>
+</main>
 
 <!-- AUDIO -->
 <main id="v-audio" class="wrap" hidden>
@@ -355,7 +378,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 
 <script>
 "use strict";
-const APP_VERSION="1.6.1";
+const APP_VERSION="1.7.0";
 const $=s=>document.querySelector(s);
 const HABITS=[
   {k:"read",name:"Czytanie",goal:"20 min lub 10 stron",min:"1 strona",dot:"r",opts:[10,20,30,45],auto:"z audiobooka"},
@@ -585,12 +608,6 @@ function renderMonth(){
     if(fut)b.disabled=true;else b.onclick=()=>{sel=date;renderHabits();window.scrollTo({top:0,behavior:"smooth"})};
     g.appendChild(b);
   }
-  const nb=$("#notes");nb.innerHTML="";
-  const ent=[];for(let d=n;d>=1;d--){const dd=dayData(new Date(view.getFullYear(),view.getMonth(),d));if(dd.note)ent.push([d,dd.note])}
-  if(!ent.length){nb.innerHTML='<div class="empty">Brak wpisów w tym miesiącu.</div>';return}
-  ent.forEach(([d,txt])=>{const b=document.createElement("button");b.innerHTML='<span class="nd"></span><span class="nt"></span>';
-    b.querySelector(".nd").textContent=d+" "+MONTHS_GEN[view.getMonth()].slice(0,3);b.querySelector(".nt").textContent=txt;
-    b.onclick=()=>{sel=new Date(view.getFullYear(),view.getMonth(),d);renderHabits();window.scrollTo({top:0,behavior:"smooth"})};nb.appendChild(b)});
 }
 $("#prevM").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderMonth()};
 $("#nextM").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);renderMonth()};
@@ -953,9 +970,49 @@ $("#updBtn").onclick=async()=>{
   location.reload();
 };
 
+/* ================= journal ================= */
+let jYear=today().getFullYear();
+const DOW_SHORT=["nd","pon","wt","śr","czw","pt","sob"];
+const norm=x=>String(x).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ł/g,"l");
+function noteEntries(){
+  return Object.keys(S.kv).filter(k=>k.startsWith("h:")&&S.kv[k].v&&S.kv[k].v.note&&String(S.kv[k].v.note).trim())
+    .map(k=>({key:k.slice(2),date:new Date(k.slice(2)+"T00:00:00"),v:S.kv[k].v})).sort((a,b)=>b.key<a.key?-1:1);
+}
+function highlight(txt,q){ // escaped text with matches marked
+  if(!q)return esc(txt);
+  const n=norm(txt),nq=norm(q);let out="",i=0,j;
+  while((j=n.indexOf(nq,i))>=0){out+=esc(txt.slice(i,j))+"<mark>"+esc(txt.slice(j,j+nq.length))+"</mark>";i=j+nq.length}
+  return out+esc(txt.slice(i));
+}
+function renderJournal(){
+  const all=noteEntries(),q=$("#jSearch").value.trim();
+  const years=[...new Set(all.map(e=>e.date.getFullYear()))],minY=Math.min(today().getFullYear(),...years);
+  let list;
+  if(q){list=all.filter(e=>norm(e.v.note).includes(norm(q)));$("#jSub").textContent=list.length?"Znaleziono: "+list.length:"Nic nie znaleziono";}
+  else{list=all.filter(e=>e.date.getFullYear()===jYear);$("#jSub").textContent=list.length+" "+(list.length===1?"wpis":list.length%10>=2&&list.length%10<=4&&(list.length%100<12||list.length%100>14)?"wpisy":"wpisów")+" w "+jYear;}
+  $("#jYearNav").style.visibility=q?"hidden":"";
+  $("#jYear").textContent=jYear;$("#jPrev").disabled=jYear<=minY;$("#jNext").disabled=jYear>=today().getFullYear();
+  const box=$("#jList");box.innerHTML="";
+  if(!list.length){box.innerHTML='<div class="jempty">'+(q?"Żaden wpis nie zawiera „"+esc(q)+"”.":"Brak wpisów w tym roku. Zdanie Dnia wpisujesz na Starcie.")+'</div>';return}
+  let sec=null,mk="";
+  list.forEach(e=>{
+    const m=e.date.getFullYear()+"-"+e.date.getMonth();
+    if(m!==mk){mk=m;sec=document.createElement("section");sec.className="jmonth";
+      const h=document.createElement("h2");h.textContent=MONTHS[e.date.getMonth()]+" "+e.date.getFullYear();sec.appendChild(h);box.appendChild(sec)}
+    const b=document.createElement("button");b.className="jentry";
+    b.innerHTML='<span class="jd"><b>'+e.date.getDate()+'</b>'+DOW_SHORT[e.date.getDay()]+'</span><span class="jt">'+highlight(String(e.v.note),q)+'</span><span class="dots">'+HABITS.map(h=>'<i class="'+(e.v[h.k]?h.dot:"")+'"></i>').join("")+'</span>';
+    b.onclick=()=>{if(e.key===keyOf(today())){go("start");return}
+      sel=new Date(e.date);view=new Date(sel.getFullYear(),sel.getMonth(),1);go("habits")};
+    sec.appendChild(b);
+  });
+}
+$("#jPrev").onclick=()=>{jYear--;renderJournal()};
+$("#jNext").onclick=()=>{jYear++;renderJournal()};
+$("#jSearch").addEventListener("input",renderJournal);
+
 /* ================= navigation ================= */
 let current="start";
-const VIEWS=["start","habits","lango","audio","settings"];
+const VIEWS=["start","habits","lango","journal","audio","settings"];
 function go(v,dir){
   if(!VIEWS.includes(v))v="start";current=v;
   VIEWS.forEach(x=>$("#v-"+x).hidden=x!==v);
@@ -971,7 +1028,7 @@ function go(v,dir){
   if(dir){const el=$("#v-"+v);el.classList.remove("in-r","in-l");void el.offsetWidth;el.classList.add(dir>0?"in-r":"in-l");setTimeout(()=>el.classList.remove("in-r","in-l"),260)}
 }
 /* swipe left/right between tabs (phone). In Lango only from the screen edge, Lango has its own sideways lists */
-const ORDER=["start","habits","lango","audio"];
+const ORDER=["start","habits","lango","journal","audio"];
 (function swipe(){
   let x0=0,y0=0,t0=0,on=false,edge=false;
   const skip=el=>el&&el.closest&&el.closest('input,textarea,select,.tabs,[type=range],.seek');
@@ -991,7 +1048,7 @@ const ORDER=["start","habits","lango","audio"];
 })();
 document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));
 function renderAll(){
-  if(current==="start")renderStart();else if(current==="habits")renderHabits();else if(current==="audio"){renderAudio();renderPlayer()}else if(current==="settings")renderSettings();
+  if(current==="start")renderStart();else if(current==="habits")renderHabits();else if(current==="audio"){renderAudio();renderPlayer()}else if(current==="settings")renderSettings();else if(current==="journal")renderJournal();
   paintSync();
 }
 function setHH(){document.documentElement.style.setProperty("--hh",$("#top").getBoundingClientRect().height+"px")}
