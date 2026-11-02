@@ -103,6 +103,9 @@ input[type=text],input[type=email],input[type=password],input[type=url]{font:inh
 .chip{font:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--soft);color:var(--fg);border-radius:999px;padding:4px 10px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--c,var(--fg));border-color:var(--c,var(--fg));color:var(--surface)}
 .chip.ghost{background:transparent}
+.other{display:flex;align-items:center;gap:6px;flex-basis:100%;margin-top:2px}
+.other input{font:inherit;font-size:14px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 8px;width:84px}
+.other span{font-size:13px;color:var(--muted)}
 .note{margin-top:10px;display:grid;gap:6px}
 .note label{font-size:13px;color:var(--muted);font-weight:600}
 .mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
@@ -293,7 +296,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
     <div class="legend"><span><i style="background:var(--read)"></i>czytanie</span><span><i style="background:var(--med)"></i>medytacja</span><span><i style="background:var(--lang)"></i>język</span><span><i class="nmark"></i>wpis w dzienniku</span></div>
   </section>
   <section class="rule">
-    <p><b>Cel bazowy:</b> 20 min czytania, 10 min medytacji, 10 min języka. Kółko zalicza cel bazowy, przyciski zapisują dłuższy czas.</p>
+    <p><b>Cel bazowy:</b> 20 min czytania, 10 min medytacji, 10 min języka. Kółko zalicza cel bazowy, przyciski i „Inne” zapisują inny czas.</p>
     <p><b>Automatycznie:</b> ćwiczenie w Lango zalicza język, a 20 minut słuchania audiobooka zalicza czytanie. Ręczne kliknięcie zawsze wygrywa.</p>
     <details>
       <summary>Co teraz czytasz i jakiego języka się uczysz</summary>
@@ -394,12 +397,12 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 
 <script>
 "use strict";
-const APP_VERSION="1.9.1";
+const APP_VERSION="1.9.2";
 const $=s=>document.querySelector(s);
 const HABITS=[
-  {k:"read",name:"Czytanie",base:20,dot:"r",opts:[30,45,60],auto:"z audiobooka"},
-  {k:"med",name:"Medytacja",base:10,dot:"m",opts:[15,20,30]},
-  {k:"lang",name:"Język",base:10,dot:"l",opts:[15,30,45],auto:"z Lango"},
+  {k:"read",name:"Czytanie",base:20,dot:"r",opts:[20,30,40],auto:"z audiobooka"},
+  {k:"med",name:"Medytacja",base:10,dot:"m",opts:[5,10,15]},
+  {k:"lang",name:"Język",base:10,dot:"l",opts:[10,20,30],auto:"z Lango"},
 ];
 const MONTHS=["styczeń","luty","marzec","kwiecień","maj","czerwiec","lipiec","sierpień","wrzesień","październik","listopad","grudzień"];
 const MONTHS_GEN=["stycznia","lutego","marca","kwietnia","maja","czerwca","lipca","sierpnia","września","października","listopada","grudnia"];
@@ -564,6 +567,7 @@ function habitSub(h,dd){
   if(h.k==="lang"&&set.lang)return set.lang+" · "+h.base+" min";
   return h.base+" min";
 }
+let otherOpen=null; // which habit's "Inne" field is open
 function habitEl(h,d,withExtra){
   const dd=dayData(d),st=dd[h.k]||"",mins=dd[h.k+"Min"]||0,sk=streak(x=>isDone(x,h.k));
   const el=document.createElement("div");
@@ -577,6 +581,21 @@ function habitEl(h,d,withExtra){
     h.opts.forEach(m=>{const b=document.createElement("button");b.className="chip";b.textContent=m+" min";
       const on=!!st&&mins===m&&!dd[h.k+"Auto"];b.setAttribute("aria-pressed",String(on));
       b.onclick=()=>setDay(d,on?{[h.k]:null,[h.k+"Min"]:null,[h.k+"Auto"]:null}:{[h.k]:"done",[h.k+"Min"]:m,[h.k+"Auto"]:null});ex.appendChild(b)});
+    // a custom time that isn't one of the buttons shows as its own pressed button
+    const custom=!!st&&mins&&!h.opts.includes(mins)&&!dd[h.k+"Auto"];
+    if(custom){const c=document.createElement("button");c.className="chip";c.textContent=mins+" min";c.setAttribute("aria-pressed","true");
+      c.onclick=()=>setDay(d,{[h.k]:null,[h.k+"Min"]:null,[h.k+"Auto"]:null});ex.appendChild(c)}
+    const ob=document.createElement("button");ob.className="chip ghost";ob.textContent="Inne";ob.setAttribute("aria-expanded",String(otherOpen===h.k));
+    ob.onclick=()=>{otherOpen=otherOpen===h.k?null:h.k;renderHabits();const i=document.querySelector('.other input');if(i)i.focus()};ex.appendChild(ob);
+    if(otherOpen===h.k){
+      const f=document.createElement("form");f.className="other";
+      f.innerHTML='<input type="number" inputmode="numeric" min="1" max="600" placeholder="minuty" aria-label="'+h.name+': ile minut"><span>min</span><button class="chip" type="submit" aria-pressed="true">Zapisz</button>';
+      f.querySelector("input").value=custom?mins:"";
+      f.onsubmit=e=>{e.preventDefault();const v=Math.round(Number(f.querySelector("input").value));
+        if(!(v>=1&&v<=600)){toast("Wpisz od 1 do 600 minut");return}
+        otherOpen=null;setDay(d,{[h.k]:"done",[h.k+"Min"]:v,[h.k+"Auto"]:null})};
+      ex.appendChild(f);
+    }
   }
   return el;
 }
