@@ -299,8 +299,27 @@ const DATA={
     compl:[["—","",""],["ahora","aóra","teraz"],["en casa","en kása","w domu"],["aquí","akí","tutaj"],["bien","bien","dobrze"],["español","espaniól","po hiszpańsku"],["despacio","despásio","wolno"]]
   }
 };
-const TABS=[{id:"guide",ix:"00",label:"Jak się uczyć"},{id:"daily",ix:"★",label:"Sesja dnia"},{id:"alpha",ix:"01",label:"Alfabet"},{id:"numbers",ix:"02",label:"Liczby"},{id:"pron",ix:"03",label:"Zaimki"},{id:"verbs",ix:"04",label:"Czasowniki"},{id:"phrases",ix:"05",label:"Zwroty"},{id:"sentences",ix:"06",label:"Zdania"},{id:"gen",ix:"07",label:"Generator zdań"},{id:"vocab",ix:"08",label:"Słownictwo"},{id:"cards",ix:"09",label:"Fiszki"},{id:"listen",ix:"10",label:"Słuchanie"},{id:"dialogs",ix:"💬",label:"Dialogi"},{id:"speak",ix:"11",label:"Mówienie"},{id:"spell",ix:"12",label:"Pisownia"},{id:"review",ix:"🔁",label:"Powtórki"},{id:"missing",ix:"🧩",label:"Brakujące słowo"},{id:"stats",ix:"📊",label:"Statystyki"},{id:"race",ix:"14",label:"Wyścig 🏁"}];
-const VCOMPL={ru:{0:[1],1:[1],2:[5,6,4,3],3:[4],4:[1,3,4,6],5:[1,6],6:[3,4,2],7:[1,2,3,4,6]},es:{1:[3,2,4,1],3:[1],4:[1],5:[1,6,3],6:[1,3,4,6],7:[5,6,4,3,1]}};
+const TABS=[{id:"guide",ix:"00",label:"Jak się uczyć"},{id:"daily",ix:"★",label:"Sesja dnia"},{id:"alpha",ix:"01",label:"Alfabet"},{id:"numbers",ix:"02",label:"Liczby"},{id:"pron",ix:"03",label:"Zaimki"},{id:"verbs",ix:"04",label:"Czasowniki"},{id:"phrases",ix:"05",label:"Zwroty"},{id:"sentences",ix:"06",label:"Zdania"},{id:"gen",ix:"07",label:"Generator zdań"},{id:"vocab",ix:"08",label:"Słownictwo"},{id:"cards",ix:"09",label:"Fiszki"},{id:"listen",ix:"10",label:"Słuchanie"},{id:"dialogs",ix:"💬",label:"Dialogi"},{id:"spell",ix:"12",label:"Pisownia"},{id:"review",ix:"🔁",label:"Powtórki"},{id:"missing",ix:"🧩",label:"Brakujące słowo"},{id:"stats",ix:"📊",label:"Statystyki"},{id:"race",ix:"14",label:"Wyścig 🏁"}];
+const GENT={
+ru:{
+0:[["кофе с молоком","kófie s małakóm","kawę z mlekiem"],["холодную воду","chałódnuju wódu","zimną wodę"],["чай с лимоном","czaj s limónam","herbatę z cytryną"],["домой после работы","damój pósle rabóty","do domu po pracy"],["спать дома","spat' dóma","spać w domu"],["есть сейчас","jest' siejczás","jeść teraz"]],
+1:[["говорить по-русски","gawarít' pa-rúski","mówić po rosyjsku"],["прийти завтра вечером","prijtí záftra wiéczeram","przyjść jutro wieczorem"],["подождать здесь минуту","padażdát' zdies' minútu","poczekać tutaj minutę"],["купить хлеб сейчас","kupít' chlieb siejczás","kupić chleb teraz"],["работать дома завтра","rabótat' dóma záftra","pracować jutro w domu"]],
+2:[["по-русски очень хорошо","pa-rúski óczin' charaszó","po rosyjsku bardzo dobrze"],["по-польски дома","pa-pól'ski dóma","po polsku w domu"],["с друзьями по телефону","s druz'jámi pa tiełefónu","z przyjaciółmi przez telefon"],["медленно и ясно","miédlienna i jásna","powoli i wyraźnie"],["по-английски на работе","pa-angíjski na rabótie","po angielsku w pracy"]],
+3:[["что это правда","szto éta prawda","że to prawda",1],["где находится вокзал","gdie nachódzitsia wakzáł","gdzie jest dworzec",1],["что он живёт здесь","szto on żywiót zdies'","że on mieszka tutaj",1],["где работает мой друг","gdie rabótajet moj drug","gdzie pracuje mój przyjaciel",1]],
+4:[["домашнюю работу сейчас","damáśniuju rabótu siejczás","pracę domową teraz"],["кофе на кухне","kófie na kuchnie","kawę w kuchni"],["салат вместе","sałát wmiestie","sałatkę razem"],["уроки после обеда","uróki pósle abiéda","lekcje po obiedzie"]],
+5:[["домой после работы","damój pósle rabóty","do domu po pracy"],["в магазин сейчас","w magazín siejczás","do sklepu teraz"],["на работу утром","na rabótu útram","do pracy rano"],["в парк вместе","f park wmiestie","do parku razem"],["в кино вечером","f kinó wiéczeram","do kina wieczorem"]],
+6:[["в Польше","f Pólsze","w Polsce"],["в большом городе","w bal'szóm górad'ie","w dużym mieście"],["здесь уже год","zdies' użé got","tutaj już rok"],["в маленьком доме","w mályenkam dómie","w małym domu"],["рядом с парком","riádam s párkam","obok parku"]],
+7:[["хлеб с сыром","chlieb s syrom","chleb z serem"],["суп на обед","sup na abiéd","zupę na obiad"],["салат с помидорами","sałát s pamidórami","sałatkę z pomidorami"],["рыбу с рисом","rýbu s rísam","rybę z ryżem"]]
+},
+es:{
+1:[["en casa ahora","en kása aóra","w domu teraz"],["con amigos","kon amígos","z przyjaciółmi"],["en el trabajo hoy","en el trabácho oj","w pracy dzisiaj"],["en la playa con amigos","en la pláya kon amígos","na plaży z przyjaciółmi"]],
+2:[["dos hermanos","dos ermános","dwóch braci"],["un coche nuevo","un kóche nuéwo","nowy samochód"],["mucho trabajo hoy","múczo trabácho oj","dużo pracy dzisiaj"],["una casa grande","úna kása gránde","duży dom"],["mucho tiempo libre","múczo tiémpo líbre","dużo wolnego czasu"]],
+3:[["un café con leche","un kafé kon léche","kawę z mlekiem"],["agua fría","água fría","zimną wodę"],["ir a casa","ir a kása","iść do domu"],["comer pan con queso","komér pan kon késo","jeść chleb z serem"],["hablar con ella","ablár kon éja","porozmawiać z nią"]],
+4:[["hablar un poco de español","ablár un póko de espaniól","mówić trochę po hiszpańsku"],["venir mañana por la tarde","benír maniána por la tárde","przyjść jutro po południu"],["esperar aquí un momento","esperár akí un moménto","poczekać tutaj chwilę"],["ayudar a todos","ajudár a tódos","pomóc wszystkim"],["comprar pan ahora","komprár pan aóra","kupić chleb teraz"]],
+5:[["a casa después del trabajo","a kása despuéz del trabácho","do domu po pracy"],["al supermercado ahora","al supermerkádo aóra","do supermarketu teraz"],["al cine con amigos","al síne kon amígos","do kina z przyjaciółmi"],["al parque por la tarde","al párke por la tárde","do parku po południu"],["a trabajar por la mañana","a trabachár por la maniána","do pracy rano"]],
+6:[["la tarea en casa","la taréa en kása","pracę domową w domu"],["café para todos","kafé pára tódos","kawę dla wszystkich"],["una ensalada rica","úna ensaláda ríka","pyszną sałatkę"],["deporte por la mañana","depórte por la maniána","sport rano"],["la cena juntos","la séna chúntos","kolację razem"]],
+7:[["español con amigos","espaniól kon amígos","po hiszpańsku z przyjaciółmi"],["polaco en casa","poláko en kása","po polsku w domu"],["inglés en el trabajo","inglés en el trabácho","po angielsku w pracy"],["despacio y claro","despásio i kláro","powoli i wyraźnie"],["con ella por teléfono","kon éja por teléfono","z nią przez telefon"]]
+}};
 const DAILY_TASKS=[{icon:"🃏",label:"Rozgrzewka: kilka fiszek",tab:"cards"},{icon:"🔁",label:"Powtórki na dziś (SRS)",tab:"review"},{icon:"🔊",label:"Słuchanie: kilka słów",tab:"listen"},{icon:"🧩",label:"Brakujące słowo: kilka zdań",tab:"missing"},{icon:"🏁",label:"Wyścig na czas: 1 gra",tab:"race"}];
 const CHINA=[
   ["你好", "nǐ hǎo", "ni hao", "cześć / dzień dobry"],
@@ -327,7 +346,7 @@ const CHINA=[
 ];
 const SECTIONS=[
   {id:"learn",label:"📚 Nauka",tabs:["guide","alpha","numbers","pron","verbs","phrases","sentences","vocab"]},
-  {id:"practice",label:"🎯 Ćwiczenia",tabs:["cards","listen","dialogs","missing","speak","spell","gen"]},
+  {id:"practice",label:"🎯 Ćwiczenia",tabs:["cards","listen","dialogs","missing","spell","gen"]},
   {id:"progress",label:"📈 Postępy",tabs:["daily","review","stats"]},
   {id:"play",label:"🏁 Gra",tabs:["race"]}
 ];
@@ -613,6 +632,82 @@ const DLG={
       ["m","Конечно. Введите пин-код.","kaniészna, widítie pin-kód","Oczywiście. Proszę wpisać PIN.",4],
       ["m","Хорошо. Возьмите сдачу.","charaszó, waz'mítie sdáczu","Dobrze. Proszę resztę.",4],
       ["y",[["Готово, спасибо.","gatóva, spasíba","Gotowe, dziękuję.",-1],["Который час?","katóryj czas","Która godzina?","x"]]]
+    ]},
+    {title:"Pierwsze spotkanie",icon:"👋",lvl:1,n:[
+      ["m","Привет! Меня зовут Игорь. А тебя?","priwiét, miniá zawút Igor'. a tibiá","Cześć! Mam na imię Igor. A ty?",1],
+      ["y",[["Привет! Меня зовут Анна.","priwiét, miniá zawút Anna","Cześć! Mam na imię Anna.",2],["Спасибо, до свидания.","spasíba, da swidánija","Dziękuję, do widzenia.","x"]]],
+      ["m","Очень приятно познакомиться!","óczin' prijátna paznakómit'sia","Miło cię poznać!",3],
+      ["y",[["Мне тоже приятно.","mnie tóże prijátna","Mnie też miło.",4],["Я не понимаю.","ja nie panimáju","Nie rozumiem.","x"]]],
+      ["m","Ты говоришь по-русски?","ty gawarísz pa-rúski","Mówisz po rosyjsku?",5],
+      ["y",[["Да, немного.","da, niemnógo","Tak, trochę.",6],["Хорошо, спасибо.","charaszó, spasíba","Dobrze, dziękuję.","x"]]],
+      ["m","Отлично! Ты хорошо говоришь.","atlíczna, ty charaszó gawarísz","Świetnie! Dobrze mówisz.",7],
+      ["y",[["Спасибо! Я учусь.","spasíba, ja uczús'","Dzięki! Uczę się.",-1],["Извините.","izwinítie","Przepraszam.","x"]]]
+    ]},
+    {title:"Rodzina",icon:"👨‍👩‍👧",lvl:1,n:[
+      ["m","У тебя есть семья?","u tibiá jest' siemjá","Masz rodzinę?",1],
+      ["y",[["Да, у меня есть брат.","da, u miniá jest' brat","Tak, mam brata.",2],["Нет, спасибо.","niet, spasíba","Nie, dziękuję.","x"]]],
+      ["m","Сколько ему лет?","skól'ka jemú liet","Ile on ma lat?",3],
+      ["y",[["Ему двадцать пять лет.","jemú dwádcat' piat' liet","Ma dwadzieścia pięć lat.",4],["Я люблю чай.","ja lubl'ú czaj","Lubię herbatę.","x"]]],
+      ["m","А где он живёт?","a gdie on żywiót","A gdzie on mieszka?",5],
+      ["y",[["Он живёт в Лодзи.","on żywiót w Łódzi","Mieszka w Łodzi.",6],["Очень вкусно.","óczin' fkúsna","Bardzo smaczne.","x"]]],
+      ["m","Здорово! У меня тоже есть брат.","zdórawa, u miniá tóże jest' brat","Super! Ja też mam brata.",7],
+      ["y",[["Правда? Классно!","prawda, klássna","Naprawdę? Super!",-1],["До свидания.","da swidánija","Do widzenia.","x"]]]
+    ]},
+    {title:"Umawianie się",icon:"📅",lvl:1,n:[
+      ["m","Привет! Ты свободен завтра?","priwiét, ty swabódien záftra","Cześć! Masz wolne jutro?",1],
+      ["y",[["Да, а что?","da, a szto","Tak, a co?",2],["Один чай, пожалуйста.","adín czaj pażáłusta","Poproszę herbatę.","x"]]],
+      ["m","Давай пойдём в кафе!","dawáj pajdiól w kafé","Chodźmy do kawiarni!",3],
+      ["y",[["Хорошо, во сколько?","charaszó, wa skól'ka","Dobrze, o której?",4],["Сколько это стоит?","skól'ka éta stóit","Ile to kosztuje?","x"]]],
+      ["m","В шесть часов.","f szest' czasóf","O szóstej.",5],
+      ["y",[["Отлично, до завтра!","atlíczna, da záftra","Super, do jutra!",6],["Мне двадцать лет.","mnie dwádcat' liet","Mam dwadzieścia lat.","x"]]],
+      ["m","Пока!","paká","Pa!",7],
+      ["y",[["Пока!","paká","Pa!",-1],["Извините.","izwinítie","Przepraszam.","x"]]]
+    ]},
+    {title:"Hobby",icon:"🎸",lvl:2,n:[
+      ["m","Что ты любишь делать?","szto ty lubisz diélat'","Co lubisz robić?",1],
+      ["y",[["Я люблю читать и гулять.","ja lubl'ú czitát' i guliát'","Lubię czytać i spacerować.",2],["Один кофе, пожалуйста.","adín kófie pażáłusta","Poproszę kawę.","x"]]],
+      ["m","Ты любишь спорт?","ty lubisz sport","Lubisz sport?",3],
+      ["y",[["Да, я хожу в спортзал.","da, ja chażú f sportzál","Tak, chodzę na siłownię.",4],["Здравствуйте!","zdrástwujtie","Dzień dobry!","x"]]],
+      ["m","А что ты делаешь в выходные?","a szto ty diélajesz w wychódnyje","A co robisz w weekend?",5],
+      ["y",[["Я гуляю с друзьями.","ja guliáju s druz'jámi","Spaceruję z przyjaciółmi.",6],["Вот, пожалуйста.","wot pażáłusta","Proszę, oto.","x"]]],
+      ["m","Отлично! Хорошего отдыха!","atlíczna, charósziwa ótdycha","Świetnie! Miłego odpoczynku!",7],
+      ["y",[["Спасибо, и тебе!","spasíba, i tibié","Dzięki, nawzajem!",-1],["Извините.","izwinítie","Przepraszam.","x"]]]
+    ]},
+    {title:"Zawód i praca",icon:"🧰",lvl:2,n:[
+      ["m","Кем ты работаешь?","kiem ty rabótajesz","Kim pracujesz?",1],
+      ["y",[["Я работаю техником.","ja rabótaju tiéchnikam","Pracuję jako technik.",2],["Я живу в Польше.","ja żywú f Pólsze","Mieszkam w Polsce.","x"]]],
+      ["m","Интересно! Где ты работаешь?","intieriésna, gdie ty rabótajesz","Ciekawe! Gdzie pracujesz?",3],
+      ["y",[["Я работаю на море.","ja rabótaju na mórie","Pracuję na morzu.",4],["Я хочу пить.","ja chaczú pit'","Chce mi się pić.","x"]]],
+      ["m","Тебе нравится твоя работа?","tibié nrawitsia twajá rabóta","Lubisz swoją pracę?",5],
+      ["y",[["Да, очень нравится.","da, óczin' nrawitsia","Tak, bardzo.",6],["Сколько это стоит?","skól'ka éta stóit","Ile to kosztuje?","x"]]],
+      ["m","Здорово! Удачи на работе!","zdórawa, udáczi na rabótie","Super! Powodzenia w pracy!",7],
+      ["y",[["Спасибо!","spasíba","Dziękuję!",-1],["Извините.","izwinítie","Przepraszam.","x"]]]
+    ]},
+    {title:"Rozmowa telefoniczna",icon:"📞",lvl:2,n:[
+      ["m","Алло? Кто это?","alló, któ éta","Halo? Kto mówi?",1],
+      ["y",[["Это Матеуш. Можно Анну?","éta Mateusz, można Annu","To Mateusz. Czy mogę prosić Annę?",2],["Один кофе, пожалуйста.","adín kófie pażáłusta","Poproszę kawę.","x"]]],
+      ["m","Одну минуту, пожалуйста.","adnú minútu pażáłusta","Chwileczkę, proszę.",3],
+      ["y",[["Хорошо, я подожду.","charaszó, ja padażdú","Dobrze, poczekam.",4],["Где туалет?","gdie tualét","Gdzie toaleta?","x"]]],
+      ["m","Её сейчас нет. Что передать?","jejó siejczás niet, szto pieridát'","Nie ma jej teraz. Co przekazać?",5],
+      ["y",[["Пусть позвонит мне, пожалуйста.","pust' pazwonít mnie pażáłusta","Niech do mnie zadzwoni.",6],["Я хочу есть.","ja chaczú jest'","Jestem głodny.","x"]]],
+      ["m","Хорошо, передам.","charaszó, pieridám","Dobrze, przekażę.",7],
+      ["y",[["Спасибо, до свидания!","spasíba, da swidánija","Dziękuję, do widzenia!",-1],["Извините.","izwinítie","Przepraszam.","x"]]]
+    ]},
+    {title:"W taksówce",icon:"🚕",lvl:2,n:[
+      ["m","Куда едем?","kudá jédiem","Dokąd jedziemy?",1],
+      ["y",[["В аэропорт, пожалуйста.","w aeropórt pażáłusta","Na lotnisko, proszę.",2],["Меня зовут Анна.","miniá zawút Anna","Nazywam się Anna.","x"]]],
+      ["m","Хорошо. Это займёт полчаса.","charaszó, éta zajmiót połczasá","Dobrze. To zajmie pół godziny.",3],
+      ["y",[["Сколько это стоит?","skól'ka éta stóit","Ile to kosztuje?",4],["Очень вкусно.","óczin' fkúsna","Bardzo smaczne.","x"]]],
+      ["m","Тридцать евро.","trídcat' jéwra","Trzydzieści euro.",5],
+      ["y",[["Хорошо. Остановите здесь, пожалуйста.","charaszó, astanówitie zdies' pażáłusta","Dobrze. Proszę zatrzymać tutaj.",-1],["Извините.","izwinítie","Przepraszam.","x"]]]
+    ]},
+    {title:"W aptece",icon:"💊",lvl:2,n:[
+      ["m","Здравствуйте! Чем могу помочь?","zdrástwujtie, czem magú pamóć","Dzień dobry! W czym mogę pomóc?",1],
+      ["y",[["У меня болит голова.","u miniá balít gaławá","Boli mnie głowa.",2],["Один кофе, пожалуйста.","adín kófie pażáłusta","Poproszę kawę.","x"]]],
+      ["m","Вот таблетки. Принимайте два раза в день.","wot tabliétki, prinimájtie dwa rása w dien'","Oto tabletki. Proszę brać dwa razy dziennie.",3],
+      ["y",[["Спасибо. Сколько с меня?","spasíba, skól'ka s miniá","Dziękuję. Ile płacę?",4],["Я из Польши.","ja iz Pólszy","Jestem z Polski.","x"]]],
+      ["m","Пять евро.","piat' jéwra","Pięć euro.",5],
+      ["y",[["Вот, пожалуйста. До свидания!","wot pażáłusta, da swidánija","Proszę. Do widzenia!",-1],["Я не понимаю.","ja nie panimáju","Nie rozumiem.","x"]]]
     ]}
   ],
   es:[
@@ -695,13 +790,88 @@ const DLG={
       ["m","Claro. Marque su PIN.","kláro, márke su pin","Oczywiście. Proszę wpisać PIN.",4],
       ["m","Bien. Aquí tiene el cambio.","bien, akí tiéne el kámbio","Dobrze. Oto reszta.",4],
       ["y",[["Hecho, gracias.","écho, grásias","Gotowe, dziękuję.",-1],["¿Qué hora es?","ke óra es","Która godzina?","x"]]]
+    ]},
+    {title:"Pierwsze spotkanie",icon:"👋",lvl:1,n:[
+      ["m","¡Hola! Me llamo Pablo. ¿Y tú?","óla, me jámo Pablo, i tu","Cześć! Mam na imię Pablo. A ty?",1],
+      ["y",[["¡Hola! Me llamo Ana.","óla, me jámo Ana","Cześć! Mam na imię Ana.",2],["Gracias, adiós.","grásias, adiós","Dziękuję, do widzenia.","x"]]],
+      ["m","¡Encantado de conocerte!","enkantádo de konosérte","Miło cię poznać!",3],
+      ["y",[["Igualmente.","igualménte","Nawzajem.",4],["No entiendo.","no entiéndo","Nie rozumiem.","x"]]],
+      ["m","¿Hablas español?","áblas espaniól","Mówisz po hiszpańsku?",5],
+      ["y",[["Sí, un poco.","si, un póko","Tak, trochę.",6],["Bien, gracias.","bien, grásias","Dobrze, dzięki.","x"]]],
+      ["m","¡Qué bien! Hablas muy bien.","ke bien, áblas muj bien","Świetnie! Mówisz bardzo dobrze.",7],
+      ["y",[["¡Gracias! Estoy aprendiendo.","grásias, estój aprendiéndo","Dzięki! Uczę się.",-1],["Perdón.","perdón","Przepraszam.","x"]]]
+    ]},
+    {title:"Rodzina",icon:"👨‍👩‍👧",lvl:1,n:[
+      ["m","¿Tienes familia?","tiénes famíla","Masz rodzinę?",1],
+      ["y",[["Sí, tengo un hermano.","si, téngo un ermáno","Tak, mam brata.",2],["No, gracias.","no, grásias","Nie, dziękuję.","x"]]],
+      ["m","¿Cuántos años tiene?","kuántos ánios tiéne","Ile ma lat?",3],
+      ["y",[["Tiene veinticinco años.","tiéne beintisínko ánios","Ma dwadzieścia pięć lat.",4],["Me gusta el café.","me gústa el kafé","Lubię kawę.","x"]]],
+      ["m","¿Y dónde vive?","i dónde bibe","A gdzie mieszka?",5],
+      ["y",[["Vive en Lodz.","bibe en Łódź","Mieszka w Łodzi.",6],["Muy rico.","muj ríko","Bardzo smaczne.","x"]]],
+      ["m","¡Qué bien! Yo también tengo un hermano.","ke bien, jo tambien téngo un ermáno","Super! Ja też mam brata.",7],
+      ["y",[["¿De verdad? ¡Genial!","de berdád, chenial","Naprawdę? Super!",-1],["Adiós.","adiós","Do widzenia.","x"]]]
+    ]},
+    {title:"Umawianie się",icon:"📅",lvl:1,n:[
+      ["m","¡Hola! ¿Estás libre mañana?","óla, estás líbre maniána","Cześć! Masz wolne jutro?",1],
+      ["y",[["Sí, ¿por qué?","si, por ké","Tak, a co?",2],["Un té, por favor.","un te, por fabór","Poproszę herbatę.","x"]]],
+      ["m","¡Vamos a un café!","bámos a un kafé","Chodźmy na kawę!",3],
+      ["y",[["Vale, ¿a qué hora?","bále, a ké óra","Dobrze, o której?",4],["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?","x"]]],
+      ["m","A las seis.","a las séjs","O szóstej.",5],
+      ["y",[["Perfecto, ¡hasta mañana!","perfékto, asta maniána","Super, do jutra!",6],["Tengo veinte años.","téngo béinte ánios","Mam dwadzieścia lat.","x"]]],
+      ["m","¡Chao!","czao","Pa!",7],
+      ["y",[["¡Chao!","czao","Pa!",-1],["Perdón.","perdón","Przepraszam.","x"]]]
+    ]},
+    {title:"Hobby",icon:"🎸",lvl:2,n:[
+      ["m","¿Qué te gusta hacer?","ke te gústa asér","Co lubisz robić?",1],
+      ["y",[["Me gusta leer y caminar.","me gústa leér i kaminár","Lubię czytać i spacerować.",2],["Un café, por favor.","un kafé, por fabór","Poproszę kawę.","x"]]],
+      ["m","¿Te gusta el deporte?","te gústa el depórte","Lubisz sport?",3],
+      ["y",[["Sí, voy al gimnasio.","si, boj al chimnásio","Tak, chodzę na siłownię.",4],["¡Buenos días!","buenos días","Dzień dobry!","x"]]],
+      ["m","¿Y qué haces el fin de semana?","i ke áses el fin de semána","A co robisz w weekend?",5],
+      ["y",[["Paseo con mis amigos.","paséo kon mis amígos","Spaceruję z przyjaciółmi.",6],["Aquí tiene.","akí tiéne","Proszę, oto.","x"]]],
+      ["m","¡Genial! ¡Buen fin de semana!","chenial, buen fin de semána","Super! Miłego weekendu!",7],
+      ["y",[["¡Gracias, igualmente!","grásias, igualménte","Dzięki, nawzajem!",-1],["Perdón.","perdón","Przepraszam.","x"]]]
+    ]},
+    {title:"Zawód i praca",icon:"🧰",lvl:2,n:[
+      ["m","¿A qué te dedicas?","a ke te dedíkas","Czym się zajmujesz?",1],
+      ["y",[["Soy técnico.","soj téknico","Jestem technikiem.",2],["Vivo en Polonia.","bibo en Polónia","Mieszkam w Polsce.","x"]]],
+      ["m","¡Interesante! ¿Dónde trabajas?","interesánte, dónde trabáchas","Ciekawe! Gdzie pracujesz?",3],
+      ["y",[["Trabajo en el mar.","trabácho en el mar","Pracuję na morzu.",4],["Tengo sed.","téngo sed","Chce mi się pić.","x"]]],
+      ["m","¿Te gusta tu trabajo?","te gústa tu trabácho","Lubisz swoją pracę?",5],
+      ["y",[["Sí, me gusta mucho.","si, me gústa múczo","Tak, bardzo.",6],["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?","x"]]],
+      ["m","¡Genial! ¡Mucha suerte en el trabajo!","chenial, múcza suérte en el trabácho","Super! Powodzenia w pracy!",7],
+      ["y",[["¡Gracias!","grásias","Dziękuję!",-1],["Perdón.","perdón","Przepraszam.","x"]]]
+    ]},
+    {title:"Rozmowa telefoniczna",icon:"📞",lvl:2,n:[
+      ["m","¿Dígame? ¿Quién habla?","dígame, kién ábla","Słucham? Kto mówi?",1],
+      ["y",[["Soy Mateo. ¿Está Ana?","soj matéo, está ána","To Mateo. Czy jest Ana?",2],["Un café, por favor.","un kafé, por fabór","Poproszę kawę.","x"]]],
+      ["m","Un momento, por favor.","un moménto, por fabór","Chwileczkę, proszę.",3],
+      ["y",[["Vale, espero.","bále, espéro","Dobrze, poczekam.",4],["¿Dónde está el baño?","dónde está el bánio","Gdzie toaleta?","x"]]],
+      ["m","No está ahora. ¿Quiere dejar un mensaje?","no está aóra, kiére dechár un mensáche","Nie ma jej teraz. Chce Pan zostawić wiadomość?",5],
+      ["y",[["Sí, que me llame, por favor.","si, ke me jáme, por fabór","Tak, niech do mnie zadzwoni.",6],["Tengo hambre.","téngo ámbre","Jestem głodny.","x"]]],
+      ["m","Vale, se lo digo.","bále, se lo dígo","Dobrze, przekażę.",7],
+      ["y",[["Gracias, adiós.","grásias, adiós","Dziękuję, do widzenia.",-1],["Perdón.","perdón","Przepraszam.","x"]]]
+    ]},
+    {title:"W taksówce",icon:"🚕",lvl:2,n:[
+      ["m","¿Adónde vamos?","adónde bámos","Dokąd jedziemy?",1],
+      ["y",[["Al aeropuerto, por favor.","al aeropuérto, por fabór","Na lotnisko, proszę.",2],["Me llamo Ana.","me jámo Ana","Nazywam się Ana.","x"]]],
+      ["m","Vale. Son treinta minutos.","bále, son tréjnta minútos","Dobrze. To trzydzieści minut.",3],
+      ["y",[["¿Cuánto cuesta?","kuánto kuésta","Ile to kosztuje?",4],["Muy rico.","muj ríko","Bardzo smaczne.","x"]]],
+      ["m","Treinta euros.","tréjnta éuros","Trzydzieści euro.",5],
+      ["y",[["Vale. Pare aquí, por favor.","bále, páre akí, por fabór","Dobrze. Proszę się zatrzymać tutaj.",-1],["Perdón.","perdón","Przepraszam.","x"]]]
+    ]},
+    {title:"W aptece",icon:"💊",lvl:2,n:[
+      ["m","¡Buenas! ¿En qué puedo ayudarle?","buénas, en ke puédo ajudárle","Dzień dobry! W czym mogę pomóc?",1],
+      ["y",[["Me duele la cabeza.","me duéle la kabésa","Boli mnie głowa.",2],["Un café, por favor.","un kafé, por fabór","Poproszę kawę.","x"]]],
+      ["m","Tome estas pastillas. Dos veces al día.","tóme éstas pastíjas, dos béses al día","Proszę wziąć te tabletki. Dwa razy dziennie.",3],
+      ["y",[["Gracias. ¿Cuánto es?","grásias, kuánto es","Dziękuję. Ile płacę?",4],["Soy de Polonia.","soj de Polónia","Jestem z Polski.","x"]]],
+      ["m","Cinco euros.","sínko éuros","Pięć euro.",5],
+      ["y",[["Aquí tiene. ¡Adiós!","akí tiéne, adiós","Proszę. Do widzenia!",-1],["No entiendo.","no entiéndo","Nie rozumiem.","x"]]]
     ]}
   ]
 };
 let state={lang:"ru",tab:"guide",verbIdx:0,vocabCat:null,fcIdx:0,fcFlip:false,fcDeck:[],quiz:null,quizSound:true,hard:{ru:new Set(),es:new Set()},hardIdx:0,daily:{ru:null,es:null},dlg:null,level:{ru:1,es:1},justLeveled:null,srs:{ru:{},es:{}},stats:{ru:{},es:{}},revIdx:0,revFlip:false,mw:null,zhMode:"list",zhIdx:0,zhFlip:false,zhDeck:null,
   spellDeck:[],spellIdx:0,spellChecked:false,spellSession:{done:0,ok:0},known:{ru:new Set(),es:new Set()},
-  genPerson:0,genVerb:0,genCompl:0,gen:null,genSess:{ok:0,done:0},listen:null,speakItem:null,speakSess:{ok:0,done:0},streak:null};
-let recog=null;
+  genPerson:0,genVerb:0,genCompl:0,gen:null,genSess:{ok:0,done:0},listen:null,streak:null};
 
 /* ---- storage (safe; persists if browser allows) ---- */
 const SK='jezyklab_v4';
@@ -717,7 +887,6 @@ function speakL(text,lang,e){if(e)e.stopPropagation();try{const u=new SpeechSynt
 function sayBtnL(t,lang){return '<button class="say" title="Posłuchaj" onclick="speakL(\''+String(t).replace(/'/g,"\\'")+'\',\''+lang+'\',event)">🔊</button>';}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function stopSeq(){try{speechSynthesis.cancel();}catch(e){}}
-function stopRecog(){if(recog){try{recog.abort();}catch(e){}recog=null;}}
 function playSeq(items){stopSeq();items.forEach(it=>{if(!it.t)return;const u=new SpeechSynthesisUtterance(it.t);u.lang=it.lang;u.rate=String(it.lang).startsWith('pl')?0.95:0.82;speechSynthesis.speak(u);});}
 const RU_V=new Set(['а','е','ё','и','о','у','ы','э','ю','я']);
 function ruLetterSay(l){if(l==='ъ'||l==='ь')return '';if(l==='й')return 'ай';if(RU_V.has(l))return l;return l+'а';}
@@ -729,7 +898,9 @@ function lev(a,b){const m=a.length,n=b.length;const dp=[];for(let i=0;i<=m;i++){
 function sim(a,b){if(!a&&!b)return 1;return 1-lev(a,b)/Math.max(a.length,b.length,1);}
 
 function lvlOf(){return state.level[state.lang]||1;}
-function levelItems(lang,lvl){let o=[];if(lvl===1){const d=DATA[lang];d.phrases.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]}));Object.values(d.vocab).forEach(a=>a.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]})));d.numbers.forEach(r=>o.push({t:r[0],f:r[1],p:"liczba "+r[2]}));d.pronouns.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]}));}else{const d=extra(lang,lvl);if(d){(d.phrases||[]).forEach(r=>o.push({t:r[0],f:r[1],p:r[2]}));Object.values(d.vocab||{}).forEach(a=>a.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]})));}}return o;}
+const PRON_RE=/^(ja|ty|on|ona|ono|my|wy|oni|one)(\s*[\/(].*)?$/i;
+function levelItems(lang,lvl){return _levelItems(lang,lvl).filter(x=>!PRON_RE.test(String(x.p).trim()));}
+function _levelItems(lang,lvl){let o=[];if(lvl===1){const d=DATA[lang];d.phrases.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]}));Object.values(d.vocab).forEach(a=>a.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]})));d.numbers.forEach(r=>o.push({t:r[0],f:r[1],p:"liczba "+r[2]}));}else{const d=extra(lang,lvl);if(d){(d.phrases||[]).forEach(r=>o.push({t:r[0],f:r[1],p:r[2]}));Object.values(d.vocab||{}).forEach(a=>a.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]})));}}return o;}
 function levelSentences(lang,lvl){if(lvl===1)return DATA[lang].sentences;const d=extra(lang,lvl);return (d&&d.sentences)||[];}
 function shortDeck(l){let o=[];const lv=state.level[l]||1;for(let k=1;k<=lv;k++)o=o.concat(levelItems(l,k));return o;}
 function fullDeck(l){let o=shortDeck(l).slice();const lv=state.level[l]||1;for(let k=1;k<=lv;k++)levelSentences(l,k).forEach(g=>g.items.forEach(r=>o.push({t:r[0],f:r[1],p:r[2]})));return o;}
@@ -782,7 +953,7 @@ function renderTabs(){const cs=curSection();
 function readbar(l){return '<div class="readbar"><button class="btn primary" id="readPlay">▶ '+l+'</button><button class="btn ghost" id="readStop">■ Stop</button></div>';}
 
 /* ============== WIDOKI (skróty z v3) ============== */
-function viewGuide(){const pr=[["Atakuj najczęstsze słowa (Pareto/Zipf)","Częstość słów spada wykładniczo; mały rdzeń pokrywa większość mowy.","≈100→~50% · ≈1000→~80%"],["Powtórki rozłożone (krzywa zapominania)","M(t)=e^(−t/τ). Powtórka tuż przed zapomnieniem wydłuża τ.","1d→3→7→16→35"],["Aktywne przywoływanie > bierne czytanie","Ślad wzmacnia wysiłek przypomnienia: Fiszki, Słuchanie, Mówienie, Pisownia, Quiz.","recall > recognition"],["Gramatyka jako system","forma = temat + końcówka(osoba). Kolor w zakładce 04 pokazuje, co się zmienia.","forma = temat ∘ końcówka"],["Mowa first","Używaj Słuchania i Mówienia, mów na głos za 🔊. Pisownia to wsparcie.","input ↔ output"],["Chunking","Ucz się gotowych zdań (Zdania) i składaj własne (Generator).","1 fraza < 4 słowa"],["Regularność > intensywność","Krótko, codziennie. Pilnuje tego seria dni 🔥 i licznik sesji ⏱.","konsystencja > zryw"]];
+function viewGuide(){const pr=[["Atakuj najczęstsze słowa (Pareto/Zipf)","Częstość słów spada wykładniczo; mały rdzeń pokrywa większość mowy.","≈100→~50% · ≈1000→~80%"],["Powtórki rozłożone (krzywa zapominania)","M(t)=e^(−t/τ). Powtórka tuż przed zapomnieniem wydłuża τ.","1d→3→7→16→35"],["Aktywne przywoływanie > bierne czytanie","Ślad wzmacnia wysiłek przypomnienia: Fiszki, Słuchanie, Dialogi, Pisownia, Wyścig.","recall > recognition"],["Gramatyka jako system","forma = temat + końcówka(osoba). Kolor w zakładce 04 pokazuje, co się zmienia.","forma = temat ∘ końcówka"],["Mowa first","Używaj Słuchania i Dialogów, powtarzaj na głos za 🔊. Pisownia to wsparcie.","input ↔ output"],["Chunking","Ucz się gotowych zdań (Zdania) i składaj własne (Generator).","1 fraza < 4 słowa"],["Regularność > intensywność","Krótko, codziennie. Pilnuje tego seria dni 🔥 i licznik sesji ⏱.","konsystencja > zryw"]];
   return '<div class="view"><div class="head"><div class="eyebrow">Metoda · uczysz się '+(state.lang==='ru'?'rosyjskiego':'hiszpańskiego')+'</div><h1>Język jako system, nie zbiór wyjątków</h1><p class="lede">Model i reguły → dane → wymuszone powtórki i mowa.</p></div><div class="card panel"><div class="curve-wrap"><div><h2 style="margin-top:0"><span class="num">τ</span>Krzywa zapominania</h2><p style="color:var(--ink-soft);font-size:14px;margin:0 0 6px">Każda powtórka podnosi ślad i spłaszcza zanik.</p>'+forgetCurveSVG()+'</div><div><h2 style="margin-top:0"><span class="num">%</span>Zwrot ze słówek</h2><p style="color:var(--ink-soft);font-size:14px;margin:0 0 12px">Pierwsze setki słów dają najwięcej.</p>'+coverageBars()+'</div></div></div><h2><span class="num">7</span>Zasady</h2><div class="guide">'+pr.map((p,i)=>'<div class="principle"><div class="p-no">'+(i+1)+'</div><div><h3>'+p[0]+'</h3><p>'+p[1]+'</p><span class="formula">'+p[2]+'</span></div></div>').join('')+'</div></div>';}
 function forgetCurveSVG(){const W=320,H=180,pad=24,x0=pad,x1=W-8,y0=8,y1=H-pad,span=x1-x0,hgt=y1-y0;function dec(t,tau){return Math.exp(-t/tau);}const rs=[0,.18,.40,.66],ts=[.10,.18,.30,.55];let s="";for(let i=0;i<rs.length;i++){const a=rs[i],b=(i<rs.length-1)?rs[i+1]:1,tau=ts[i];let d="";for(let f=0;f<=1;f+=0.04){const gx=x0+(a+(b-a)*f)*span;const gy=y0+(1-dec((b-a)*f,tau))*hgt*.95;d+=(f===0?"M":"L")+gx.toFixed(1)+" "+gy.toFixed(1)+" ";}s+='<path d="'+d+'" fill="none" stroke="var(--accent)" stroke-width="2.4"/>';if(i>0){const rx=x0+a*span;s+='<line x1="'+rx+'" y1="'+y0+'" x2="'+rx+'" y2="'+y1+'" stroke="var(--slate)" stroke-dasharray="3 3" opacity=".55"/>';}}return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:360px;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:10px"><line x1="'+x0+'" y1="'+y1+'" x2="'+x1+'" y2="'+y1+'" stroke="var(--line)"/><line x1="'+x0+'" y1="'+y0+'" x2="'+x0+'" y2="'+y1+'" stroke="var(--line)"/>'+s+'</svg>';}
 function coverageBars(){return [["100 słów",50],["300 słów",65],["1 000 słów",80],["3 000 słów",90],["5 000 słów",95]].map(r=>'<div class="barrow"><span class="lab">'+r[0]+'</span><span class="bar"><i style="width:'+r[1]+'%"></i></span><span class="val">'+r[1]+'%</span></div>').join('');}
@@ -797,20 +968,21 @@ function vocabCats(lang){let out=[];Object.keys(DATA[lang].vocab).forEach(c=>out
 function viewVocab(){const lang=state.lang,lv=lvlOf();const cats=vocabCats(lang).filter(c=>c.lvl<=lv);if(!state.vocabCat||!cats.find(c=>c.name===state.vocabCat))state.vocabCat=cats[0].name;const picker=cats.map(c=>'<button class="'+(c.name===state.vocabCat?'active':'')+'" data-cat="'+esc(c.name)+'">'+esc(c.name)+(c.lvl>1?' ·L'+c.lvl:'')+'</button>').join('');const cur=cats.find(c=>c.name===state.vocabCat);return '<div class="view"><div class="head"><div class="eyebrow">Dane · zakres LVL 1–'+lv+'</div><h1>Słownictwo tematyczne</h1></div><div class="verbpick">'+picker+'</div>'+readbar('Przesłuchaj „'+state.vocabCat+'” (PL + '+(lang==='ru'?'RU':'ES')+')')+tileGrid(cur.items)+'</div>';}
 
 /* ---- Generator ---- */
-function newGen(){const d=DATA[state.lang],per=d.persons,verbs=d.verbs,comp=d.compl;
-  const vc=VCOMPL[state.lang],vKeys=Object.keys(vc).map(Number);
+function newGen(){const d=DATA[state.lang],per=d.persons,verbs=d.verbs;
+  const T=GENT[state.lang],vKeys=Object.keys(T).map(Number);
   const gv=vKeys[Math.floor(Math.random()*vKeys.length)];
-  const allowed=vc[gv];const gc=allowed[Math.floor(Math.random()*allowed.length)];
+  const tl=T[gv],tail=tl[Math.floor(Math.random()*tl.length)];
   const gp=Math.floor(Math.random()*per.length);
-  const v=verbs[gv],row=v.rows[gp],pr=per[gp],cp=comp[gc];
-  const correctSeq=[pr[0],row[1],cp[0]];
-  const phon=[pr[1],row[2],cp[1]].join(' ');
-  const goalPol=pr[2]+' '+row[3]+' '+cp[2];
+  const v=verbs[gv],row=v.rows[gp],pr=per[gp],cm=tail[3]?',':'';
+  const correctSeq=[pr[0],row[1]+cm].concat(tail[0].split(' '));
+  const phon=[pr[1],row[2]+cm,tail[1]].join(' ');
+  const goalPol=pr[2]+' '+row[3]+' '+tail[2];
   let dist=[];
   let dp=(gp+1+Math.floor(Math.random()*4))%per.length;if(dp===gp)dp=(dp+1)%per.length;
-  if(correctSeq.indexOf(v.rows[dp][1])<0)dist.push(v.rows[dp][1]);
-  let dc=gc,tries=0;while((dc===gc||correctSeq.indexOf(comp[dc][0])>=0)&&tries<12){dc=1+Math.floor(Math.random()*(comp.length-1));tries++;}
-  if(correctSeq.indexOf(comp[dc][0])<0)dist.push(comp[dc][0]);
+  const wv=v.rows[dp][1]+cm;if(correctSeq.indexOf(wv)<0)dist.push(wv);
+  const others=vKeys.filter(k=>k!==gv),ok=others[Math.floor(Math.random()*others.length)],ot=T[ok][Math.floor(Math.random()*T[ok].length)];
+  const ow=ot[0].split(' ').filter(w=>w.length>2&&correctSeq.indexOf(w)<0);
+  if(ow.length)dist.push(ow[Math.floor(Math.random()*ow.length)]);
   const tiles=shuffle(correctSeq.concat(dist)).map((w,i)=>({id:i,w}));
   state.gen={correctSeq,sentence:correctSeq.join(' '),phon,goalPol,tiles,chosen:[],answered:false,correct:false};
 }
@@ -835,13 +1007,6 @@ function viewCards(){if(!state.fcDeck.length){state.fcDeck=shuffle(fullDeck(stat
 /* ---- Słuchanie ---- */
 function newListen(){const deck=shuffle(shortDeck(state.lang));const item=deck[0];const wrong=shuffle(deck.slice(1)).slice(0,3).map(c=>c.p);state.listen={item,opts:shuffle([item.p,...wrong]),answered:false,correct:false,played:false,ok:(state.listen?state.listen.ok:0),done:(state.listen?state.listen.done:0)};}
 function viewListen(){if(!state.listen)newListen();const L=state.listen;return '<div class="view"><div class="head"><div class="eyebrow">10 · Rozumienie ze słuchu</div><h1>Słuchanie</h1></div><div class="note">Usłysz słowo i wskaż jego znaczenie — <b>bez patrzenia na tekst</b>. Jeden klik = odpowiedź i automatyczne przejście dalej.</div><div class="quiz"><div style="text-align:center;margin:6px 0 8px"><button class="mic" id="lsPlay" style="width:84px;height:84px;font-size:32px">🔊</button></div><div id="lsFeedback" style="text-align:center;min-height:42px;font-family:var(--mono);font-size:13px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center">Posłuchaj i wybierz znaczenie</div><div class="q-opts" id="lsOpts">'+L.opts.map((o,i)=>'<button class="q-opt" data-ls="'+i+'">'+esc(o)+'<span class="mk"></span></button>').join('')+'</div><div class="sessline">Ta sesja: '+L.ok+' / '+L.done+' poprawnych</div></div></div>';}
-
-/* ---- Mówienie ---- */
-function newSpeak(){const deck=shuffle(shortDeck(state.lang));state.speakItem=deck[0];}
-function viewSpeak(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!state.speakItem)newSpeak();const it=state.speakItem;
-  if(!SR){return '<div class="view"><div class="head"><div class="eyebrow">11 · Produkcja mowy</div><h1>Mówienie</h1></div><div class="note" style="border-left-color:var(--warn)"><b>Twoja przeglądarka nie wspiera rozpoznawania mowy.</b> Działa najlepiej w Google Chrome na komputerze. W międzyczasie ćwicz w „Słuchaniu” i powtarzaj na głos za przyciskiem 🔊.</div></div>';}
-  return '<div class="view"><div class="head"><div class="eyebrow">11 · Produkcja mowy</div><h1>Mówienie</h1></div><div class="note">Powiedz słowo do mikrofonu — apka rozpozna mowę i oceni trafność. <b>Wskazówka, nie sędzia</b> (rozpoznawanie bywa niedoskonałe). Najlepiej w Chrome; może poprosić o dostęp do mikrofonu.</div><div class="quiz" style="text-align:center"><div style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">powiedz to słowo:</div><div class="q-prompt">'+esc(it.t)+' '+sayBtn(it.t)+'</div><div style="font-family:var(--mono);color:var(--accent);font-size:13px">['+esc(it.f)+']</div><div style="color:var(--ink-soft);font-size:14px;margin-bottom:18px">'+esc(it.p)+'</div><button class="mic" id="micBtn">🎙️</button><div id="spkResult" style="margin-top:16px"></div><div class="spell-ctrl" style="margin-top:14px"><button class="btn" id="spkNext">Następne ▸</button></div><div class="sessline">Ta sesja: '+state.speakSess.ok+' / '+state.speakSess.done+'</div></div></div>';}
-function evalSpeak(alts){const it=state.speakItem,target=normSpell(it.t,state.lang);let best=0,heard=alts[0]||'';alts.forEach(a=>{const s=sim(normSpell(a,state.lang),target);if(s>best){best=s;heard=a;}});const res=document.getElementById('spkResult');let cls,status;if(best>=0.85){cls='good';status='✓ Świetnie!';srsHit(it.t);statHit('speak',true);state.speakSess.ok++;}else if(best>=0.55){cls='almost';status='≈ Blisko — powiedz wyraźniej';}else{cls='bad';status='✕ Spróbuj jeszcze raz';}if(cls!=='good'){srsMiss(it.t);statHit('speak',false);}state.speakSess.done++;if(res)res.innerHTML='<div class="result '+cls+'"><div class="status">'+status+'</div><div style="font-family:var(--mono);font-size:13px;color:var(--ink-soft)">usłyszano: „'+esc(heard)+'” · trafność '+Math.round(best*100)+'%</div></div>';const sl=document.querySelector('.sessline');if(sl)sl.textContent='Ta sesja: '+state.speakSess.ok+' / '+state.speakSess.done;updateProgress();}
 
 /* ---- Pisownia ---- */
 function viewSpell(){if(!state.spellDeck.length){state.spellDeck=shuffle(shortDeck(state.lang));state.spellIdx=0;}const item=state.spellDeck[state.spellIdx],d=DATA[state.lang];const keys=d.keys.map(k=>'<button data-k="'+esc(k)+'">'+esc(k)+'</button>').join('')+'<button class="util" data-k=" ">spacja</button><button class="util" id="spBack">⌫</button><button class="util" id="spClear">wyczyść</button>';return '<div class="view"><div class="head"><div class="eyebrow">12 · Pisownia (wsparcie)</div><h1>Sprawdź pisownię</h1></div><div class="note"><b>Priorytet to mowa</b> — to lekki dodatek. Zobacz polskie słowo, posłuchaj i wpisz je w języku docelowym.'+(state.lang==='ru'?' Masz klawiaturę cyrylicy poniżej.':'')+'</div><div class="spell"><div class="spell-card"><div class="prompt">'+esc(item.p)+'</div><div class="promptsub">napisz po '+(state.lang==='ru'?'rosyjsku':'hiszpańsku')+' · '+sayBtn(item.t)+'</div><div class="hintline" id="spHint"></div><input id="spellInput" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="tu wpisz..."><div class="keys" id="spKeys">'+keys+'</div><div class="spell-ctrl"><button class="btn primary" id="spCheck">Sprawdź</button><button class="btn" id="spReveal">Podpowiedź</button><button class="btn" id="spNext">Następne ▸</button></div><div id="spResult"></div><div class="sessline">Ta sesja: '+state.spellSession.ok+' / '+state.spellSession.done+' poprawnych</div></div></div></div>';}
@@ -922,8 +1087,8 @@ function viewMissing(){const lang=state.lang;if(!state.mw)newMW();const M=state.
     +'<div id="mwFeedback" style="text-align:center;min-height:24px;font-family:var(--mono);font-size:13px;color:var(--ink-soft)">wybierz brakujące słowo</div></div></div>';
 }
 function viewStats(){const lang=state.lang;const srs=state.srs[lang];const ents=Object.keys(srs);let mastered=0,learning=0;ents.forEach(t=>{const b=srs[t].box;if(b>=4)mastered++;else learning++;});const due=dueList(lang).length;const st=state.stats[lang];const streak=state.streak?state.streak.count:1;
-  const modes=[['quiz','Quiz'],['race','Wyścig'],['listen','Słuchanie'],['spell','Pisownia'],['speak','Mówienie'],['missing','Brakujące słowo']];
-  const acc=modes.map(m=>{const e=st[m[0]];if(!e||!e.n)return '';const p=Math.round(e.ok/e.n*100);return '<div class="sent"><div class="body"><div class="t">'+m[1]+'</div><div class="p">'+e.ok+' / '+e.n+' poprawnych</div></div><div style="font-family:var(--disp);font-weight:700;font-size:18px;color:'+(p>=70?'var(--ok)':p>=40?'var(--accent)':'var(--warn)')+'">'+p+'%</div></div>';}).filter(Boolean).join('')||'<div class="note">Brak danych — poćwicz w quizie, słuchaniu, pisowni, mówieniu lub „brakującym słowie”.</div>';
+  const modes=[['quiz','Quiz'],['race','Wyścig'],['listen','Słuchanie'],['spell','Pisownia'],['missing','Brakujące słowo']];
+  const acc=modes.map(m=>{const e=st[m[0]];if(!e||!e.n)return '';const p=Math.round(e.ok/e.n*100);return '<div class="sent"><div class="body"><div class="t">'+m[1]+'</div><div class="p">'+e.ok+' / '+e.n+' poprawnych</div></div><div style="font-family:var(--disp);font-weight:700;font-size:18px;color:'+(p>=70?'var(--ok)':p>=40?'var(--accent)':'var(--warn)')+'">'+p+'%</div></div>';}).filter(Boolean).join('')||'<div class="note">Brak danych — poćwicz w quizie, słuchaniu, pisowni lub „brakującym słowie”.</div>';
   const conf=ents.map(t=>({t:t,m:srs[t].misses||0})).filter(x=>x.m>0).sort((a,b)=>b.m-a.m).slice(0,6);
   const confHtml=conf.length?conf.map(x=>{const it=findItem(x.t);return '<div class="sent">'+sayBtn(it.t)+'<div class="body"><div class="t">'+esc(it.t)+'</div><div class="p">'+esc(it.p)+'</div></div><div style="color:var(--warn);font-family:var(--mono);font-size:12px">'+x.m+'×</div></div>';}).join(''):'<div class="note">Jeszcze brak często mylonych słów — dobrze!</div>';
   return '<div class="view"><div class="head"><div class="eyebrow">Postępy · '+(lang==='ru'?'rosyjski':'hiszpański')+'</div><h1>Statystyki</h1></div>'
@@ -946,7 +1111,7 @@ function viewChina(){const modeBar='<div class="verbpick" style="margin-bottom:4
     +modeBar+(state.zhMode==='cards'?viewChinaCards():viewChinaList())+'</div>';
 }
 function renderZh(){const sec=document.getElementById('sections');if(sec)sec.innerHTML='<button class="active" style="flex:1">🇨🇳 Chiny — przetrwanie</button>';const bn=document.getElementById('bottomnav');if(bn)bn.style.display='none';const tb=document.getElementById('tabs');if(tb)tb.innerHTML='';const lvl=document.getElementById('lvl');if(lvl)lvl.innerHTML='';const pr=document.getElementById('progRow');if(pr)pr.style.display='none';document.getElementById('main').innerHTML=viewChina();bind();}
-function render(){const _sy=window.scrollY;applyTheme();paintStreak();if(state.lang==='zh'){renderZh();window.scrollTo(0,_sy);return;}const pr=document.getElementById('progRow');if(pr)pr.style.display='';renderTabs();const map={guide:viewGuide,daily:viewDaily,alpha:viewAlpha,numbers:viewNumbers,pron:viewPron,verbs:viewVerbs,phrases:viewPhrases,sentences:viewSentences,gen:viewGen,vocab:viewVocab,cards:viewCards,listen:viewListen,dialogs:viewDialogs,speak:viewSpeak,spell:viewSpell,review:viewReview,missing:viewMissing,stats:viewStats,race:viewRace};document.getElementById('main').innerHTML=(map[state.tab]||viewGuide)();updateProgress();paintLevel();bind();window.scrollTo(0,_sy);
+function render(){const _sy=window.scrollY;applyTheme();paintStreak();if(state.lang==='zh'){renderZh();window.scrollTo(0,_sy);return;}const pr=document.getElementById('progRow');if(pr)pr.style.display='';renderTabs();const map={guide:viewGuide,daily:viewDaily,alpha:viewAlpha,numbers:viewNumbers,pron:viewPron,verbs:viewVerbs,phrases:viewPhrases,sentences:viewSentences,gen:viewGen,vocab:viewVocab,cards:viewCards,listen:viewListen,dialogs:viewDialogs,spell:viewSpell,review:viewReview,missing:viewMissing,stats:viewStats,race:viewRace};document.getElementById('main').innerHTML=(map[state.tab]||viewGuide)();updateProgress();paintLevel();bind();window.scrollTo(0,_sy);
   if(state.tab==='listen'&&state.listen&&!state.listen.played&&!state.listen.answered){state.listen.played=true;speak(state.listen.item.t);}
   if(state.tab==='missing'&&state.mw&&!state.mw.played){state.mw.played=true;speak(state.mw.item.t);}
   if(state.tab==='dialogs'&&state.dlg&&!state.dlg.done){const d=DLG[state.lang][state.dlg.di];let last=null;state.dlg.trail.forEach(e=>{if(e.ty==='m')last=e.ni;});if(last!=null)speak(d.n[last][1]);}
@@ -962,7 +1127,7 @@ function bind(){
   const gCl=document.getElementById('genClear');if(gCl)gCl.onclick=()=>{if(!state.gen.answered){state.gen.chosen=[];render();}};
   const gH=document.getElementById('genHint');if(gH)gH.onclick=()=>speak(state.gen.sentence);
   const gN=document.getElementById('genNext');if(gN)gN.onclick=()=>{newGen();render();};
-  const fc=document.getElementById('flashcard');if(fc)fc.onclick=()=>{state.fcFlip=!state.fcFlip;render();};
+  const fc=document.getElementById('flashcard');if(fc)fc.onclick=()=>{state.fcFlip=!state.fcFlip;if(state.fcFlip){const c=state.fcDeck[state.fcIdx];if(c)speak(c.t);}render();};
   const p=document.getElementById('fcPrev');if(p)p.onclick=()=>{state.fcIdx=(state.fcIdx-1+state.fcDeck.length)%state.fcDeck.length;state.fcFlip=false;render();};
   const n=document.getElementById('fcNext');if(n)n.onclick=()=>{state.fcIdx=(state.fcIdx+1)%state.fcDeck.length;state.fcFlip=false;render();};
   const k=document.getElementById('fcKnown');if(k)k.onclick=()=>{markKnown(state.fcDeck[state.fcIdx].t);state.fcIdx=(state.fcIdx+1)%state.fcDeck.length;state.fcFlip=false;render();};
@@ -971,8 +1136,6 @@ function bind(){
   const lp=document.getElementById('lsPlay');if(lp)lp.onclick=()=>speak(state.listen.item.t);
   document.querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{const L=state.listen;if(L.answered)return;L.answered=true;const correct=(L.opts[+b.dataset.ls]===L.item.p);L.correct=correct;L.done++;document.querySelectorAll('#lsOpts .q-opt').forEach((o,i)=>{if(L.opts[i]===L.item.p)o.classList.add('correct');else if(i===+b.dataset.ls)o.classList.add('wrong');});const fb=document.getElementById('lsFeedback');if(fb)fb.innerHTML=(correct?'<span style="color:var(--ok);font-weight:700">✓ Dobrze!</span>':'<span style="color:var(--warn);font-weight:700">✕ To było:</span>')+'&nbsp; '+esc(L.item.t)+' · ['+esc(L.item.f)+'] · '+esc(L.item.p);if(correct){L.ok++;srsHit(L.item.t);statHit('listen',true);}else{srsMiss(L.item.t);statHit('listen',false);}const sl=document.querySelector('.sessline');if(sl)sl.textContent='Ta sesja: '+L.ok+' / '+L.done+' poprawnych';setTimeout(()=>{if(state.tab!=='listen')return;newListen();render();},1300);});
   const ln=document.getElementById('lsNext');if(ln)ln.onclick=()=>{newListen();render();};
-  const mic=document.getElementById('micBtn');if(mic)mic.onclick=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;stopRecog();recog=new SR();recog.lang=TL();recog.maxAlternatives=3;recog.interimResults=false;const res=document.getElementById('spkResult');mic.classList.add('live');if(res)res.innerHTML='<div style="font-family:var(--mono);color:var(--ink-soft)">słucham...</div>';recog.onresult=ev=>{const alts=[];const r0=ev.results[0];for(let i=0;i<r0.length;i++)alts.push(r0[i].transcript);evalSpeak(alts);};recog.onerror=ev=>{mic.classList.remove('live');if(res)res.innerHTML='<div style="color:var(--warn);font-family:var(--mono);font-size:13px">Błąd: '+esc(ev.error)+'. Sprawdź dostęp do mikrofonu / użyj Chrome.</div>';};recog.onend=()=>{mic.classList.remove('live');};try{recog.start();}catch(e){}};
-  const sn2=document.getElementById('spkNext');if(sn2)sn2.onclick=()=>{stopRecog();newSpeak();render();};
   const inp=document.getElementById('spellInput');if(inp){inp.focus();inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();if(!state.spellChecked)checkSpell();else nextSpell();}};}
   document.querySelectorAll('#spKeys [data-k]').forEach(b=>b.onclick=()=>{if(inp){inp.value+=b.dataset.k;inp.focus();}});
   const bk=document.getElementById('spBack');if(bk)bk.onclick=()=>{if(inp){inp.value=inp.value.slice(0,-1);inp.focus();}};
@@ -982,7 +1145,7 @@ function bind(){
   const sn=document.getElementById('spNext');if(sn)sn.onclick=()=>nextSpell();
   const qs=document.getElementById('qSound');if(qs)qs.onclick=()=>{state.quizSound=!state.quizSound;render();};
   document.querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>{const q=state.quiz;if(q.locked)return;q.locked=true;const item=q.items[q.idx],chosen=item.opts[+b.dataset.opt];document.querySelectorAll('.q-opt').forEach(opt=>{const t=item.opts[+opt.dataset.opt];if(t===item.answer){opt.classList.add('correct');opt.querySelector('.mk').textContent='✓';}else if(opt===b){opt.classList.add('wrong');opt.querySelector('.mk').textContent='✕';}});if(chosen===item.answer){q.score++;srsHit(item.answer);statHit('quiz',true);}else{srsMiss(item.answer);statHit('quiz',false);}if(state.quizSound)speak(item.answer);setTimeout(()=>{q.locked=false;if(q.idx+1>=q.total)q.done=true;else q.idx++;render();},1100);});
-  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{stopSeq();stopRecog();raceStop();state.race=null;state.tab=b.dataset.go;render();});
+  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{stopSeq();raceStop();state.race=null;state.tab=b.dataset.go;render();});
   document.querySelectorAll('[data-done]').forEach(b=>b.onclick=()=>{const dy=dailyCur();const i=+b.dataset.done;dy.done[i]=!dy.done[i];saveDaily();render();});
   const hc=document.getElementById('hardCard');if(hc)hc.onclick=()=>{state.hardFlip=!state.hardFlip;render();};
   const hk=document.getElementById('hardKnown');if(hk)hk.onclick=()=>{const l=hardList();if(l.length){removeHard(l[state.hardIdx].t);markKnown(l[state.hardIdx].t);state.hardFlip=false;render();}};
@@ -1008,11 +1171,11 @@ function bind(){
     else if(r.phase==='done'){const a=document.getElementById('raceAgain');if(a)a.onclick=()=>{startRace();render();};const m=document.getElementById('raceMenu');if(m)m.onclick=()=>{state.race={phase:'start',mode:r.mode};render();};}
   }
 }
-document.getElementById('bottomnav').addEventListener('click',e=>{const b=e.target.closest('[data-sec]');if(!b)return;stopSeq();stopRecog();raceStop();state.race=null;const s=SECTIONS.find(x=>x.id===b.dataset.sec);if(s){state.tab=s.tabs[0];render();window.scrollTo(0,0);}});
-document.getElementById('sections').addEventListener('click',e=>{const b=e.target.closest('[data-sec]');if(!b)return;stopSeq();stopRecog();raceStop();state.race=null;const s=SECTIONS.find(x=>x.id===b.dataset.sec);if(s){state.tab=s.tabs[0];render();window.scrollTo(0,0);}});
-document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;stopSeq();stopRecog();raceStop();state.race=null;state.tab=b.dataset.tab;render();window.scrollTo(0,0);});
+document.getElementById('bottomnav').addEventListener('click',e=>{const b=e.target.closest('[data-sec]');if(!b)return;stopSeq();raceStop();state.race=null;const s=SECTIONS.find(x=>x.id===b.dataset.sec);if(s){state.tab=s.tabs[0];render();window.scrollTo(0,0);}});
+document.getElementById('sections').addEventListener('click',e=>{const b=e.target.closest('[data-sec]');if(!b)return;stopSeq();raceStop();state.race=null;const s=SECTIONS.find(x=>x.id===b.dataset.sec);if(s){state.tab=s.tabs[0];render();window.scrollTo(0,0);}});
+document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;stopSeq();raceStop();state.race=null;state.tab=b.dataset.tab;render();window.scrollTo(0,0);});
 document.getElementById('lvl').addEventListener('click',e=>{const b=e.target.closest('[data-rng]');if(!b)return;const n=+b.dataset.rng;if(n===state.level[state.lang])return;state.level[state.lang]=n;saveLevel();stopSeq();state.vocabCat=null;state.fcDeck=[];state.fcIdx=0;state.quiz=null;state.spellDeck=[];state.spellIdx=0;state.listen=null;state.dlg=null;state.mw=null;state.revIdx=0;render();});
-document.getElementById('langToggle').addEventListener('click',e=>{const b=e.target.closest('[data-l]');if(!b)return;stopSeq();stopRecog();raceStop();state.lang=b.dataset.l;state.verbIdx=0;state.vocabCat=null;state.fcDeck=[];state.fcIdx=0;state.fcFlip=false;state.quiz=null;state.spellDeck=[];state.spellIdx=0;state.spellChecked=false;state.genPerson=0;state.genVerb=0;state.genCompl=0;state.gen=null;state.listen=null;state.speakItem=null;state.race=null;state.hardIdx=0;state.hardFlip=false;state.dlg=null;state.revIdx=0;state.revFlip=false;state.mw=null;render();window.scrollTo(0,0);});
+document.getElementById('langToggle').addEventListener('click',e=>{const b=e.target.closest('[data-l]');if(!b)return;stopSeq();raceStop();state.lang=b.dataset.l;state.verbIdx=0;state.vocabCat=null;state.fcDeck=[];state.fcIdx=0;state.fcFlip=false;state.quiz=null;state.spellDeck=[];state.spellIdx=0;state.spellChecked=false;state.genPerson=0;state.genVerb=0;state.genCompl=0;state.gen=null;state.listen=null;state.speakItem=null;state.race=null;state.hardIdx=0;state.hardFlip=false;state.dlg=null;state.revIdx=0;state.revFlip=false;state.mw=null;render();window.scrollTo(0,0);});
 
 /* init: restore known + streak */
 (function(){const st=loadStore();if(st.known){if(st.known.ru)state.known.ru=new Set(st.known.ru);if(st.known.es)state.known.es=new Set(st.known.es);}if(st.hard){if(st.hard.ru)state.hard.ru=new Set(st.hard.ru);if(st.hard.es)state.hard.es=new Set(st.hard.es);}if(st.level){state.level.ru=st.level.ru||1;state.level.es=st.level.es||1;}if(st.srs){if(st.srs.ru)state.srs.ru=st.srs.ru;if(st.srs.es)state.srs.es=st.srs.es;}if(st.stats){if(st.stats.ru)state.stats.ru=st.stats.ru;if(st.stats.es)state.stats.es=st.stats.es;}['ru','es'].forEach(lg=>{state.known[lg].forEach(t=>{if(!state.srs[lg][t])state.srs[lg][t]={box:4,hits:1,misses:0,due:todayDay()+SRS_INT[4]};});});initStreak();initDaily();})();
