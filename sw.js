@@ -1,5 +1,5 @@
 // HUB service worker: aplikacja działa offline, a nowa wersja pobiera się sama, gdy jest internet.
-const V = "hub-v1";
+const V = "hub-v2";
 const FONTS = "hub-fonts";
 const CORE = ["./", "./index.html", "./lango.html", "./config.js", "./manifest.webmanifest",
   "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
@@ -20,7 +20,7 @@ function networkFirst(req) {
     const fallback = () => caches.match(req, { ignoreSearch: true })
       .then(m => m || caches.match("./index.html"));
     const timer = setTimeout(() => { if (!done) fallback().then(r => { if (r && !done) { done = true; resolve(r); } }); }, 4000);
-    fetch(req).then(res => {
+    fetch(new Request(req.url, { cache: "no-cache", credentials: "same-origin" })).then(res => {
       if (res && res.ok) { const cp = res.clone(); caches.open(V).then(c => c.put(req, cp)); }
       if (!done) { done = true; clearTimeout(timer); resolve(res); }
     }).catch(() => { if (!done) { clearTimeout(timer); fallback().then(r => { done = true; resolve(r || Response.error()); }); } });
