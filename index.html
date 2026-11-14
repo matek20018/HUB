@@ -245,6 +245,27 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 .chart .gl{stroke:var(--line);stroke-width:1}
 .chart .bg{fill:transparent;cursor:pointer}
 .chart g.col:hover .bg{fill:var(--soft)}
+/* books journal */
+.jseg{display:flex;gap:6px}
+.bview{display:flex;flex-direction:column;gap:18px}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px 12px}
+.bcard{display:flex;flex-direction:column;gap:6px;text-align:left;background:none;border:none;padding:0;cursor:pointer;font:inherit;color:inherit;min-width:0}
+.bcard .bcov,.bhead .bcov{width:100%;aspect-ratio:2/3;border-radius:8px;object-fit:cover;background:var(--soft);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:30px;color:var(--muted)}
+.bcard .bt{font-weight:600;font-size:14.5px;line-height:1.25;overflow-wrap:anywhere}
+.bcard .bm{font-size:12px;color:var(--muted)}
+.badd .bcov{border-style:dashed;background:transparent}
+.bhead{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:start}
+.bcovbtn{cursor:pointer;display:block}
+.bhead .bcov small{font-size:11px;font-family:var(--f-body);text-align:center;padding:0 6px}
+textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0;resize:vertical}
+.bnew{display:grid;gap:10px}
+.blab{font-size:13px;color:var(--muted);font-weight:600}
+.bnote{border-top:1px solid var(--line);padding:12px 0;display:grid;gap:4px}
+.bnm{font-family:var(--f-mono);font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bnt{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px}
+.bnt.empty{color:var(--muted);font-style:italic}
+#sShield{font-size:15px;line-height:1}
+#sShield.used{opacity:.3;filter:grayscale(1)}
 /* habit editor */
 .hedit{display:flex;flex-direction:column;gap:14px}
 .hrow{display:grid;grid-template-columns:24px 1fr 76px auto;gap:6px 8px;align-items:center}
@@ -358,8 +379,10 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
     <div><h1>Dziennik</h1><div class="date" id="jSub"></div></div>
     <div class="nav" id="jYearNav"><button id="jPrev" aria-label="Poprzedni rok">‹</button><span id="jYear" class="jyear"></span><button id="jNext" aria-label="Następny rok">›</button></div>
   </div>
-  <input type="search" id="jSearch" placeholder="Szukaj w notatkach" autocomplete="off" aria-label="Szukaj w notatkach">
+  <div class="jseg"><button class="chip" data-jmode="days">Zdania dnia</button><button class="chip" data-jmode="books">Książki</button></div>
+  <input type="search" id="jSearch" placeholder="Szukaj w notatkach" autocomplete="off" aria-label="Szukaj">
   <div id="jList" class="jlist"></div>
+  <div id="bView" class="bview" hidden></div>
 </main>
 
 <!-- AUDIO -->
@@ -444,7 +467,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 
 <script>
 "use strict";
-const APP_VERSION="1.11.0";
+const APP_VERSION="1.12.0";
 const $=s=>document.querySelector(s);
 const BASE_HABITS=[
   {k:"read",name:"Czytanie",base:20,opts:[20,30,40]},
@@ -883,15 +906,15 @@ async function readId3(blob){
     return out;
   }catch(e){console.warn("id3",e);return null}
 }
-async function shrinkImg(blob,max){ // keep covers small: JPEG, longest side ≤ max
+async function shrinkImg(blob,max,q){ // keep covers small: JPEG, longest side ≤ max
   try{const bm=await createImageBitmap(blob);const k=Math.min(1,max/Math.max(bm.width,bm.height));
     const c=document.createElement("canvas");c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);
     c.getContext("2d").drawImage(bm,0,0,c.width,c.height);
-    return await new Promise(r=>c.toBlob(b=>r(b||blob),"image/jpeg",.85));
+    return await new Promise(r=>c.toBlob(b=>r(b||blob),"image/jpeg",q||.85));
   }catch(e){return blob}
 }
 const coverUrls={};
-function coverUrl(b){if(!b||!b.cover)return null;return coverUrls[b.id]||(coverUrls[b.id]=URL.createObjectURL(b.cover))}
+function coverUrl(b){if(!b)return null;const bc=get("bcov:"+b.id);if(bc)return bc;if(!b.cover)return null;return coverUrls[b.id]||(coverUrls[b.id]=URL.createObjectURL(b.cover))}
 async function ensureCover(b){ // books added before covers existed: look into the first file once
   if(b.coverChecked)return false;b.coverChecked=1;
   try{const blob=await idb.getBlob(b.id+":0");const m=blob&&await readId3(blob);if(m&&m.pic)b.cover=await shrinkImg(m.pic,600)}catch(e){}
@@ -1101,7 +1124,8 @@ function renderStart(){
   $("#sSegs").style.gridTemplateColumns="repeat("+Math.max(1,hsT.length)+",1fr)";$("#sSegs").innerHTML=hsT.map(h=>'<i style="'+(dd[h.k]?"background:"+hcol(h):"")+'"></i>').join("");
   $(".streakcard").classList.toggle("full",fullToday);
   $("#sBest").textContent=best>sn?"rekord: "+best:(sn>1?"to Twój rekord":"");
-  $("#sShield").textContent=si.weekUsed?"🛡 ochrona wykorzystana w tym tygodniu ("+DOW[(new Date(si.weekUsed+"T00:00:00").getDay()+6)%7]+")":(sn>0?"🛡 jeden dzień przerwy w tym tygodniu nie przerwie serii":"");
+  const shEl=$("#sShield"),shTxt=si.weekUsed?"Ochrona serii wykorzystana w tym tygodniu":"Ochrona serii dostępna w tym tygodniu";
+  shEl.textContent=si.weekUsed||sn>0?"🛡":"";shEl.classList.toggle("used",!!si.weekUsed);shEl.title=shTxt;shEl.setAttribute("aria-label",shTxt);
   const box=$("#sHabits");box.innerHTML="";hsT.forEach(x=>box.appendChild(habitEl(x,t,false)));
   if(document.activeElement!==sNoteEl)sNoteEl.value=dd.note||"";
   const bk=get("backup"),age=bk&&bk.at?Math.floor((Date.now()-bk.at)/86400000):null;
@@ -1232,6 +1256,9 @@ function highlight(txt,q){ // escaped text with matches marked
   return out+esc(txt.slice(i));
 }
 function renderJournal(){
+  document.querySelectorAll("[data-jmode]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.jmode===jMode)));
+  if(jMode==="books"){renderBooks();return}
+  $("#bView").hidden=true;$("#jList").hidden=false;$("#jSearch").placeholder="Szukaj w zdaniach dnia";
   const all=noteEntries(),q=$("#jSearch").value.trim();
   const years=[...new Set(all.map(e=>e.date.getFullYear()))],minY=Math.min(today().getFullYear(),...years);
   let list;
@@ -1256,6 +1283,131 @@ function renderJournal(){
 $("#jPrev").onclick=()=>{jYear--;renderJournal()};
 $("#jNext").onclick=()=>{jYear++;renderJournal()};
 $("#jSearch").addEventListener("input",renderJournal);
+
+/* ================= books: a notes journal for paper books and audiobooks =================
+   "books": paper books [{id,title,author,at}] + author for audiobooks [{id,audio:1,author}]
+   "bn:<id>": notes of a paper book [{id,at,date,page,text}] · "abn:<id>": audiobook notes (also made in the player)
+   "bcov:<id>": cover as a small JPEG data URL, synced */
+let jMode="days",bookOpen=null,noteEdit=null,bDraft=null;
+try{jMode=sessionStorage.getItem("hub_jmode")==="books"?"books":"days"}catch(e){}
+const plN=(n,a,b,c)=>n===1?a:(n%10>=2&&n%10<=4&&(n%100<12||n%100>14))?b:c;
+function paperBooks(){const v=get("books");return Array.isArray(v)?v:[]}
+function bookNotes(b){
+  if(b.audio)return marksOf(b.id).map(m=>({id:m.id,at:m.at||0,text:m.note||"",track:m.track,pos:m.pos}));
+  const v=get("bn:"+b.id);return Array.isArray(v)?v.map(n=>Object.assign({},n)):[];
+}
+function allBooks(){
+  const meta={},list=[];paperBooks().forEach(b=>meta[b.id]=b);
+  paperBooks().forEach(b=>{if(!b.audio)list.push({id:b.id,title:b.title||"Bez tytułu",author:b.author||"",audio:false,at:b.at||0})});
+  Object.keys(S.kv).forEach(k=>{if(!k.startsWith("ab:"))return;const v=S.kv[k].v;if(!v)return;const id=k.slice(3);
+    list.push({id,title:v.name||"Audiobook",author:(meta[id]||{}).author||"",audio:true,at:S.kv[k].t||0})});
+  return list.map(b=>{b.notes=bookNotes(b);b.last=Math.max(b.at,...b.notes.map(n=>n.at||0));return b}).sort((a,b)=>b.last-a.last);
+}
+function bookCover(b){return get("bcov:"+b.id)||(b.audio?coverUrl(BOOKS.find(x=>x.id===b.id)):null)}
+function setBookMeta(b,patch){const l=paperBooks(),i=l.findIndex(x=>x.id===b.id);
+  if(i<0)l.push(Object.assign({id:b.id,at:Date.now()},b.audio?{audio:1}:{},patch));else l[i]=Object.assign({},l[i],patch);put("books",l)}
+function saveBookNote(b,id,text,page){
+  const now=Date.now();
+  if(b.audio){let l=marksOf(b.id);
+    if(id)l=l.map(m=>m.id===id?Object.assign({},m,{note:text}):m);
+    else{const p=get("ab:"+b.id)||{};l=l.concat([{id:now.toString(36),track:p.track||0,pos:Math.floor(p.pos||0),note:text,at:now}])}
+    saveMarks(b.id,l)}
+  else{let l=bookNotes(b);
+    if(id)l=l.map(n=>n.id===id?Object.assign({},n,{text:text,page:page||undefined}):n);
+    else l=[{id:now.toString(36),at:now,date:keyOf(today()),text:text,page:page||undefined}].concat(l);
+    put("bn:"+b.id,l)}
+}
+function delBookNote(b,id){if(b.audio)saveMarks(b.id,marksOf(b.id).filter(m=>m.id!==id));else put("bn:"+b.id,bookNotes(b).filter(n=>n.id!==id))}
+function noteWhen(b,n){
+  const d=n.date?new Date(n.date+"T00:00:00"):new Date(n.at||Date.now());
+  let t=d.getDate()+" "+MONTHS_GEN[d.getMonth()].slice(0,3)+(d.getFullYear()!==today().getFullYear()?" "+d.getFullYear():"");
+  if(b.audio&&n.pos!=null)t+=" · "+(n.track?"R"+(n.track+1)+" · ":"")+fmtT(n.pos);
+  if(!b.audio&&n.page)t+=" · s. "+n.page;
+  return esc(t);
+}
+function rerenderJournal(){if(document.activeElement)document.activeElement.blur();renderJournal()}
+function renderBooks(){
+  const q=$("#jSearch").value.trim(),list=$("#jList"),bv=$("#bView");
+  $("#jYearNav").style.visibility="hidden";$("#jSearch").placeholder="Szukaj w książkach i notatkach";
+  if(bookOpen&&!q&&!bv.hidden&&bv.contains(document.activeElement))return; // don't rebuild while typing
+  const books=allBooks();
+  if(bookOpen&&!q){const b=books.find(x=>x.id===bookOpen);if(b){list.hidden=true;bv.hidden=false;renderBook(b);return}bookOpen=null}
+  list.hidden=false;bv.hidden=true;list.innerHTML="";
+  if(q){
+    const nq=norm(q),hits=[];
+    books.forEach(b=>{const tm=norm(b.title+" "+b.author).includes(nq);if(tm)hits.push({b:b,n:null});b.notes.forEach(n=>{if(norm(n.text).includes(nq))hits.push({b:b,n:n})})});
+    $("#jSub").textContent=hits.length?"Znaleziono: "+hits.length:"Nic nie znaleziono";
+    if(!hits.length){list.innerHTML='<div class="jempty">Nic nie zawiera „'+esc(q)+'”.</div>';return}
+    hits.forEach(h=>{const e=document.createElement("button");e.className="jentry";
+      e.innerHTML='<span class="jd">'+(h.n?noteWhen(h.b,h.n):"")+'</span><span class="jt"><b>'+highlight(h.b.title,q)+'</b>'+(h.n?'<br>'+highlight(h.n.text,q):'')+'</span>';
+      e.onclick=()=>{bookOpen=h.b.id;$("#jSearch").value="";rerenderJournal();window.scrollTo(0,0)};list.appendChild(e)});
+    return;
+  }
+  const nn=books.reduce((x,b)=>x+b.notes.filter(n=>n.text).length,0);
+  $("#jSub").textContent=books.length+" "+plN(books.length,"książka","książki","książek")+" · "+nn+" "+plN(nn,"notatka","notatki","notatek");
+  const g=document.createElement("div");g.className="bgrid";
+  const add=document.createElement("button");add.className="bcard badd";
+  add.innerHTML='<span class="bcov">＋</span><span class="bt">Dodaj książkę</span><span class="bm">papierową albo e-book</span>';
+  add.onclick=()=>{const t=prompt("Tytuł książki");if(!t||!t.trim())return;const id="p"+Date.now().toString(36);
+    put("books",paperBooks().concat([{id:id,title:t.trim().slice(0,120),author:"",at:Date.now()}]));bookOpen=id;rerenderJournal();window.scrollTo(0,0)};
+  g.appendChild(add);
+  books.forEach(b=>{const c=bookCover(b),e=document.createElement("button"),k=b.notes.filter(n=>n.text).length;e.className="bcard";
+    e.innerHTML=(c?'<img class="bcov" alt="" src="'+esc(c)+'">':'<span class="bcov">'+(b.audio?"🎧":"📖")+'</span>')+'<span class="bt"></span><span class="bm"></span>';
+    e.querySelector(".bt").textContent=b.title;
+    e.querySelector(".bm").textContent=(b.author?b.author+" · ":"")+(b.audio?"🎧 ":"")+k+" "+plN(k,"notatka","notatki","notatek");
+    e.onclick=()=>{bookOpen=b.id;noteEdit=null;rerenderJournal();window.scrollTo(0,0)};g.appendChild(e)});
+  list.appendChild(g);
+}
+function renderBook(b){
+  const bv=$("#bView"),c=bookCover(b),ed=noteEdit&&b.notes.find(n=>n.id===noteEdit);if(!ed)noteEdit=null;
+  $("#jSub").textContent=b.audio?"Audiobook":"Książka";
+  bv.innerHTML='<div><button class="linkbtn" id="bBack">‹ Wszystkie książki</button></div>'+
+    '<div class="bhead"><label class="bcovbtn" title="Zmień okładkę">'+(c?'<img class="bcov" alt="Okładka, dotknij, by zmienić" src="'+esc(c)+'">':'<span class="bcov">'+(b.audio?"🎧":"📖")+'<small>dodaj okładkę</small></span>')+'<input type="file" accept="image/*" id="bCovIn" hidden></label>'+
+    '<div class="form" style="margin:0"><label>Tytuł<input type="text" id="bTitle" maxlength="120"></label><label>Autor<input type="text" id="bAuthor" maxlength="80" placeholder="opcjonalnie"></label>'+
+    '<div class="row">'+(get("bcov:"+b.id)?'<button class="chip ghost" id="bCovDel">Usuń okładkę</button>':'')+(b.audio?'':'<button class="chip ghost" id="bDel">Usuń książkę</button>')+'</div></div></div>'+
+    '<section class="card bnew"><label for="bText" class="blab">'+(noteEdit?"Edytujesz notatkę":"Nowa notatka")+'</label><textarea id="bText" rows="3" maxlength="4000" placeholder="Myśl, cytat, wniosek…"></textarea>'+
+    '<div class="row">'+(b.audio?'<span class="status">'+(noteEdit?"":"Zapisze się z miejscem, w którym jesteś w audiobooku")+'</span>':'<input type="text" inputmode="numeric" id="bPage" placeholder="strona" maxlength="8" style="width:96px">')+
+    '<span style="flex:1"></span>'+(noteEdit?'<button class="btn sec" id="bCancel">Anuluj</button>':'')+'<button class="btn" id="bSave">'+(noteEdit?"Zapisz":"Dodaj notatkę")+'</button></div></section>'+
+    '<div id="bNotes"></div>';
+  $("#bTitle").value=b.title;$("#bAuthor").value=b.author;
+  const ta=$("#bText"),pg=$("#bPage");
+  if(bDraft&&bDraft.id===b.id&&bDraft.edit===noteEdit){ta.value=bDraft.text;if(pg)pg.value=bDraft.page||""}
+  else if(ed){ta.value=ed.text||"";if(pg)pg.value=ed.page||""}
+  const keep=()=>{bDraft={id:b.id,edit:noteEdit,text:ta.value,page:pg?pg.value:""}};
+  ta.addEventListener("input",keep);if(pg)pg.addEventListener("input",keep);
+  $("#bBack").onclick=()=>{bookOpen=null;noteEdit=null;bDraft=null;rerenderJournal();window.scrollTo(0,0)};
+  $("#bTitle").onchange=async e=>{const v=e.target.value.trim();if(!v){e.target.value=b.title;return}
+    if(b.audio){put("ab:"+b.id,Object.assign({},get("ab:"+b.id)||{},{name:v}));const lb=BOOKS.find(x=>x.id===b.id);if(lb){lb.name=v;try{await idb.putBook(lb)}catch(x){}}if(cur&&cur.book.id===b.id)cur.book.name=v}
+    else setBookMeta(b,{title:v})};
+  $("#bAuthor").onchange=e=>setBookMeta(b,{author:e.target.value.trim()});
+  $("#bCovIn").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+    try{const small=await shrinkImg(f,360,.8);const url=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(small)});
+      put("bcov:"+b.id,url);toast("Okładka zapisana")}catch(x){toast("Nie udało się wczytać zdjęcia")}
+    rerenderJournal()};
+  if($("#bCovDel"))$("#bCovDel").onclick=()=>{put("bcov:"+b.id,null);rerenderJournal()};
+  if($("#bDel"))$("#bDel").onclick=()=>{const k=b.notes.length;
+    if(!confirm("Usunąć „"+b.title+"”"+(k?" razem z notatkami ("+k+")":"")+"?"))return;
+    put("books",paperBooks().filter(x=>x.id!==b.id));put("bn:"+b.id,null);if(get("bcov:"+b.id))put("bcov:"+b.id,null);
+    bookOpen=null;bDraft=null;rerenderJournal()};
+  if($("#bCancel"))$("#bCancel").onclick=()=>{noteEdit=null;bDraft=null;rerenderJournal()};
+  $("#bSave").onclick=()=>{const t=ta.value.trim(),p=pg?pg.value.trim():"";
+    if(!t&&!noteEdit){toast("Wpisz notatkę");ta.focus();return}
+    saveBookNote(b,noteEdit,t,p);toast(noteEdit?"Zapisano zmiany":"Dodano notatkę");noteEdit=null;bDraft=null;rerenderJournal()};
+  const box=$("#bNotes"),ns=b.notes.slice().sort((x,y)=>(y.at||0)-(x.at||0));
+  if(!ns.length){box.innerHTML='<div class="jempty">Jeszcze nie ma notatek do tej książki.</div>';return}
+  const h=document.createElement("h2");h.textContent="Notatki · "+ns.length;box.appendChild(h);
+  ns.forEach(n=>{const e=document.createElement("div");e.className="bnote";
+    e.innerHTML='<div class="bnm"><span>'+noteWhen(b,n)+'</span><span style="flex:1"></span>'+(b.audio?'<button class="chip ghost" data-a="play" aria-label="Odtwórz od tego miejsca">▶</button>':'')+
+      '<button class="chip ghost" data-a="ed" aria-label="Edytuj">✎</button><button class="chip ghost" data-a="del" aria-label="Usuń">✕</button></div><div class="bnt'+(n.text?'':' empty')+'"></div>';
+    e.querySelector(".bnt").textContent=n.text||"zakładka bez notatki";
+    e.querySelector('[data-a="ed"]').onclick=()=>{noteEdit=n.id;bDraft=null;rerenderJournal();const t=$("#bText");if(t){t.focus();t.scrollIntoView({block:"center",behavior:"smooth"})}};
+    e.querySelector('[data-a="del"]').onclick=()=>{if(n.text&&!confirm("Usunąć tę notatkę?"))return;delBookNote(b,n.id);if(noteEdit===n.id)noteEdit=null;rerenderJournal()};
+    const pl=e.querySelector('[data-a="play"]');
+    if(pl)pl.onclick=()=>{if(!BOOKS.find(x=>x.id===b.id)){toast("Plików tego audiobooka nie ma na tym urządzeniu");return}go("audio");openBook(b.id,true,n.track||0,n.pos||0)};
+    box.appendChild(e)});
+}
+document.querySelectorAll("[data-jmode]").forEach(b=>b.onclick=()=>{jMode=b.dataset.jmode;bookOpen=null;noteEdit=null;bDraft=null;$("#jSearch").value="";
+  try{sessionStorage.setItem("hub_jmode",jMode)}catch(e){}rerenderJournal()});
 
 /* ================= navigation ================= */
 let current="start";
