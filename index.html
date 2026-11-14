@@ -253,7 +253,6 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 .bcard .bcov,.bhead .bcov{width:100%;aspect-ratio:2/3;border-radius:8px;object-fit:cover;background:var(--soft);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:30px;color:var(--muted)}
 .bcard .bt{font-weight:600;font-size:14.5px;line-height:1.25;overflow-wrap:anywhere}
 .bcard .bm{font-size:12px;color:var(--muted)}
-.badd .bcov{border-style:dashed;background:transparent}
 .bhead{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:start}
 .bcovbtn{cursor:pointer;display:block}
 .bhead .bcov small{font-size:11px;font-family:var(--f-body);text-align:center;padding:0 6px}
@@ -928,7 +927,7 @@ function bookPos(b){const p=get("ab:"+b.id)||{};let s=0;for(let i=0;i<Math.min(p
 function bookPct(b){const tot=bookTotal(b);if(!tot)return 0;const p=get("ab:"+b.id)||{};if(p.done)return 100;return Math.min(100,Math.round(bookPos(b).pos/tot*100))}
 async function loadBooks(){
   try{BOOKS=(await idb.all()||[]).sort((a,b)=>(b.added||0)-(a.added||0))}catch(e){BOOKS=[];console.warn(e)}
-  renderAudio();renderStart();
+  renderAudio();renderStart();if(current==="journal")renderJournal();
   let changed=false;for(const b of BOOKS)if(await ensureCover(b))changed=true;
   if(changed){renderAudio();renderStart();renderPlayer();mediaMeta()}
 }
@@ -1301,7 +1300,11 @@ function allBooks(){
   paperBooks().forEach(b=>{if(!b.audio)list.push({id:b.id,title:b.title||"Bez tytułu",author:b.author||"",audio:false,at:b.at||0})});
   Object.keys(S.kv).forEach(k=>{if(!k.startsWith("ab:"))return;const v=S.kv[k].v;if(!v)return;const id=k.slice(3);
     list.push({id,title:v.name||"Audiobook",author:(meta[id]||{}).author||"",audio:true,at:S.kv[k].t||0})});
-  return list.map(b=>{b.notes=bookNotes(b);b.last=Math.max(b.at,...b.notes.map(n=>n.at||0));return b}).sort((a,b)=>b.last-a.last);
+  return list.map(b=>{b.notes=bookNotes(b);b.last=Math.max(b.at,...b.notes.map(n=>n.at||0));return b})
+    .filter(b=>{if(!b.audio)return true;const m=meta[b.id]||{};
+      if(m.hidden&&!b.notes.some(n=>(n.at||0)>m.hidden))return false;
+      return b.notes.length>0||!!get("bcov:"+b.id)||BOOKS.some(x=>x.id===b.id)})
+    .sort((a,b)=>b.last-a.last);
 }
 function bookCover(b){return get("bcov:"+b.id)||(b.audio?coverUrl(BOOKS.find(x=>x.id===b.id)):null)}
 function setBookMeta(b,patch){const l=paperBooks(),i=l.findIndex(x=>x.id===b.id);
@@ -1346,11 +1349,12 @@ function renderBooks(){
   const nn=books.reduce((x,b)=>x+b.notes.filter(n=>n.text).length,0);
   $("#jSub").textContent=books.length+" "+plN(books.length,"książka","książki","książek")+" · "+nn+" "+plN(nn,"notatka","notatki","notatek");
   const g=document.createElement("div");g.className="bgrid";
-  const add=document.createElement("button");add.className="bcard badd";
-  add.innerHTML='<span class="bcov">＋</span><span class="bt">Dodaj książkę</span><span class="bm">papierową albo e-book</span>';
+  const add=document.createElement("button");add.className="btn sec";add.style.justifySelf="start";
+  add.textContent="+ Dodaj książkę";
   add.onclick=()=>{const t=prompt("Tytuł książki");if(!t||!t.trim())return;const id="p"+Date.now().toString(36);
     put("books",paperBooks().concat([{id:id,title:t.trim().slice(0,120),author:"",at:Date.now()}]));bookOpen=id;rerenderJournal();window.scrollTo(0,0)};
-  g.appendChild(add);
+  list.appendChild(add);
+  if(!books.length)list.insertAdjacentHTML("beforeend",'<div class="jempty">Dodaj książkę, którą czytasz. Audiobooki z zakładki Audio pojawią się tu same.</div>');
   books.forEach(b=>{const c=bookCover(b),e=document.createElement("button"),k=b.notes.filter(n=>n.text).length;e.className="bcard";
     e.innerHTML=(c?'<img class="bcov" alt="" src="'+esc(c)+'">':'<span class="bcov">'+(b.audio?"🎧":"📖")+'</span>')+'<span class="bt"></span><span class="bm"></span>';
     e.querySelector(".bt").textContent=b.title;
@@ -1364,7 +1368,7 @@ function renderBook(b){
   bv.innerHTML='<div><button class="linkbtn" id="bBack">‹ Wszystkie książki</button></div>'+
     '<div class="bhead"><label class="bcovbtn" title="Zmień okładkę">'+(c?'<img class="bcov" alt="Okładka, dotknij, by zmienić" src="'+esc(c)+'">':'<span class="bcov">'+(b.audio?"🎧":"📖")+'<small>dodaj okładkę</small></span>')+'<input type="file" accept="image/*" id="bCovIn" hidden></label>'+
     '<div class="form" style="margin:0"><label>Tytuł<input type="text" id="bTitle" maxlength="120"></label><label>Autor<input type="text" id="bAuthor" maxlength="80" placeholder="opcjonalnie"></label>'+
-    '<div class="row">'+(get("bcov:"+b.id)?'<button class="chip ghost" id="bCovDel">Usuń okładkę</button>':'')+(b.audio?'':'<button class="chip ghost" id="bDel">Usuń książkę</button>')+'</div></div></div>'+
+    '<div class="row">'+(get("bcov:"+b.id)?'<button class="chip ghost" id="bCovDel">Usuń okładkę</button>':'')+'<button class="chip ghost" id="bDel">'+(b.audio?"Usuń z dziennika":"Usuń książkę")+'</button>'+'</div></div></div>'+
     '<section class="card bnew"><label for="bText" class="blab">'+(noteEdit?"Edytujesz notatkę":"Nowa notatka")+'</label><textarea id="bText" rows="3" maxlength="4000" placeholder="Myśl, cytat, wniosek…"></textarea>'+
     '<div class="row">'+(b.audio?'<span class="status">'+(noteEdit?"":"Zapisze się z miejscem, w którym jesteś w audiobooku")+'</span>':'<input type="text" inputmode="numeric" id="bPage" placeholder="strona" maxlength="8" style="width:96px">')+
     '<span style="flex:1"></span>'+(noteEdit?'<button class="btn sec" id="bCancel">Anuluj</button>':'')+'<button class="btn" id="bSave">'+(noteEdit?"Zapisz":"Dodaj notatkę")+'</button></div></section>'+
@@ -1386,6 +1390,8 @@ function renderBook(b){
     rerenderJournal()};
   if($("#bCovDel"))$("#bCovDel").onclick=()=>{put("bcov:"+b.id,null);rerenderJournal()};
   if($("#bDel"))$("#bDel").onclick=()=>{const k=b.notes.length;
+    if(b.audio){if(!confirm("Usunąć „"+b.title+"” z dziennika?"+(k?" Notatki ("+k+") też zostaną usunięte.":"")+" Pliki audio i miejsce słuchania zostają."))return;
+      if(k)saveMarks(b.id,[]);setBookMeta(b,{hidden:Date.now()});bookOpen=null;bDraft=null;rerenderJournal();return}
     if(!confirm("Usunąć „"+b.title+"”"+(k?" razem z notatkami ("+k+")":"")+"?"))return;
     put("books",paperBooks().filter(x=>x.id!==b.id));put("bn:"+b.id,null);if(get("bcov:"+b.id))put("bcov:"+b.id,null);
     bookOpen=null;bDraft=null;rerenderJournal()};
