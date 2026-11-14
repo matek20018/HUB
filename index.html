@@ -457,6 +457,7 @@ textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid
   <section class="card">
     <h2>Aplikacja</h2>
     <p class="status" style="margin:0 0 10px" id="verText"></p>
+    <p class="status" style="margin:0 0 10px">Pamięć na dane: <span id="memLS"></span><span id="memFiles"></span></p>
     <div class="row"><button class="btn sec" id="updBtn">Pobierz najnowszą wersję</button></div>
   </section>
 </main>
@@ -466,7 +467,7 @@ textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid
 
 <script>
 "use strict";
-const APP_VERSION="1.12.0";
+const APP_VERSION="1.13.0";
 const $=s=>document.querySelector(s);
 const BASE_HABITS=[
   {k:"read",name:"Czytanie",base:20,opts:[20,30,40]},
@@ -542,11 +543,11 @@ async function sync(){
   finally{syncing=false;paintSync();if(syncAgain){syncAgain=false;queueSync(500)}}
 }
 async function push(){
-  const dirty=Object.entries(S.kv).filter(([,e])=>e.d);
+  const dirty=Object.entries(S.kv).filter(([k,e])=>e.d&&!(k.startsWith("bcov:")&&e.v===1&&!coverData(k.slice(5))));
   for(let i=0;i<dirty.length;i+=200){
     const part=dirty.slice(i,i+200);
     await rest("hub_kv?on_conflict=user_id,key",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
-      body:JSON.stringify(part.map(([k,e])=>({user_id:S.session.uid,key:k,value:e.v===undefined?null:e.v,updated_at:e.t})))});
+      body:JSON.stringify(part.map(([k,e])=>({user_id:S.session.uid,key:k,value:k.startsWith("bcov:")?(typeof e.v==="string"?e.v:e.v?coverData(k.slice(5)):null):(e.v===undefined?null:e.v),updated_at:e.t})))});
     part.forEach(([k,e])=>{const cur=S.kv[k];if(cur&&cur.t===e.t)cur.d=0});
   }
   if(dirty.length)saveLocal();
@@ -572,6 +573,9 @@ async function pull(){
         const m=mergeDay(loc,{v:r.value,t:ut});
         if(stable(m)===stable(mergeDay({v:r.value,t:ut},{v:r.value,t:ut})))S.kv[r.key]={v:r.value,t:ut,d:0};
         else S.kv[r.key]={v:m,t:Math.max(Date.now(),ut+1,loc.t),d:1};
+      }else if(r.key.startsWith("bcov:")){
+        if(!loc||ut>loc.t){storeCover(r.key.slice(5),typeof r.value==="string"?r.value:null);S.kv[r.key]={v:typeof r.value==="string"?1:null,t:ut,d:0}}
+        else if(ut===loc.t)loc.d=0;
       }else if(!loc||ut>loc.t){S.kv[r.key]={v:r.value,t:ut,d:0}}
       else if(ut===loc.t){loc.d=0}
       if(!S.cursor||r.server_at>S.cursor)S.cursor=r.server_at;
@@ -860,8 +864,22 @@ const idb=(()=>{let p;
     r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}))}
   async function tx(store,mode,fn){const d=await open();return new Promise((res,rej)=>{const t=d.transaction(store,mode),s=t.objectStore(store);let out;const r=fn(s);if(r)r.onsuccess=()=>{out=r.result};t.oncomplete=()=>res(out);t.onerror=t.onabort=()=>rej(t.error)})}
   return{all:()=>tx("books","readonly",s=>s.getAll()),putBook:b=>tx("books","readwrite",s=>s.put(b)),delBook:id=>tx("books","readwrite",s=>s.delete(id)),
-    putBlob:(k,v)=>tx("blobs","readwrite",s=>s.put(v,k)),getBlob:k=>tx("blobs","readonly",s=>s.get(k)),delBlob:k=>tx("blobs","readwrite",s=>s.delete(k))};
+    putBlob:(k,v)=>tx("blobs","readwrite",s=>s.put(v,k)),getBlob:k=>tx("blobs","readonly",s=>s.get(k)),delBlob:k=>tx("blobs","readwrite",s=>s.delete(k)),
+    keys:r=>tx("blobs","readonly",s=>s.getAllKeys(r)),vals:r=>tx("blobs","readonly",s=>s.getAll(r))};
 })();
+/* covers live in IndexedDB ("cover:<id>") and in memory, not in the 5 MB localStorage.
+   kv "bcov:<id>" only marks a cover (1, or null when removed); push/pull carry the picture itself to Supabase */
+const COVERS={};
+function coverData(id){return COVERS[id]||null}
+function storeCover(id,url){if(url)COVERS[id]=url;else delete COVERS[id];
+  return (url?idb.putBlob("cover:"+id,url):idb.delBlob("cover:"+id)).catch(e=>console.warn("cover",e))}
+function setCover(id,url){storeCover(id,url);put("bcov:"+id,url?1:null)}
+async function loadCovers(){
+  try{const r=IDBKeyRange.bound("cover:","cover:￿"),ks=await idb.keys(r),vs=await idb.vals(r);ks.forEach((k,i)=>{if(typeof vs[i]==="string")COVERS[k.slice(6)]=vs[i]})}catch(e){console.warn(e)}
+  let moved=false; // covers saved by 1.12 sat inside localStorage: move them out
+  for(const k of Object.keys(S.kv)){const e=S.kv[k];if(k.startsWith("bcov:")&&typeof e.v==="string"){await storeCover(k.slice(5),e.v);e.v=1;moved=true}}
+  if(moved)saveLocal();renderAll();
+}
 let BOOKS=[];const A=$("#player");let cur=null; // {book,track}
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(36)}
 function fmtT(s){s=Math.max(0,Math.floor(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+":"+pad(m):m)+":"+pad(x)}
@@ -913,7 +931,7 @@ async function shrinkImg(blob,max,q){ // keep covers small: JPEG, longest side �
   }catch(e){return blob}
 }
 const coverUrls={};
-function coverUrl(b){if(!b)return null;const bc=get("bcov:"+b.id);if(bc)return bc;if(!b.cover)return null;return coverUrls[b.id]||(coverUrls[b.id]=URL.createObjectURL(b.cover))}
+function coverUrl(b){if(!b)return null;const bc=coverData(b.id);if(bc)return bc;if(!b.cover)return null;return coverUrls[b.id]||(coverUrls[b.id]=URL.createObjectURL(b.cover))}
 async function ensureCover(b){ // books added before covers existed: look into the first file once
   if(b.coverChecked)return false;b.coverChecked=1;
   try{const blob=await idb.getBlob(b.id+":0");const m=blob&&await readId3(blob);if(m&&m.pic)b.cover=await shrinkImg(m.pic,600)}catch(e){}
@@ -1161,6 +1179,11 @@ function renderSettings(){
   $("#cUrl").value=c.url;$("#cKey").value=c.key;
   $("#cfgBox").open=!(hc.supabaseUrl&&hc.supabaseKey)&&!c.url;
   renderHabitEdit();
+  let ch=0;try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);ch+=k.length+(localStorage.getItem(k)||"").length}}catch(e){}
+  const MB=1048576,fmtMB=x=>(x/MB).toFixed(x<10*MB?1:0).replace(".",",")+" MB";
+  $("#memLS").textContent=(ch<0.1*MB?"poniżej 0,1 MB":fmtMB(ch))+" z ok. 5 MB"+(ch>4*MB?" ⚠️ prawie pełna, zrób kopię zapasową":"");
+  if(navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(es=>{const u=es.usage||0;
+    $("#memFiles").textContent=" · pliki (audio, okładki): "+(u>=1024*MB?(u/(1024*MB)).toFixed(1).replace(".",",")+" GB":Math.max(1,Math.round(u/MB))+" MB")}).catch(()=>{});
   $("#verText").textContent="Wersja "+APP_VERSION+". Nowe wersje pobierają się same, gdy jest internet.";
   paintSync();
 }
@@ -1213,7 +1236,7 @@ async function login(email,pw){await authCall("password",{email:email,password:p
 $("#logoutBtn").onclick=()=>{if(!confirm("Wylogować? Dane zostaną na tym urządzeniu, ale przestaną się synchronizować."))return;S.session=null;saveLocal();renderSettings()};
 $("#syncNow").onclick=()=>sync();
 function exportBackup(){
-  const kv={};Object.entries(S.kv).forEach(([k,e])=>kv[k]={v:e.v,t:e.t});
+  const kv={};Object.entries(S.kv).forEach(([k,e])=>kv[k]={v:k.startsWith("bcov:")&&e.v?(coverData(k.slice(5))||e.v):e.v,t:e.t});
   const blob=new Blob([JSON.stringify({app:"hub",v:1,exported:new Date().toISOString(),kv},null,1)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="hub-kopia-"+keyOf(today())+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
   put("backup",{at:Date.now()});renderAll(); // synced, so a backup made on the Mac also clears the reminder on the iPhone
@@ -1228,6 +1251,7 @@ $("#impFile").addEventListener("change",async e=>{
     Object.entries(j.kv).forEach(([k,e])=>{if(!e||typeof e.t!=="number")return;const loc=S.kv[k];
       if(k==="lango"){const m=loc?mergeLango(loc.v,e.v):e.v;if(!loc||stable(m)!==stable(loc.v)){S.kv.lango={v:m,t:Date.now(),d:1};n++}}
       else if(k.startsWith("h:")&&loc){const m=mergeDay(loc,{v:e.v,t:e.t});if(stable(m)!==stable(mergeDay(loc,loc))){S.kv[k]={v:m,t:Math.max(Date.now(),loc.t+1),d:1};n++}}
+      else if(k.startsWith("bcov:")){if(!loc||e.t>loc.t){const u=typeof e.v==="string"?e.v:null;if(e.v&&!u)return;storeCover(k.slice(5),u);S.kv[k]={v:u?1:null,t:e.t,d:1};n++}}
       else if(!loc||e.t>loc.t){S.kv[k]={v:e.v,t:e.t,d:1};n++}});
   }else if(j&&(j.srs||j.stats||j.known)){ // raw Lango progress
     const loc=get("lango");S.kv.lango={v:loc?mergeLango(loc,j):j,t:Date.now(),d:1};n=1;
@@ -1303,10 +1327,10 @@ function allBooks(){
   return list.map(b=>{b.notes=bookNotes(b);b.last=Math.max(b.at,...b.notes.map(n=>n.at||0));return b})
     .filter(b=>{if(!b.audio)return true;const m=meta[b.id]||{};
       if(m.hidden&&!b.notes.some(n=>(n.at||0)>m.hidden))return false;
-      return b.notes.length>0||!!get("bcov:"+b.id)||BOOKS.some(x=>x.id===b.id)})
+      return b.notes.length>0||!!coverData(b.id)||BOOKS.some(x=>x.id===b.id)})
     .sort((a,b)=>b.last-a.last);
 }
-function bookCover(b){return get("bcov:"+b.id)||(b.audio?coverUrl(BOOKS.find(x=>x.id===b.id)):null)}
+function bookCover(b){return coverData(b.id)||(b.audio?coverUrl(BOOKS.find(x=>x.id===b.id)):null)}
 function setBookMeta(b,patch){const l=paperBooks(),i=l.findIndex(x=>x.id===b.id);
   if(i<0)l.push(Object.assign({id:b.id,at:Date.now()},b.audio?{audio:1}:{},patch));else l[i]=Object.assign({},l[i],patch);put("books",l)}
 function saveBookNote(b,id,text,page){
@@ -1368,7 +1392,7 @@ function renderBook(b){
   bv.innerHTML='<div><button class="linkbtn" id="bBack">‹ Wszystkie książki</button></div>'+
     '<div class="bhead"><label class="bcovbtn" title="Zmień okładkę">'+(c?'<img class="bcov" alt="Okładka, dotknij, by zmienić" src="'+esc(c)+'">':'<span class="bcov">'+(b.audio?"🎧":"📖")+'<small>dodaj okładkę</small></span>')+'<input type="file" accept="image/*" id="bCovIn" hidden></label>'+
     '<div class="form" style="margin:0"><label>Tytuł<input type="text" id="bTitle" maxlength="120"></label><label>Autor<input type="text" id="bAuthor" maxlength="80" placeholder="opcjonalnie"></label>'+
-    '<div class="row">'+(get("bcov:"+b.id)?'<button class="chip ghost" id="bCovDel">Usuń okładkę</button>':'')+'<button class="chip ghost" id="bDel">'+(b.audio?"Usuń z dziennika":"Usuń książkę")+'</button>'+'</div></div></div>'+
+    '<div class="row">'+(coverData(b.id)?'<button class="chip ghost" id="bCovDel">Usuń okładkę</button>':'')+'<button class="chip ghost" id="bDel">'+(b.audio?"Usuń z dziennika":"Usuń książkę")+'</button>'+'</div></div></div>'+
     '<section class="card bnew"><label for="bText" class="blab">'+(noteEdit?"Edytujesz notatkę":"Nowa notatka")+'</label><textarea id="bText" rows="3" maxlength="4000" placeholder="Myśl, cytat, wniosek…"></textarea>'+
     '<div class="row">'+(b.audio?'<span class="status">'+(noteEdit?"":"Zapisze się z miejscem, w którym jesteś w audiobooku")+'</span>':'<input type="text" inputmode="numeric" id="bPage" placeholder="strona" maxlength="8" style="width:96px">')+
     '<span style="flex:1"></span>'+(noteEdit?'<button class="btn sec" id="bCancel">Anuluj</button>':'')+'<button class="btn" id="bSave">'+(noteEdit?"Zapisz":"Dodaj notatkę")+'</button></div></section>'+
@@ -1385,15 +1409,15 @@ function renderBook(b){
     else setBookMeta(b,{title:v})};
   $("#bAuthor").onchange=e=>setBookMeta(b,{author:e.target.value.trim()});
   $("#bCovIn").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
-    try{const small=await shrinkImg(f,360,.8);const url=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(small)});
-      put("bcov:"+b.id,url);toast("Okładka zapisana")}catch(x){toast("Nie udało się wczytać zdjęcia")}
+    try{const small=await shrinkImg(f,300,.75);const url=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(small)});
+      setCover(b.id,url);toast("Okładka zapisana")}catch(x){toast("Nie udało się wczytać zdjęcia")}
     rerenderJournal()};
-  if($("#bCovDel"))$("#bCovDel").onclick=()=>{put("bcov:"+b.id,null);rerenderJournal()};
+  if($("#bCovDel"))$("#bCovDel").onclick=()=>{setCover(b.id,null);rerenderJournal()};
   if($("#bDel"))$("#bDel").onclick=()=>{const k=b.notes.length;
     if(b.audio){if(!confirm("Usunąć „"+b.title+"” z dziennika?"+(k?" Notatki ("+k+") też zostaną usunięte.":"")+" Pliki audio i miejsce słuchania zostają."))return;
       if(k)saveMarks(b.id,[]);setBookMeta(b,{hidden:Date.now()});bookOpen=null;bDraft=null;rerenderJournal();return}
     if(!confirm("Usunąć „"+b.title+"”"+(k?" razem z notatkami ("+k+")":"")+"?"))return;
-    put("books",paperBooks().filter(x=>x.id!==b.id));put("bn:"+b.id,null);if(get("bcov:"+b.id))put("bcov:"+b.id,null);
+    put("books",paperBooks().filter(x=>x.id!==b.id));put("bn:"+b.id,null);if(coverData(b.id))setCover(b.id,null);
     bookOpen=null;bDraft=null;rerenderJournal()};
   if($("#bCancel"))$("#bCancel").onclick=()=>{noteEdit=null;bDraft=null;rerenderJournal()};
   $("#bSave").onclick=()=>{const t=ta.value.trim(),p=pg?pg.value.trim():"";
@@ -1470,7 +1494,7 @@ window.addEventListener("resize",()=>{if(current==="habits")renderSummary()});
   langoRaw=readLS();
   setHH();
   let v="start";try{v=sessionStorage.getItem("hub_view")||"start"}catch(e){}
-  go(v);loadBooks();
+  go(v);loadBooks();loadCovers();
   sync();
   setInterval(()=>{if(!document.hidden)sync()},60000);
   window.addEventListener("online",()=>sync());
