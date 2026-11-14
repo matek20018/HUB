@@ -21,6 +21,7 @@
   --bg:#f3f4f2; --surface:#ffffff; --line:#dfe2de; --fg:#1d2422; --muted:#66706c;
   --read:#b5741c; --med:#4f7d62; --lang:#3a64a8; --audio:#8a4f9e; --soft:#e9ece8;
   --ok:#3f8a5a; --warn:#b5741c; --err:#b8473b;
+  --h0:#c2410c; --h1:#b03a6f; --h2:#0e7c86; --h3:#6d5bd0; --h4:#5b7f1f; --h5:#a16207;
   --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --f-body:"Figtree",system-ui,-apple-system,sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -29,7 +30,8 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#131816; --surface:#1b211f; --line:#2c3431; --fg:#e7ebe8; --muted:#94a09b;
   --read:#e0a04a; --med:#7fb592; --lang:#7ea3e6; --audio:#c393d4; --soft:#232a27;
-  --ok:#7fb592; --warn:#e0a04a; --err:#e48478; color-scheme:dark}}
+  --ok:#7fb592; --warn:#e0a04a; --err:#e48478;
+  --h0:#f08a5d; --h1:#e47fae; --h2:#4fc1c9; --h3:#a99cf0; --h4:#a3c76a; --h5:#e0b84a; color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
@@ -229,6 +231,33 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 .book.cur{border-color:var(--audio)}
 .status{font-size:12.5px;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+/* streak protection */
+.day.shield,.wd.shield{background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.day.shield::before{content:"🛡";position:absolute;top:1px;right:3px;font-size:9px}
+.wd.shield .wn::after{content:"🛡";font-size:9px;margin-left:1px}
+/* summary */
+.sumbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.seg{display:inline-flex;gap:4px}
+.sumrange{font-size:14px;color:var(--muted);margin:0 0 12px}
+.sumfull{font-size:13px;color:var(--muted);margin-top:10px}
+.chart{width:100%;height:auto;display:block;margin-top:12px;overflow:visible}
+.chart text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart .bg{fill:transparent;cursor:pointer}
+.chart g.col:hover .bg{fill:var(--soft)}
+/* habit editor */
+.hedit{display:flex;flex-direction:column;gap:14px}
+.hrow{display:grid;grid-template-columns:24px 1fr 76px auto;gap:6px 8px;align-items:center}
+.hrow .hcol{width:22px;height:22px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.hrow .hcol:disabled{cursor:default}
+.hrow input{font:inherit;font-size:14px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:100%;min-width:0}
+.hrow .hopts{grid-column:2 / 4}
+.hrow .hlab{grid-column:2 / 5;font-size:12px;color:var(--muted);margin-top:-2px}
+/* audiobook notes */
+.marks{display:flex;flex-direction:column;gap:6px}
+.mark{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+.mark input{font:inherit;font-size:14px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 9px;width:100%;min-width:0}
+.mark .chip{font-family:var(--f-mono);white-space:nowrap}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -255,6 +284,7 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
     <div class="sinfo">
       <div class="segs" id="sSegs"></div>
       <small id="sBest"></small>
+      <small id="sShield"></small>
     </div>
   </section>
   <section><h2>Dzisiaj<span class="sc" id="sScore"></span></h2><div class="mini habits" id="sHabits"></div>
@@ -292,11 +322,19 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
       <div class="nav"><button id="prevM" aria-label="Poprzedni miesiąc">‹</button><button id="nextM" aria-label="Następny miesiąc">›</button></div></div>
     <div class="stats" id="stats"></div>
     <div class="grid" id="grid"></div>
-    <div class="legend"><span><i style="background:var(--read)"></i>czytanie</span><span><i style="background:var(--med)"></i>medytacja</span><span><i style="background:var(--lang)"></i>język</span><span><i class="nmark"></i>wpis w dzienniku</span></div>
+    <div class="legend" id="legend"></div>
+  </section>
+  <section id="sumSec">
+    <div class="sumbar"><h2 style="margin:0">Podsumowanie</h2>
+      <div class="row" style="gap:6px"><span class="seg"><button class="chip" data-sum="week">Tydzień</button><button class="chip" data-sum="month">Miesiąc</button></span>
+        <span class="nav"><button id="sumPrev" aria-label="Poprzedni okres">‹</button><button id="sumNext" aria-label="Następny okres">›</button></span></div></div>
+    <p class="sumrange" id="sumRange"></p>
+    <div class="mbars" id="sumBars"></div>
+    <div class="sumfull" id="sumFull"></div>
+    <div id="sumChart"></div>
   </section>
   <section class="rule">
-    <p><b>Cel bazowy:</b> 20 min czytania, 10 min medytacji, 10 min języka. Kółko zalicza cel bazowy, przyciski i „Inne” zapisują inny czas.</p>
-    <p><b>Automatycznie:</b> ćwiczenie w Lango zalicza język, a 20 minut słuchania audiobooka zalicza czytanie. Ręczne kliknięcie zawsze wygrywa.</p>
+    <div id="ruleText" style="display:flex;flex-direction:column;gap:12px"></div>
     <details>
       <summary>Co teraz czytasz i jakiego języka się uczysz</summary>
       <div class="form">
@@ -339,6 +377,8 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
     </div>
     <div class="row" style="justify-content:center"><button class="chip" id="pSpeed">1.0×</button><button class="chip ghost" id="pPrevT">‹ rozdział</button><button class="chip ghost" id="pNextT">rozdział ›</button><button class="chip ghost" id="pSleep" aria-expanded="false">Wyłącz za…</button></div>
     <div class="row" id="pSleepOpts" style="justify-content:center" hidden><button class="chip" data-sleep="15">15 min</button><button class="chip" data-sleep="30">30 min</button><button class="chip" data-sleep="ch">Koniec rozdziału</button><button class="chip ghost" data-sleep="off" hidden>Nie wyłączaj</button></div>
+    <div class="row" style="justify-content:center"><button class="chip ghost" id="pMark">🔖 Zakładka z notatką</button></div>
+    <div class="marks" id="pMarks"></div>
   </section>
   <section>
     <h2>Twoje audiobooki</h2>
@@ -377,6 +417,13 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
     </div>
   </section>
   <section class="card">
+    <h2>Nawyki</h2>
+    <p class="status" style="margin:0 0 12px">Nazwa, cel w minutach i przyciski z czasem. Zmiany działają od dziś. Usunięty nawyk znika od dziś, a jego historia zostaje.</p>
+    <div class="hedit" id="hEdit"></div>
+    <div class="row" style="margin-top:12px"><button class="btn sec" id="hAdd">+ Dodaj nawyk</button></div>
+    <div id="hGone" class="status" style="margin-top:10px"></div>
+  </section>
+  <section class="card">
     <h2>Kopia zapasowa</h2>
     <p class="status" style="margin:0 0 10px">Plik ze wszystkimi postępami (nawyki, Lango, miejsca w audiobookach). Bez plików audio.</p>
     <div class="row">
@@ -397,13 +444,15 @@ h2 .sc{font-family:var(--f-mono);letter-spacing:0;text-transform:none;color:var(
 
 <script>
 "use strict";
-const APP_VERSION="1.10.0";
+const APP_VERSION="1.11.0";
 const $=s=>document.querySelector(s);
-const HABITS=[
-  {k:"read",name:"Czytanie",base:20,dot:"r",opts:[20,30,40],auto:"z audiobooka"},
-  {k:"med",name:"Medytacja",base:10,dot:"m",opts:[5,10,15]},
-  {k:"lang",name:"Język",base:10,dot:"l",opts:[10,20,30],auto:"z Lango"},
+const BASE_HABITS=[
+  {k:"read",name:"Czytanie",base:20,opts:[20,30,40]},
+  {k:"med",name:"Medytacja",base:10,opts:[5,10,15]},
+  {k:"lang",name:"Język",base:10,opts:[10,20,30]},
 ];
+const AUTO={read:"z audiobooka",lang:"z Lango"};
+const BUILTIN_COL={read:"var(--read)",med:"var(--med)",lang:"var(--lang)"};
 const MONTHS=["styczeń","luty","marzec","kwiecień","maj","czerwiec","lipiec","sierpień","wrzesień","październik","listopad","grudzień"];
 const MONTHS_GEN=["stycznia","lutego","marca","kwietnia","maja","czerwca","lipca","sierpnia","września","października","listopada","grudnia"];
 const MONTHS_LOC=["styczniu","lutym","marcu","kwietniu","maju","czerwcu","lipcu","sierpniu","wrześniu","październiku","listopadzie","grudniu"];
@@ -551,18 +600,39 @@ function mergeDay(a,b){ // a, b: {v,t}; per field the later change wins (a delet
 function settings(){return get("settings")||{book:"",lang:""}}
 function isDone(d,k){return !!dayData(d)[k]}
 function streak(test){let d=today(),n=0;if(!test(d))d.setDate(d.getDate()-1);while(test(d)&&n<3000){n++;d.setDate(d.getDate()-1)}return n}
-const allDone=d=>HABITS.every(h=>isDone(d,h.k));
-function bestStreak(){ // longest run of full days ever
-  const ks=Object.keys(S.kv).filter(k=>k.startsWith("h:")).sort();let best=0,run=0,prev=null;
-  for(const k of ks){const d=new Date(k.slice(2)+"T00:00:00");if(!allDone(d)){run=0;prev=null;continue}
-    run=(prev&&Math.round((d-prev)/86400000)===1)?run+1:1;prev=d;if(run>best)best=run}
-  return best;
+/* habits are editable (synced key "habits"); each one is active from its "from" day to its "to" day,
+   so past days keep the habits they had */
+function habitsAll(){const v=get("habits");const l=Array.isArray(v)&&v.length?v:BASE_HABITS;return l.map(h=>Object.assign({},h,{auto:AUTO[h.k]}))}
+function isOn(h,d){const k=keyOf(d);return (!h.from||k>=h.from)&&(!h.to||k<=h.to)}
+function habitsOn(d){return habitsAll().filter(h=>isOn(h,d))}
+function hcol(h){return BUILTIN_COL[h.k]||"var(--h"+((h.c||0)%6)+")"}
+function minutesOf(v,h){if(!v[h.k])return 0;let m=v[h.k+"Min"]||h.base;if(h.k==="read"&&v.abSec)m=Math.max(m,v.abSec/60);if(h.k==="lang"&&v.langSec)m=Math.max(m,v.langSec/60);return m}
+const fmtMin=m=>m<60?Math.round(m)+" min":(m<600?(Math.round(m/6)/10).toString().replace(".",","):Math.round(m/60))+" h";
+const allDone=d=>{const hs=habitsOn(d);return hs.length>0&&hs.every(h=>isDone(d,h.k))};
+function weekKey(d){const m=new Date(d);m.setDate(d.getDate()-(d.getDay()+6)%7);return keyOf(m)}
+/* full-day streak with protection: one missed day per week (Mon–Sun) doesn't break the run.
+   A protected day isn't counted. Today never breaks the run (it isn't over yet). */
+function streakInfo(){
+  const res={cur:0,best:0,shields:new Set(),weekUsed:null};
+  const ks=Object.keys(S.kv).filter(k=>k.startsWith("h:")).sort();if(!ks.length)return res;
+  const t=today(),tk=keyOf(t),d=new Date(ks[0].slice(2)+"T00:00:00");let run=0,pend=null,usedWeek=null;
+  while(d<=t){const k=keyOf(d);
+    if(allDone(d)){run++;pend=null;if(run>res.best)res.best=run}
+    else if(k===tk){}
+    else if(run>0&&!pend&&usedWeek!==weekKey(d)){pend=k;usedWeek=weekKey(d);res.shields.add(k)}
+    else{if(pend)res.shields.delete(pend);run=0;pend=null;usedWeek=null}
+    d.setDate(d.getDate()+1)}
+  res.cur=run;const wk=weekKey(t);
+  res.weekUsed=[...res.shields].find(k=>weekKey(new Date(k+"T00:00:00"))===wk)||null;
+  return res;
 }
 const checkSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 function habitSub(h,dd){
   const st=dd[h.k]||"",mins=dd[h.k+"Min"]||0,set=settings();
   if(st&&dd[h.k+"Auto"])return "Automatycznie "+h.auto+(mins?" · "+mins+" min":"");
   if(st)return "Zrobione · "+(mins||h.base)+" min"; // old "minimum" entries count as the base goal
+  const prog=h.k==="read"?dd.abSec:h.k==="lang"?dd.langSec:0;
+  if(prog>=60)return (h.k==="read"?"Z audiobooka: ":"Z Lango: ")+Math.floor(prog/60)+" / "+h.base+" min";
   if(h.k==="read"&&set.book)return set.book+" · "+h.base+" min";
   if(h.k==="lang"&&set.lang)return set.lang+" · "+h.base+" min";
   return h.base+" min";
@@ -571,9 +641,9 @@ let otherOpen=null; // which habit's "Inne" field is open
 function habitEl(h,d,withExtra){
   const dd=dayData(d),st=dd[h.k]||"",mins=dd[h.k+"Min"]||0,sk=streak(x=>isDone(x,h.k));
   const el=document.createElement("div");
-  el.className="habit"+(st?" done":"");el.dataset.k=h.k;
+  el.className="habit"+(st?" done":"");el.dataset.k=h.k;el.style.setProperty("--c",hcol(h));
   el.innerHTML='<button class="check" aria-label="'+h.name+': oznacz jako zrobione" aria-pressed="'+(!!st)+'">'+checkSvg+'</button>'+
-    '<div class="hname">'+h.name+'</div><div class="streak">'+sk+' '+plDays(sk)+'<small>seria</small></div><div class="hsub"></div><div class="hextra"></div>';
+    '<div class="hname">'+esc(h.name)+'</div><div class="streak">'+sk+' '+plDays(sk)+'<small>seria</small></div><div class="hsub"></div><div class="hextra"></div>';
   el.querySelector(".hsub").textContent=habitSub(h,dd);
   el.querySelector(".check").onclick=()=>setDay(d,{[h.k]:st?null:"done",[h.k+"Min"]:st?null:(dd[h.k+"Auto"]?null:(mins||null)),[h.k+"Auto"]:null});
   if(withExtra){
@@ -612,13 +682,23 @@ function renderHabits(){
   const t=today(),isToday=keyOf(sel)===keyOf(t),dd=dayData(sel);
   $("#hDate").textContent=dateLabel(sel);
   $("#habitsTitle").textContent=isToday?"Dzisiaj":"Uzupełniasz "+sel.getDate()+" "+MONTHS_GEN[sel.getMonth()];
-  const box=$("#habits");box.innerHTML="";HABITS.forEach(h=>box.appendChild(habitEl(h,sel,true)));
+  const box=$("#habits");box.innerHTML="";habitsOn(sel).forEach(h=>box.appendChild(habitEl(h,sel,true)));
   if(document.activeElement!==noteEl)noteEl.value=dd.note||"";
   $("#noteBox").hidden=isToday; // today's sentence is on Start
   const s=settings();
   if(document.activeElement!==$("#sBook"))$("#sBook").value=s.book||"";
   if(document.activeElement!==$("#sLang"))$("#sLang").value=s.lang||"";
-  renderMonth();
+  renderLegend();renderMonth();renderSummary();
+}
+function renderLegend(){
+  const vs=keyOf(view),ve=keyOf(new Date(view.getFullYear(),view.getMonth()+1,0));
+  const hs=habitsAll().filter(h=>(!h.from||h.from<=ve)&&(!h.to||h.to>=vs));
+  $("#legend").innerHTML=hs.map(h=>'<span><i style="background:'+hcol(h)+'"></i>'+esc(h.name.toLowerCase())+'</span>').join("")+'<span><i class="nmark"></i>wpis w dzienniku</span>';
+  const on=habitsOn(today()),rd=on.find(h=>h.k==="read"),lg=on.find(h=>h.k==="lang");
+  const auto=[lg&&(lg.base+" min nauki w Lango zalicza „"+lg.name+"”"),rd&&(rd.base+" min słuchania audiobooka zalicza „"+rd.name+"”")].filter(Boolean);
+  $("#ruleText").innerHTML='<p><b>Cel bazowy:</b> '+on.map(h=>esc(h.name)+" "+h.base+" min").join(", ")+'. Kółko zalicza cel bazowy, przyciski i „Inne” zapisują inny czas.</p>'+
+    (auto.length?'<p><b>Automatycznie:</b> '+esc(auto.join(", a "))+'. Ręczne kliknięcie zawsze wygrywa.</p>':'')+
+    '<p><b>Ochrona serii 🛡:</b> jeden opuszczony dzień w tygodniu (pon–nd) nie przerywa serii pełnych dni. Taki dzień nie dolicza się do serii. Nawyki zmienisz w ⚙ Ustawieniach.</p>';
 }
 function monthDays(v){const t=today();const elapsed=v>t?0:(v.getFullYear()===t.getFullYear()&&v.getMonth()===t.getMonth()?t.getDate():new Date(v.getFullYear(),v.getMonth()+1,0).getDate());const a=[];for(let i=1;i<=elapsed;i++)a.push(new Date(v.getFullYear(),v.getMonth(),i));return a}
 function renderMonth(){
@@ -627,30 +707,77 @@ function renderMonth(){
   DOW.forEach(x=>{const e=document.createElement("div");e.className="dow";e.textContent=x;g.appendChild(e)});
   const first=(view.getDay()+6)%7,n=new Date(view.getFullYear(),view.getMonth()+1,0).getDate(),t=today();
   const days=monthDays(view),el=days.length;
-  const rows=HABITS.map(h=>({lab:h.name,c:"var(--"+h.k+")",k:days.filter(d=>isDone(d,h.k)).length})).concat([{lab:"Pełne dni",c:"var(--fg)",k:days.filter(allDone).length}]);
-  $("#stats").innerHTML=rows.map(r=>{const p=el?Math.round(r.k/el*100):0;return '<div class="stat" style="--c:'+r.c+'"><span class="lab">'+r.lab+'</span><span class="pct">'+(el?p+"%":"–")+'</span><span class="bar"><span style="width:'+p+'%"></span></span><span class="cnt">'+r.k+' z '+el+' dni</span></div>'}).join("");
+  const vs=keyOf(view),ve=keyOf(new Date(view.getFullYear(),view.getMonth()+1,0)),si=streakInfo();
+  const rows=habitsAll().filter(h=>(!h.from||h.from<=ve)&&(!h.to||h.to>=vs)).map(h=>{const ad=days.filter(d=>isOn(h,d));return{lab:h.name,c:hcol(h),k:ad.filter(d=>isDone(d,h.k)).length,n:ad.length}})
+    .concat([{lab:"Pełne dni",c:"var(--fg)",k:days.filter(allDone).length,n:el}]);
+  $("#stats").innerHTML=rows.map(r=>{const p=r.n?Math.round(r.k/r.n*100):0;return '<div class="stat" style="--c:'+r.c+'"><span class="lab">'+esc(r.lab)+'</span><span class="pct">'+(r.n?p+"%":"–")+'</span><span class="bar"><span style="width:'+p+'%"></span></span><span class="cnt">'+r.k+' z '+r.n+' dni</span></div>'}).join("");
   for(let i=0;i<first;i++){const e=document.createElement("div");e.className="day out";g.appendChild(e)}
   for(let d=1;d<=n;d++){
     const date=new Date(view.getFullYear(),view.getMonth(),d),dd=dayData(date),fut=date>t;
     const b=document.createElement("button");
-    b.className="day"+(fut?" future":"")+(keyOf(date)===keyOf(sel)?" sel":"")+(allDone(date)?" full":"")+(dd.note?" hasnote":"");
-    b.innerHTML=d+'<span class="dots">'+HABITS.map(h=>'<i class="'+(dd[h.k]?h.dot:"")+'"></i>').join("")+'</span>';
-    b.setAttribute("aria-label",d+" "+MONTHS_GEN[view.getMonth()]+": "+HABITS.filter(h=>dd[h.k]).length+" z 3");
+    b.className="day"+(fut?" future":"")+(keyOf(date)===keyOf(sel)?" sel":"")+(allDone(date)?" full":"")+(si.shields.has(keyOf(date))?" shield":"")+(dd.note?" hasnote":"");
+    const hsD=habitsOn(date);
+    b.innerHTML=d+'<span class="dots">'+hsD.map(h=>'<i'+(dd[h.k]?' style="background:'+hcol(h)+'"':'')+'></i>').join("")+'</span>';
+    b.setAttribute("aria-label",d+" "+MONTHS_GEN[view.getMonth()]+": "+hsD.filter(h=>dd[h.k]).length+" z "+hsD.length+(si.shields.has(keyOf(date))?", ochrona serii":""));
     if(fut)b.disabled=true;else b.onclick=()=>{sel=date;renderHabits();window.scrollTo({top:0,behavior:"smooth"})};
     g.appendChild(b);
   }
 }
 $("#prevM").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderMonth()};
 $("#nextM").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);renderMonth()};
+/* summary: week or month, minutes per habit, compared with the period before, and a daily chart */
+let sumMode="week",sumRef=today();
+try{sumMode=localStorage.getItem("hub_sum")==="month"?"month":"week"}catch(e){}
+function sumRange(mode,ref){if(mode==="week"){const s=new Date(ref);s.setDate(ref.getDate()-(ref.getDay()+6)%7);const e=new Date(s);e.setDate(s.getDate()+6);return[s,e]}
+  return[new Date(ref.getFullYear(),ref.getMonth(),1),new Date(ref.getFullYear(),ref.getMonth()+1,0)]}
+function sumShift(mode,ref,n){const r=new Date(ref);if(mode==="week")r.setDate(r.getDate()+7*n);else{r.setDate(1);r.setMonth(r.getMonth()+n)}return r}
+function eachDay(s,e){const a=[],d=new Date(s);while(d<=e){a.push(new Date(d));d.setDate(d.getDate()+1)}return a}
+function sumTotals(days,hs){const o={};hs.forEach(h=>o[h.k]=0);days.forEach(d=>{const v=dayData(d);hs.forEach(h=>{if(isOn(h,d))o[h.k]+=minutesOf(v,h)})});return o}
+function renderSummary(){
+  const t=today(),[s,e]=sumRange(sumMode,sumRef),[ps,pe]=sumRange(sumMode,sumShift(sumMode,sumRef,-1));
+  const days=eachDay(s,e),past=days.filter(d=>d<=t),pdays=eachDay(ps,pe);
+  const sk=keyOf(s),ek=keyOf(e),hs=habitsAll().filter(h=>(!h.from||h.from<=ek)&&(!h.to||h.to>=sk));
+  const tc=sumTotals(past,hs),tp=sumTotals(pdays,hs);
+  document.querySelectorAll("[data-sum]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.sum===sumMode)));
+  $("#sumNext").disabled=e>=t;
+  $("#sumRange").textContent=sumMode==="week"?s.getDate()+" "+MONTHS_GEN[s.getMonth()]+" – "+e.getDate()+" "+MONTHS_GEN[e.getMonth()]+" "+e.getFullYear():MONTHS[s.getMonth()]+" "+s.getFullYear();
+  $("#sumBars").innerHTML=hs.map(h=>{const c=tc[h.k],p=tp[h.k],dl=Math.round(c-p),goal=h.base*days.filter(d=>isOn(h,d)).length;
+    return '<div class="mb" style="--c:'+hcol(h)+'" title="Cel w tym okresie: '+fmtMin(goal)+'"><span class="ml">'+esc(h.name)+'<b>'+fmtMin(c)+'</b></span><span class="bar"><span style="width:'+(goal?Math.min(100,Math.round(c/goal*100)):0)+'%"></span></span>'+
+      '<span class="dl'+(dl>0?" up":"")+'" style="margin:0">'+(dl>0?"+":dl<0?"−":"±")+fmtMin(Math.abs(dl))+' vs poprzedni</span></div>'}).join("");
+  const full=past.filter(allDone).length,pfull=pdays.filter(allDone).length;
+  $("#sumFull").textContent="Pełne dni: "+full+" z "+past.length+" · poprzednio "+pfull+" z "+pdays.length;
+  // chart: one stacked bar per day, minutes per habit
+  const W=Math.max(280,Math.round($("#sumChart").clientWidth||560)),H=180,L=30,R=2,T=8,B=22,pw=W-L-R,ph=H-T-B,n=days.length,cw=pw/n,bw=Math.max(3,Math.min(30,cw*.62));
+  const vals=days.map(d=>{const v=dayData(d);return hs.map(h=>isOn(h,d)?minutesOf(v,h):0)});
+  const mx=Math.max(30,...vals.map(a=>a.reduce((x,y)=>x+y,0))),step=mx<=60?15:mx<=120?30:mx<=240?60:120,top=Math.ceil(mx/step)*step;
+  let g='';
+  for(let y=0;y<=top;y+=step){const yy=(T+ph-(y/top)*ph).toFixed(1);g+='<line class="gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+yy+'" y2="'+yy+'"/><text x="'+(L-5)+'" y="'+(+yy+4)+'" text-anchor="end">'+(y&&y%60===0?y/60+"h":y)+'</text>'}
+  days.forEach((d,i)=>{const x=L+i*cw+(cw-bw)/2,fut=d>t,isT=keyOf(d)===keyOf(t);let y=T+ph,rects='';
+    hs.forEach((h,j)=>{const m=vals[i][j];if(!m)return;const hh=m/top*ph;y-=hh;rects+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(1,hh-1).toFixed(1)+'" rx="2" style="fill:'+hcol(h)+'"/>'});
+    const tip=d.getDate()+" "+MONTHS_GEN[d.getMonth()]+": "+(hs.map((h,j)=>vals[i][j]?h.name+" "+Math.round(vals[i][j])+" min":null).filter(Boolean).join(", ")||"nic");
+    const lab=sumMode==="week"?DOW[i]:(d.getDate()===1||d.getDate()%5===0?String(d.getDate()):"");
+    g+='<g class="col" data-day="'+keyOf(d)+'"'+(fut?' opacity=".35"':'')+'><title>'+esc(tip)+'</title><rect class="bg" x="'+(L+i*cw).toFixed(1)+'" y="'+T+'" width="'+cw.toFixed(1)+'" height="'+(ph+B)+'"/>'+rects+
+      (lab?'<text x="'+(L+i*cw+cw/2).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle"'+(isT?' style="fill:var(--fg);font-weight:700"':'')+'>'+lab+'</text>':'')+'</g>'});
+  $("#sumChart").innerHTML='<svg class="chart" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="Minuty dziennie w wybranym okresie">'+g+'</svg>';
+  $("#sumChart").querySelectorAll("g.col").forEach(c=>c.onclick=()=>{const d=new Date(c.dataset.day+"T00:00:00");if(d>t)return;sel=d;view=new Date(d.getFullYear(),d.getMonth(),1);renderHabits();window.scrollTo({top:0,behavior:"smooth"})});
+}
+document.querySelectorAll("[data-sum]").forEach(b=>b.onclick=()=>{sumMode=b.dataset.sum;try{localStorage.setItem("hub_sum",sumMode)}catch(e){}renderSummary()});
+$("#sumPrev").onclick=()=>{sumRef=sumShift(sumMode,sumRef,-1);renderSummary()};
+$("#sumNext").onclick=()=>{sumRef=sumShift(sumMode,sumRef,1);if(sumRef>today())sumRef=today();renderSummary()};
 let setT;["sBook","sLang"].forEach(id=>$("#"+id).addEventListener("input",()=>{clearTimeout(setT);setT=setTimeout(()=>{put("settings",{book:$("#sBook").value.trim(),lang:$("#sLang").value.trim()});renderHabits()},600)}));
 
-/* auto-ticks */
-function autoLang(){const d=today(),dd=dayData(d);if(!dd.lang)setDay(d,{lang:"done",langAuto:1})}
-function addListening(sec){
-  if(sec<=0)return;const d=today(),dd=dayData(d),p={abSec:Math.round((dd.abSec||0)+sec)};
-  if(p.abSec>=1200&&(!dd.read||dd.readAuto)){p.read="done";p.readAuto=1;p.readMin=Math.floor(p.abSec/60)}
+/* auto-ticks: the habit's base goal, counted in minutes of real time */
+function autoTick(k,secField,sec){
+  if(sec<=0)return;const d=today(),dd=dayData(d),h=habitsOn(d).find(x=>x.k===k),p={[secField]:Math.round((dd[secField]||0)+sec)};
+  if(h&&p[secField]>=h.base*60&&(!dd[k]||dd[k+"Auto"])){p[k]="done";p[k+"Auto"]=1;p[k+"Min"]=Math.floor(p[secField]/60)}
   patchDay(d,p,true);
 }
+function addListening(sec){autoTick("read","abSec",sec)}
+/* Lango time: counts while Lango is on screen and you've done something in it in the last 90 s */
+let langAcc=0,langAct=0;
+function markLangAct(){langAct=Date.now()}
+function flushLang(){if(langAcc<1)return;const s=langAcc;langAcc=0;autoTick("lang","langSec",s);queueSync(5000)}
+setInterval(()=>{if(current==="lango"&&!document.hidden&&Date.now()-langAct<90000){langAcc+=5;if(langAcc>=30)flushLang()}},5000);
 
 /* ================= Lango ================= */
 const LANGO_KEY="jezyklab_v4";
@@ -691,13 +818,14 @@ function checkLango(){ // Lango writes its progress to localStorage; pick it up
   const loc=get("lango");const m=loc?mergeLango(loc,v):v;
   if(!loc||stable(m)!==stable(loc))put("lango",m);
   if(stable(m)!==stable(v)){try{localStorage.setItem(LANGO_KEY,JSON.stringify(m));langoRaw=readLS()}catch(e){}}
-  const sc=langoScore(m);if(S.langoScore!=null&&sc>S.langoScore)autoLang();S.langoScore=sc;saveLocal();
+  const sc=langoScore(m);if(S.langoScore!=null&&sc>S.langoScore)markLangAct();S.langoScore=sc;saveLocal();
 }
 window.addEventListener("storage",e=>{if(e.key===LANGO_KEY)checkLango()});
 setInterval(()=>{if(langoLoaded)checkLango()},3000);
 $("#langoBanner").onclick=reloadLango;
+$("#langoFrame").addEventListener("load",()=>{markLangAct();try{const doc=$("#langoFrame").contentDocument;["pointerdown","keydown","touchstart","input","scroll"].forEach(ev=>doc.addEventListener(ev,markLangAct,{passive:true,capture:true}))}catch(e){}});
 function langoSummary(){
-  const v=get("lango");if(!v)return null;const td=Math.floor(Date.now()/86400000);let due=0,mastered=0;
+  const v=get("lango");if(!v)return null;const td=Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/86400000);let due=0,mastered=0;
   ["ru","es"].forEach(l=>{const s=v.srs&&v.srs[l];if(s)Object.values(s).forEach(e=>{if(!e)return;if(e.due<=td)due++;if(e.box>=4)mastered++})});
   let st=0;if(v.streak&&v.streak.date){const t=keyOf(today()),y=keyOf(new Date(Date.now()-86400000));if(v.streak.date===t||v.streak.date===y)st=v.streak.count||0}
   return{due,mastered,streak:st};
@@ -887,8 +1015,31 @@ function renderPlayer(){
   $("#pPlay").textContent=A.paused?"▶":"❚❚";$("#pPlay").setAttribute("aria-label",A.paused?"Odtwarzaj":"Pauza");
   $("#pSpeed").textContent=speed().toFixed(2).replace(/0$/,"")+"×";
   $("#pPrevT").hidden=$("#pNextT").hidden=cur.book.tracks.length<2;
-  paintPlayerTime();paintSleep();
+  paintPlayerTime();paintSleep();renderMarks();
 }
+/* bookmarks with notes, per book, synced ("abn:<bookId>") */
+function marksOf(id){const v=get("abn:"+id);return Array.isArray(v)?v:[]}
+function saveMarks(id,list){put("abn:"+id,list)}
+function renderMarks(){
+  const box=$("#pMarks");if(!cur){box.innerHTML="";return}
+  if(box.contains(document.activeElement))return; // don't rebuild while typing
+  const id=cur.book.id,multi=cur.book.tracks.length>1,list=marksOf(id).slice().sort((a,b)=>a.track-b.track||a.pos-b.pos);
+  box.innerHTML=list.length?'<h2 style="margin:6px 0 0">Zakładki i notatki</h2>':"";
+  list.forEach(m=>{
+    const r=document.createElement("div");r.className="mark";
+    r.innerHTML='<button class="chip" aria-label="Przejdź do zakładki"></button><input type="text" maxlength="500" placeholder="Notatka…" aria-label="Notatka"><button class="chip ghost" aria-label="Usuń zakładkę">✕</button>';
+    const [jump,inp,del]=r.children;
+    jump.textContent="▶ "+(multi?"R"+(m.track+1)+" · ":"")+fmtT(m.pos);
+    inp.value=m.note||"";inp.dataset.id=m.id;
+    jump.onclick=()=>{if(cur.track===m.track){A.currentTime=m.pos;saveProgress(true);if(A.paused)A.play().catch(()=>{})}else openBook(id,true,m.track,m.pos)};
+    let tm;inp.addEventListener("input",()=>{clearTimeout(tm);tm=setTimeout(()=>saveMarks(id,marksOf(id).map(x=>x.id===m.id?Object.assign({},x,{note:inp.value.trim()}):x)),600)});
+    del.onclick=()=>{if(inp.value.trim()&&!confirm("Usunąć tę zakładkę z notatką?"))return;saveMarks(id,marksOf(id).filter(x=>x.id!==m.id));del.blur();renderMarks()};
+    box.appendChild(r);
+  });
+}
+$("#pMark").onclick=()=>{if(!cur)return;const id=cur.book.id,m={id:Date.now().toString(36),track:cur.track,pos:Math.floor(A.currentTime||0),note:"",at:Date.now()};
+  saveMarks(id,marksOf(id).concat([m]));if(document.activeElement)document.activeElement.blur();renderMarks();
+  const i=document.querySelector('#pMarks input[data-id="'+m.id+'"]');if(i)i.focus();toast("Zakładka na "+fmtT(m.pos)+", dopisz notatkę")};
 function mediaMeta(){
   if(!("mediaSession" in navigator)||!cur)return;
   try{navigator.mediaSession.metadata=new MediaMetadata({title:cur.book.tracks[cur.track].name,album:cur.book.name,artist:"HUB",artwork:coverUrl(cur.book)?[{src:coverUrl(cur.book),sizes:"600x600",type:"image/jpeg"}]:[{src:"icon-512.png",sizes:"512x512",type:"image/png"}]})}catch(e){}
@@ -913,7 +1064,7 @@ function renderAudio(){
     const el=document.createElement("div");el.className="card book"+(cur&&cur.book.id===b.id?" cur":"");
     el.innerHTML=(coverUrl(b)?'<img class="cov" alt="" src="'+coverUrl(b)+'">':'<div class="cov" aria-hidden="true">♪</div>')+'<div><div class="bn"></div><div class="status"></div></div><div class="ba"><button class="chip" data-a="play"></button><button class="chip ghost" data-a="ren" aria-label="Zmień nazwę">✎</button><button class="chip ghost" data-a="del" aria-label="Usuń">✕</button></div><div class="bp"><span style="width:'+pct+'%"></span></div>';
     el.querySelector(".bn").textContent=b.name;
-    el.querySelector(".status").textContent=(p.done?"Przesłuchane":pct+"%")+(tot?" · "+fmtT(tot):"")+(b.tracks.length>1?" · "+b.tracks.length+" rozdz.":"");
+    el.querySelector(".status").textContent=(p.done?"Przesłuchane":pct+"%")+(tot?" · "+fmtT(tot):"")+(b.tracks.length>1?" · "+b.tracks.length+" rozdz.":"")+(marksOf(b.id).length?" · 🔖 "+marksOf(b.id).length:"");
     const playing=cur&&cur.book.id===b.id&&!A.paused;
     const pb=el.querySelector('[data-a="play"]');pb.textContent=playing?"Pauza":(p.done?"Od nowa":pct>0?"Wznów":"Słuchaj");
     pb.onclick=()=>{if(cur&&cur.book.id===b.id){if(A.paused)A.play();else A.pause();return}
@@ -942,15 +1093,16 @@ function renderStart(){
   const t=today(),dd=dayData(t),h=new Date().getHours();
   $("#hello").textContent=h<5?"Dobranoc":h<12?"Dzień dobry":h<18?"Cześć":"Dobry wieczór";
   $("#sDate").textContent=dateLabel(t);
-  const doneN=HABITS.filter(x=>dd[x.k]).length;
-  $("#sScore").textContent=doneN+" z 3 zrobione";
-  const sn=streak(allDone),best=Math.max(bestStreak(),sn),fullToday=allDone(t);
+  const hsT=habitsOn(t),doneN=hsT.filter(x=>dd[x.k]).length;
+  $("#sScore").textContent=doneN+" z "+hsT.length+" zrobione";
+  const si=streakInfo(),sn=si.cur,best=Math.max(si.best,sn),fullToday=allDone(t);
   $("#sStreakN").textContent=sn;
   $("#sStreakL").textContent=(sn===1?"pełny dzień":"pełnych dni")+" z rzędu";
-  $("#sSegs").innerHTML=HABITS.map(h=>'<i style="'+(dd[h.k]?"background:var(--"+h.k+")":"")+'"></i>').join("");
+  $("#sSegs").style.gridTemplateColumns="repeat("+Math.max(1,hsT.length)+",1fr)";$("#sSegs").innerHTML=hsT.map(h=>'<i style="'+(dd[h.k]?"background:"+hcol(h):"")+'"></i>').join("");
   $(".streakcard").classList.toggle("full",fullToday);
   $("#sBest").textContent=best>sn?"rekord: "+best:(sn>1?"to Twój rekord":"");
-  const box=$("#sHabits");box.innerHTML="";HABITS.forEach(x=>box.appendChild(habitEl(x,t,false)));
+  $("#sShield").textContent=si.weekUsed?"🛡 ochrona wykorzystana w tym tygodniu ("+DOW[(new Date(si.weekUsed+"T00:00:00").getDay()+6)%7]+")":(sn>0?"🛡 jeden dzień przerwy w tym tygodniu nie przerwie serii":"");
+  const box=$("#sHabits");box.innerHTML="";hsT.forEach(x=>box.appendChild(habitEl(x,t,false)));
   if(document.activeElement!==sNoteEl)sNoteEl.value=dd.note||"";
   const bk=get("backup"),age=bk&&bk.at?Math.floor((Date.now()-bk.at)/86400000):null;
   $("#sBackup").hidden=age!==null&&age<30;
@@ -958,17 +1110,15 @@ function renderStart(){
   // this week, Monday to Sunday
   const wk=$("#sWeek");wk.innerHTML="";const mon=new Date(t);mon.setDate(t.getDate()-(t.getDay()+6)%7);
   for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);const x=dayData(d),fut=d>t;
-    const e=document.createElement("div");e.className="wd"+(keyOf(d)===keyOf(t)?" today":"")+(fut?" future":"")+(!fut&&allDone(d)?" full":"");
-    e.innerHTML='<span class="wl">'+DOW[(d.getDay()+6)%7]+'</span><span class="wn">'+d.getDate()+'</span><span class="dots">'+HABITS.map(h=>'<i class="'+(x[h.k]?h.dot:"")+'"></i>').join("")+'</span>';
-    e.setAttribute("aria-label",d.getDate()+" "+MONTHS_GEN[d.getMonth()]+": "+HABITS.filter(h=>x[h.k]).length+" z 3");wk.appendChild(e)}
+    const e=document.createElement("div");e.className="wd"+(keyOf(d)===keyOf(t)?" today":"")+(fut?" future":"")+(!fut&&allDone(d)?" full":"")+(si.shields.has(keyOf(d))?" shield":"");
+    e.innerHTML='<span class="wl">'+DOW[(d.getDay()+6)%7]+'</span><span class="wn">'+d.getDate()+'</span><span class="dots">'+habitsOn(d).map(h=>'<i'+(x[h.k]?' style="background:'+hcol(h)+'"':'')+'></i>').join("")+'</span>';
+    e.setAttribute("aria-label",d.getDate()+" "+MONTHS_GEN[d.getMonth()]+": "+habitsOn(d).filter(h=>x[h.k]).length+" z "+habitsOn(d).length);wk.appendChild(e)}
   // time this year per habit: minutes you picked, the base goal for a plain tick, real listening time for audiobooks
-  const yr=t.getFullYear(),tot={read:0,med:0,lang:0};
-  Object.keys(S.kv).forEach(k=>{if(!k.startsWith("h:"+yr))return;const v=S.kv[k].v||{};
-    HABITS.forEach(h=>{if(!v[h.k])return;let m=v[h.k+"Min"]||h.base;if(h.k==="read"&&v.abSec)m=Math.max(m,v.abSec/60);tot[h.k]+=m})});
-  const fmtH=m=>m<60?Math.round(m)+" min":(m<600?(Math.round(m/6)/10).toString().replace(".",","):Math.round(m/60))+" h";
-  const days={read:0,med:0,lang:0};Object.keys(S.kv).forEach(k=>{if(!k.startsWith("h:"+yr))return;const v=S.kv[k].v||{};HABITS.forEach(h=>{if(v[h.k])days[h.k]++})});
+  const yr=t.getFullYear(),ys=yr+"-01-01",ye=yr+"-12-31",hsY=habitsAll().filter(h=>(!h.from||h.from<=ye)&&(!h.to||h.to>=ys)),tot={},days={};
+  hsY.forEach(h=>{tot[h.k]=0;days[h.k]=0});
+  Object.keys(S.kv).forEach(k=>{if(!k.startsWith("h:"+yr))return;const v=S.kv[k].v||{};hsY.forEach(h=>{if(!v[h.k])return;tot[h.k]+=minutesOf(v,h);days[h.k]++})});
   $("#sYearH").textContent="Czas w "+yr;
-  $("#sYear").innerHTML=HABITS.map(h=>'<button class="ytile" style="--c:var(--'+h.k+')" data-go="habits"><span class="k">'+h.name+'</span><span class="big">'+(tot[h.k]?fmtH(tot[h.k]):"0 min")+'</span><span class="sub">'+days[h.k]+' '+plDays(days[h.k])+'</span></button>').join("");
+  $("#sYear").innerHTML=hsY.map(h=>'<button class="ytile" style="--c:'+hcol(h)+'" data-go="habits"><span class="k">'+esc(h.name)+'</span><span class="big">'+(tot[h.k]?fmtMin(tot[h.k]):"0 min")+'</span><span class="sub">'+days[h.k]+' '+plDays(days[h.k])+'</span></button>').join("");
   $("#sYear").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go("habits"));
   const ls=langoSummary();
   if(ls){$("#tLangoBig").textContent=ls.streak+" "+plDays(ls.streak);$("#tLangoSub").textContent="Do powtórki: "+ls.due+" · opanowane: "+ls.mastered}
@@ -987,9 +1137,45 @@ function renderSettings(){
   $("#loginBox").hidden=!!S.session;$("#loggedBox").hidden=!S.session;
   $("#cUrl").value=c.url;$("#cKey").value=c.key;
   $("#cfgBox").open=!(hc.supabaseUrl&&hc.supabaseKey)&&!c.url;
+  renderHabitEdit();
   $("#verText").textContent="Wersja "+APP_VERSION+". Nowe wersje pobierają się same, gdy jest internet.";
   paintSync();
 }
+/* habit editor: name, base goal, minute buttons, colour; add and remove (from today on) */
+function saveHabits(list){put("habits",list.map(h=>{const o=Object.assign({},h);delete o.auto;return o}))}
+function rebuildHabits(list){saveHabits(list);if(document.activeElement)document.activeElement.blur();renderAll()}
+function parseOpts(s,base){const a=[...new Set(String(s).split(/[^0-9]+/).map(Number).filter(n=>n>=1&&n<=600))].slice(0,5);return a.length?a:[base]}
+function renderHabitEdit(){
+  const box=$("#hEdit");if(box.contains(document.activeElement))return;
+  const tk=keyOf(today()),all=habitsAll(),on=all.filter(h=>!h.to||h.to>=tk);
+  box.innerHTML="";
+  on.forEach(h=>{
+    const r=document.createElement("div");r.className="hrow";
+    r.innerHTML='<button class="hcol" aria-label="Zmień kolor"></button><input type="text" maxlength="30" aria-label="Nazwa nawyku" placeholder="Nazwa"><input type="number" inputmode="numeric" min="1" max="600" aria-label="Cel w minutach" title="Cel w minutach"><button class="chip ghost" aria-label="Usuń nawyk">✕</button><input type="text" class="hopts" aria-label="Przyciski z minutami" placeholder="Przyciski, np. 10, 20, 30"><span class="hlab"></span>';
+    const [cb,nm,bs,del,op,lab]=r.children;
+    const setLab=b=>{lab.textContent="cel "+b+" min · w drugim polu przyciski z czasem"+(AUTO[h.k]?" · zalicza się też samo: "+b+" min "+AUTO[h.k]:"")};
+    cb.style.background=hcol(h);if(BUILTIN_COL[h.k]){cb.disabled=true;cb.title="Kolor stały"}
+    nm.value=h.name;bs.value=h.base;op.value=h.opts.join(", ");setLab(h.base);
+    const upd=f=>saveHabits(habitsAll().map(x=>x.k===h.k?Object.assign({},x,f(x)):x));
+    cb.onclick=()=>rebuildHabits(habitsAll().map(x=>x.k===h.k?Object.assign({},x,{c:((x.c||0)+1)%6}):x));
+    nm.onchange=()=>{const v=nm.value.trim();if(!v){nm.value=h.name;return}upd(()=>({name:v}))};
+    bs.onchange=()=>{const v=Math.round(Number(bs.value));if(!(v>=1&&v<=600)){toast("Cel: od 1 do 600 minut");bs.value=h.base;return}upd(()=>({base:v}));setLab(v)};
+    op.onchange=()=>{const a=parseOpts(op.value,Number(bs.value)||h.base);op.value=a.join(", ");upd(()=>({opts:a}))};
+    del.onclick=()=>{
+      if(on.length<=1){toast("Zostaw przynajmniej jeden nawyk");return}
+      if(!confirm("Usunąć nawyk „"+h.name+"”? Zniknie od dziś, a jego historia zostanie."))return;
+      const y=today();y.setDate(y.getDate()-1);
+      rebuildHabits(h.from===tk?habitsAll().filter(x=>x.k!==h.k):habitsAll().map(x=>x.k===h.k?Object.assign({},x,{to:keyOf(y)}):x))};
+    box.appendChild(r);
+  });
+  const gone=all.filter(h=>h.to&&h.to<tk);
+  $("#hGone").innerHTML=gone.length?"Usunięte: "+gone.map(h=>esc(h.name)+' <button class="linkbtn" data-restore="'+esc(h.k)+'">przywróć</button>').join(" · "):"";
+  $("#hGone").querySelectorAll("[data-restore]").forEach(b=>b.onclick=()=>rebuildHabits(habitsAll().map(x=>{if(x.k!==b.dataset.restore)return x;const o=Object.assign({},x);delete o.to;return o})));
+  $("#hAdd").disabled=on.length>=8;
+}
+$("#hAdd").onclick=()=>{const all=habitsAll(),used=all.map(h=>h.c);let c=0;while(used.includes(c)&&c<5)c++;
+  rebuildHabits(all.concat([{k:"c"+Date.now().toString(36),name:"Nowy nawyk",base:10,opts:[10,20,30],c:c,from:keyOf(today())}]));
+  const rows=$("#hEdit").children,i=rows.length&&rows[rows.length-1].querySelector('input[type=text]');if(i){i.focus();i.select()}};
 $("#loginBtn").onclick=async()=>{
   const url=$("#cUrl").value.trim(),key=$("#cKey").value.trim(),hc=window.HUB_CONFIG||{};
   S.cfg={url:url&&url!==hc.supabaseUrl?url:"",key:key&&key!==hc.supabaseKey?key:""};saveLocal();
@@ -1061,7 +1247,7 @@ function renderJournal(){
     if(m!==mk){mk=m;sec=document.createElement("section");sec.className="jmonth";
       const h=document.createElement("h2");h.textContent=MONTHS[e.date.getMonth()]+" "+e.date.getFullYear();sec.appendChild(h);box.appendChild(sec)}
     const b=document.createElement("button");b.className="jentry";
-    b.innerHTML='<span class="jd"><b>'+e.date.getDate()+'</b>'+DOW_SHORT[e.date.getDay()]+'</span><span class="jt">'+highlight(String(e.v.note),q)+'</span><span class="dots">'+HABITS.map(h=>'<i class="'+(e.v[h.k]?h.dot:"")+'"></i>').join("")+'</span>';
+    b.innerHTML='<span class="jd"><b>'+e.date.getDate()+'</b>'+DOW_SHORT[e.date.getDay()]+'</span><span class="jt">'+highlight(String(e.v.note),q)+'</span><span class="dots">'+habitsOn(e.date).map(h=>'<i'+(e.v[h.k]?' style="background:'+hcol(h)+'"':'')+'></i>').join("")+'</span>';
     b.onclick=()=>{if(e.key===keyOf(today())){go("start");return}
       sel=new Date(e.date);view=new Date(sel.getFullYear(),sel.getMonth(),1);go("habits")};
     sec.appendChild(b);
@@ -1083,6 +1269,7 @@ function go(v,dir){
     langoLoaded=true;
     Promise.race([sync(),new Promise(r=>setTimeout(r,2500))]).then(()=>{applyLangoToFrame();langoRaw=readLS();frameReady=true;$("#langoFrame").src="lango.html"});
   }
+  if(v!=="lango")flushLang();
   if(v!=="lango"&&langoStale)reloadLango();
   try{sessionStorage.setItem("hub_view",v)}catch(e){}
   renderAll();window.scrollTo(0,0);
@@ -1114,6 +1301,7 @@ function renderAll(){
 }
 function setHH(){document.documentElement.style.setProperty("--hh",$("#top").getBoundingClientRect().height+"px")}
 window.addEventListener("resize",setHH);
+window.addEventListener("resize",()=>{if(current==="habits")renderSummary()});
 
 /* ================= boot ================= */
 (function boot(){
@@ -1128,8 +1316,8 @@ window.addEventListener("resize",setHH);
   sync();
   setInterval(()=>{if(!document.hidden)sync()},60000);
   window.addEventListener("online",()=>sync());
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden){sel=keyOf(sel)===keyOf(today())?today():sel;renderAll();sync()}else{flushListen();saveProgress(true);sync()}});
-  window.addEventListener("pagehide",()=>{flushListen();saveProgress(true)});
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden){sel=keyOf(sel)===keyOf(today())?today():sel;renderAll();sync()}else{flushListen();flushLang();saveProgress(true);sync()}});
+  window.addEventListener("pagehide",()=>{flushListen();flushLang();saveProgress(true)});
   if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();
 </script>
